@@ -9,8 +9,10 @@
 
 Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-generated slop*). Prinsip antarmuka kami adalah:
 
-1. **Nol Gradasi Klise**: Tidak menggunakan gradasi ungu-ke-merah-muda raksasa (*pink-purple glowing blobs*) yang sering dihasilkan AI.
-2. **Kepadatan Informasi Tinggi (*High Information Density*)**: Memaksimalkan efisiensi ruang tanpa memboroskan layar dengan padding kosong raksasa. Mencontoh platform developer papan atas seperti **Linear**, **GitHub Actions**, dan **Sentry**.
+1. **Nol Gradasi Klise & Zero Decorative Clutter**: Tidak menggunakan gradasi ungu-ke-merah-muda sintetis maupun footer dekoratif tanpa fungsi praktis.
+2. **Standar Border Radius Ketat (`rounded-md` & `rounded-lg`)**: Seluruh elemen antarmuka secara disiplin hanya menggunakan radius sudut berstandar industri: terkecil `rounded-md` (untuk tombol, badge, input) dan terbesar `rounded-lg` (untuk kartu kontainer). Dilarang memakai `rounded-xl`, `rounded-2xl`, atau `rounded-full` pada kartu.
+3. **Lebar Kanvas Maksimal (`max-w-7xl`)**: Memberikan bentang pandang desktop yang luas, proporsional, dan nyaman tanpa pemborosan margin samping.
+4. **Kepadatan Informasi Tinggi (*High Information Density*)**: Memaksimalkan efisiensi ruang tanpa memboroskan layar dengan padding kosong raksasa. Mencontoh platform developer papan atas seperti **Linear**, **GitHub Actions**, dan **Sentry**.
 3. **Presisi Tipografi Teknis**:
    * Kode tugas, hash git commit, timestamp, dan alamat IP menggunakan tipografi **Monospace** yang tajam dan mudah dipindai secara visual.
 4. **Kontras & Kejelasan Status**: Indikator status menggunakan badge pill yang tenang (*subtle badge*) dengan titik pulsa hijau untuk menandakan koneksi aktif.
@@ -19,16 +21,17 @@ Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-genera
 
 ## 2. Palet Desain Token (Design Tokens)
 
-| Token Name | Hex Code | Penggunaan | Karakteristik |
+| Token Name | Hex Code / Tailwind Class | Penggunaan | Karakteristik |
 | :--- | :--- | :--- | :--- |
-| **Surface Dark** | `#0b0d13` | Warna latar belakang layar utama | Sangat gelap, pekat, tidak silau |
-| **Surface Card** | `#12151e` | Latar kartu, tabel, dan wadah panel | Sedikit lebih terang dengan elevasi rendah |
-| **Border Subdued** | `#27272a` (`zinc-800`) | Garis pemisah 1px antar panel | Tegas, presisi, tidak pudar |
-| **Text Primary** | `#f4f4f5` (`zinc-100`) | Teks judul, angka metrik, dan teks aktif | Kontras tinggi, mudah dibaca |
-| **Text Muted** | `#71717a` (`zinc-500`) | Keterangan tambahan, label sekunder | Redup, tidak mendominasi visual |
-| **Status Done** | `#10b981` (`emerald-500`)| Kartu tugas selesai, status terhubung | Hijau emerald alami |
+| **Surface Dark** | `#090b10` | Latar belakang kanvas utama | Hitam industrial pekat, anti-glare |
+| **Surface Card** | `#11141d` | Latar kartu metrik, tabel, konsol log | Elevasi rendah, kontras presisi |
+| **Border Subdued** | `#27272a` (`border-zinc-800`) | Garis tepi 1px di seluruh kartu & section | Rapi, jelas, konsisten |
+| **Border Radius Small**| `rounded-md` (6px) | Tombol, input teks, filter tabs, badge kode | Radius terkecil berstandar industri |
+| **Border Radius Large**| `rounded-lg` (8px) | Kartu metrik, kontainer tabel, konsol log | Radius terbesar berstandar industri |
+| **Max Container Width**| `max-w-7xl` (1280px) | Kontainer desktop utama | Lebar penuh, proporsional, luas |
+| **Text Primary** | `#f4f4f5` (`zinc-100`) | Angka metrik, judul, teks aktif | Kontras tinggi |
+| **Status Done** | `#10b981` (`emerald-500`)| Kartu selesai, status koneksi aktif | Hijau emerald alami |
 | **Status Progress** | `#f59e0b` (`amber-500`)| Kartu dalam pengerjaan | Oranye/Kuning peringatan tenang |
-| **Status Inactive** | `#3f3f46` (`zinc-700`)| Tugas To Do, status terputus | Abu-abu netral |
 
 ---
 
