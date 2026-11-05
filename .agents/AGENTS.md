@@ -152,3 +152,24 @@ Untuk menambahkan notifikasi baru (misal: Telegram):
 2. Implementasikan method `moveCardToDone()`.
 3. Panggil method tersebut secara paralel (`Promise.all`) di `WebhookController.ts`.
 
+---
+
+## 7. Aturan Mutlak & Standar Kualitas Agen (Agent Golden Rules)
+
+### 📌 Aturan 1: Wajib Sinkronisasi PRD Setiap Perubahan
+Setiap agen AI atau pengembang manusia yang melakukan perubahan kode (fitur baru, perbaikan bug, penyesuaian endpoint, perubahan skema database, atau gaya antarmuka) **WAJIB MEMUTAKHIRKAN DOKUMEN PRD TERKAIT DI FOLDER `docs/prd/` PADA SAAT ITU JUGA**.
+* Mengubah API -> Update `05-API-AND-WEBHOOK-CONTRACTS-PRD.md`.
+* Mengubah skema DB -> Update `02-DATABASE-AND-STORAGE-PRD.md`.
+* Mengubah UI/UX -> Update `04-FRONTEND-UI-UX-PRD.md`.
+* Mengubah keamanan -> Update `03-SECURITY-AND-HARDENING-PRD.md`.
+
+### 📱 Aturan 2: Standar Responsivitas Universal & Dukungan Seluruh iPhone
+Setiap perubahan tampilan antarmuka wajib mempertahankan dukungan responsif penuh dari layar terbesar hingga terkecil:
+1. **Layar Ultrawide & Desktop**: Kontainer terpusat `max-w-7xl` tanpa elemen melebar secara liar.
+2. **Tablet & iPad**: Layout grid 2 kolom dengan jarak sentuh memadai.
+3. **Seluruh Varian iPhone (SE, Mini, Standar, Pro, Plus, Pro Max)**:
+   * Wajib memanfaatkan safe area insets (`env(safe-area-inset-top)`, `env(safe-area-inset-bottom)`) agar tidak terpotong oleh Dynamic Island atau Notch iPhone.
+   * Tabel dan bilah tombol wajib mendukung *momentum horizontal touch scrolling* (`.touch-scroll`) tanpa merusak lebar halaman (*zero horizontal body overflow*).
+   * Tombol aksi harus ramah sentuhan (*touch target size* minimum 36px–44px).
+
+

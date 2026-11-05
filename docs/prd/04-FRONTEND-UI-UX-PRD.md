@@ -98,3 +98,28 @@ Empat metrik visual berpresisi tinggi:
    * Menampilkan **Toast Banner** transparan di sudut kanan atas selama 5 detik.
    * Melakukan pembaruan state lokal secara reaktif tanpa me-*reload* seluruh halaman browser.
 
+---
+
+## 5. Matriks Responsivitas Universal & Dukungan Penuh Seluruh iPhone
+
+Antarmuka SI-PATIR diuji dan dioptimalkan secara ketat untuk seluruh spektrum perangkat:
+
+| Kelas Perangkat | Rentang Resolusi (Viewport) | Strategi Layout UI | Penanganan Khusus |
+| :--- | :--- | :--- | :--- |
+| **Ultrawide & 4K Monitor** | `> 1536px` (`2xl`) | Kontainer `max-w-7xl` terpusat, 4 kolom metrik, visual density optimal. | Padding proporsional, font tajam tanpa peregangan berlebih. |
+| **Desktop Standar & Laptop** | `1024px - 1536px` (`lg` / `xl`) | Layout 2 kolom: Kiri (Leaderboard & Tasks), Kanan (Live Stream Console 640px). | Sticky navbar, hover state aktif. |
+| **Tablet & iPad (Air/Pro/Mini)** | `768px - 1024px` (`md`) | Grid 2 kolom metrik, tabel tugas dengan padding adaptif. | Dukungan sentuhan (*touch target* >= 40px). |
+| **iPhone Plus & Pro Max** | `414px - 430px` (iPhone 11-16 Plus/Pro Max) | Tata letak bertumpuk (*stacked*), 2 kolom metrik, Live stream 540px. | Integrasi `safe-area-inset-top` untuk *Dynamic Island* / *Notch*. |
+| **iPhone Standar & Pro** | `375px - 393px` (iPhone X/11/12/13/14/15/16 Pro) | Tata letak bertumpuk, tombol aksi responsif (ikon + label ringkas), tabel horizontal swipe. | Momentum scrolling `-webkit-overflow-scrolling: touch`. |
+| **iPhone Mini & iPhone SE** | `320px - 375px` (iPhone SE 1st/2nd/3rd gen, Mini) | Zero horizontal overflow, search bar fleksibel, badge status compact. | Pencegahan auto-zoom form Safari via `font-size: 16px` equivalent. |
+
+### Spesifikasi Khusus Dukungan iPhone / iOS:
+1. **Viewport Meta & Notch Protection**:
+   Menggunakan `viewport-fit=cover` pada meta tag peramban dan variabel CSS `env(safe-area-inset-top)` / `env(safe-area-inset-bottom)` agar elemen header tidak tertabrak oleh Dynamic Island atau sensor notch iPhone.
+2. **Anti-Accidental Zoom**:
+   Menonaktifkan auto-zoom yang mengganggu saat mengetik di Safari iOS dengan konfigurasi meta viewport `maximum-scale=1.0, user-scalable=no`.
+3. **Smooth Momentum Touch Scrolling**:
+   Tabel klasemen dan daftar filter dilengkapi kelas utilitas `.touch-scroll` dengan `-webkit-overflow-scrolling: touch; overscroll-behavior: contain;` sehingga pengguna iPhone dapat menggeser tabel data secara alami dan mulus.
+4. **Touch Target Size**:
+   Semua tombol aksi memiliki tinggi minimum `h-9` (36px–44px) dengan padding sentuh luas untuk menghindari salah tekan (*fat-finger prevention*).
+

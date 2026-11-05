@@ -64,4 +64,16 @@ Dokumentasi spesifikasi kebutuhan produk (PRD) SI-PATIR dipecah menjadi modul-mo
 2. **Zero Port Collisions**: Skrip starter (`start.sh` / `start.bat`) harus 100% mematikan proses lama di port `5000` dan `3000` sebelum booting service baru.
 3. **High Availability**: Backend harus tetap beroperasi penuh dengan *in-memory fallback* jika koneksi server MySQL lokal belum menyala atau mengalami *network hiccup*.
 4. **Security Compliance**: Endpoint webhook harus menolak payload tidak sah dengan verifikasi biner konstan `crypto.timingSafeEqual` dan membatasi ukuran request maksimal `100kb`.
+5. **Universal Device & iPhone Responsiveness**: Tampilan antarmuka wajib responsif 100% tanpa *layout breaking* di semua perangkat, mulai dari layar Ultrawide 4K hingga seluruh varian iPhone (termasuk penanganan *Dynamic Island*, *Notch*, dan *Home Indicator*).
+
+---
+
+## 5. Protokol Wajib Sinkronisasi PRD (Documentation-Code Sync Protocol)
+
+> [!IMPORTANT]
+> **ATURAN MUTLAK BAGI DEVELOPER & AI AGENTS:**
+> **Setiap kali melakukan modifikasi kode, penambahan fitur, perubahan endpoint, atau refaktor arsitektur pada proyek SI-PATIR, DEVELOPER/AGENT WAJIB MEMPERBARUI DOKUMEN PRD TERKAIT PADA SAAT ITU JUGA.**
+>
+> * Tidak diperbolehkan membiarkan kode berubah tanpa memperbarui PRD spesifiknya (`01-SYSTEM-INTEGRATION-PRD.md`, `02-DATABASE-AND-STORAGE-PRD.md`, `03-SECURITY-AND-HARDENING-PRD.md`, `04-FRONTEND-UI-UX-PRD.md`, dll).
+> * PRD adalah *Single Source of Truth* resmi yang harus selalu merefleksikan keadaan riil dari implementasi kode di lapangan.
 
