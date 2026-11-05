@@ -170,3 +170,4 @@ export class DatabaseService {
     return this.memoryLogs;
   }
 }
+

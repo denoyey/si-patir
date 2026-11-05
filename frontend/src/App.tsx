@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import {
@@ -13,8 +13,12 @@ import {
   CheckSquare,
   Zap,
   Database,
+  Search,
+  Activity,
   Layers,
-  Sparkles,
+  ShieldCheck,
+  Radio,
+  SlidersHorizontal,
 } from 'lucide-react';
 
 interface Member {
@@ -29,7 +33,7 @@ interface Task {
   id: number;
   task_code: string;
   title: string;
-  status: string;
+  status: 'To Do' | 'In Progress' | 'Done';
   assignee: string;
 }
 
@@ -43,29 +47,34 @@ interface ActivityLog {
   created_at: string;
 }
 
-interface Status {
+interface SystemStatus {
   mysql: boolean;
   trello: boolean;
   discord: boolean;
   github: boolean;
+  uptime?: number;
+  timestamp?: string;
 }
 
 export function App() {
   const [members, setMembers] = useState<Member[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [logs, setLogs] = useState<ActivityLog[]>([]);
-  const [status, setStatus] = useState<Status>({
+  const [status, setStatus] = useState<SystemStatus>({
     mysql: false,
     trello: true,
     discord: true,
     github: true,
   });
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [isDemoTriggering, setIsDemoTriggering] = useState(false);
-  const [lastEventToast, setLastEventToast] = useState<string | null>(null);
 
-  // Fetch initial data
-  const fetchData = async () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'In Progress' | 'Done' | 'To Do'>('ALL');
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [activeToast, setActiveToast] = useState<{ title: string; desc: string } | null>(null);
+
+  // Fetch initial system state
+  const refreshData = async () => {
     try {
       const [membersRes, tasksRes, logsRes, statusRes] = await Promise.all([
         axios.get('/api/members'),
@@ -78,29 +87,30 @@ export function App() {
       setLogs(logsRes.data);
       setStatus(statusRes.data);
     } catch (err) {
-      console.error('Failed to fetch initial data:', err);
+      console.error('[SI-PATIR Client] Sync Failure:', err);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    refreshData();
 
-    // Setup Socket.io real-time connection
+    // WebSocket real-time subscription
     const socket = io();
 
-    socket.on('connect', () => {
-      console.log('Connected to real-time socket server');
-    });
-
     socket.on('activity_update', (event) => {
-      console.log('Received live activity update:', event);
       if (event.type === 'TASK_COMPLETED') {
-        setLastEventToast(`🎉 ${event.author} menyelesaikan [${event.taskCode}]! Trello & Discord terupdate.`);
+        setActiveToast({
+          title: `Task #${event.taskCode} Completed`,
+          desc: `@${event.author} closed task via commit. Trello & Discord updated.`,
+        });
       } else {
-        setLastEventToast(`📦 Commit baru dari ${event.author}: "${event.commitMsg}"`);
+        setActiveToast({
+          title: `Commit Received`,
+          desc: `@${event.author}: "${event.commitMsg}"`,
+        });
       }
-      setTimeout(() => setLastEventToast(null), 6000);
-      fetchData();
+      setTimeout(() => setActiveToast(null), 5000);
+      refreshData();
     });
 
     return () => {
@@ -108,319 +118,437 @@ export function App() {
     };
   }, []);
 
-  // Trigger sync from Trello
+  // Filter tasks based on search & status
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      const matchSearch =
+        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        task.task_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        task.assignee.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchStatus = statusFilter === 'ALL' || task.status === statusFilter;
+      return matchSearch && matchStatus;
+    });
+  }, [tasks, searchQuery, statusFilter]);
+
+  // Aggregate Metrics
+  const metrics = useMemo(() => {
+    const totalCommits = members.reduce((acc, m) => acc + m.total_commits, 0);
+    const totalDone = tasks.filter((t) => t.status === 'Done').length;
+    const completionRate = tasks.length > 0 ? Math.round((totalDone / tasks.length) * 100) : 0;
+    return { totalCommits, totalDone, completionRate };
+  }, [members, tasks]);
+
   const handleSyncTrello = async () => {
     setIsSyncing(true);
     try {
       await axios.post('/api/tasks/sync');
-      await fetchData();
+      await refreshData();
     } finally {
       setIsSyncing(false);
     }
   };
 
-  // Trigger Instant Demo Commit
-  const handleSimulateDemo = async () => {
-    setIsDemoTriggering(true);
+  const handleSimulateCommit = async () => {
+    setIsSimulating(true);
     try {
       await axios.post('/api/simulate-commit', {
         developer: 'budi99',
         message: 'Fix bug tombol login [done #TASK-02]',
       });
-      await fetchData();
+      await refreshData();
     } finally {
-      setIsDemoTriggering(false);
+      setIsSimulating(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 p-4 md:p-8 font-sans">
-      {/* Toast Notification */}
-      {lastEventToast && (
-        <div className="fixed top-6 right-6 z-50 bg-emerald-950/90 border border-emerald-500/50 text-emerald-200 px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 backdrop-blur-md animate-bounce">
-          <Sparkles className="w-5 h-5 text-emerald-400" />
-          <span className="text-sm font-medium">{lastEventToast}</span>
-        </div>
+    <div className="min-h-screen bg-[#0b0d13] text-zinc-100 font-sans selection:bg-zinc-800 selection:text-white">
+      {/* Top Notification Toast */}
+      {activeToast && (
+        <aside
+          aria-live="polite"
+          className="fixed top-4 right-4 z-50 bg-[#161a24] border border-emerald-500/30 text-zinc-200 px-4 py-3 rounded-lg shadow-2xl flex items-start gap-3 max-w-md animate-in fade-in slide-in-from-top-2 duration-200"
+        >
+          <div className="p-1 bg-emerald-500/10 rounded border border-emerald-500/20 text-emerald-400 mt-0.5">
+            <CheckCircle2 className="w-4 h-4" />
+          </div>
+          <div className="flex-1">
+            <h4 className="text-xs font-semibold text-white tracking-tight">{activeToast.title}</h4>
+            <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">{activeToast.desc}</p>
+          </div>
+        </aside>
       )}
 
-      {/* HEADER SECTION */}
-      <header className="max-w-7xl mx-auto mb-8 bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-indigo-600/20 border border-indigo-500/40 rounded-xl text-indigo-400">
-                <GitBranch className="w-6 h-6" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-                  SI-PATIR
-                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 font-mono">
-                    DevOps Lite v1.0
-                  </span>
-                </h1>
-                <p className="text-sm text-slate-400">
-                  Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repositori
-                </p>
-              </div>
+      {/* NAVIGATION BAR */}
+      <header className="border-b border-zinc-800/80 bg-[#0e111a]/90 sticky top-0 z-40 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-200 font-mono font-bold text-sm">
+              SP
             </div>
-            <div className="mt-2 text-xs font-mono text-slate-400 flex items-center gap-2">
-              <span className="text-slate-500">Repo:</span>
-              <span className="text-indigo-400 bg-indigo-950/50 px-2 py-0.5 rounded border border-indigo-900/40">
-                kelompok-devops/si-patir-core (main)
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-sm tracking-tight text-white">SI-PATIR</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800/80 text-zinc-400 border border-zinc-700/60">
+                  DevOps Control
+                </span>
+              </div>
+              <span className="text-[11px] text-zinc-400 hidden sm:inline-block">
+                Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repositori
               </span>
             </div>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Quick Action Controls */}
+          <div className="flex items-center gap-2.5">
             <button
               onClick={handleSyncTrello}
               disabled={isSyncing}
-              className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-medium text-slate-200 flex items-center gap-2 transition cursor-pointer disabled:opacity-50"
+              className="h-8 px-3 rounded-md bg-zinc-800/80 hover:bg-zinc-750 border border-zinc-700 text-xs font-medium text-zinc-300 hover:text-white flex items-center gap-1.5 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer"
             >
-              <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin text-indigo-400' : ''}`} />
-              {isSyncing ? 'Syncing Trello...' : 'Sync Tugas dari Trello'}
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Sync Trello</span>
             </button>
 
             <button
-              onClick={handleSimulateDemo}
-              disabled={isDemoTriggering}
-              className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-semibold flex items-center gap-2 shadow-lg shadow-emerald-950/40 transition cursor-pointer disabled:opacity-50"
-              title="Memicu otomatisasi commit seperti mengetik git push di terminal"
+              onClick={handleSimulateCommit}
+              disabled={isSimulating}
+              className="h-8 px-3 rounded-md bg-zinc-100 hover:bg-white text-zinc-900 border border-zinc-200 text-xs font-semibold flex items-center gap-1.5 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-sm"
+              title="Kirim payload commit webhook untuk simulasi pengujian demo"
             >
-              <Zap className="w-4 h-4" />
-              {isDemoTriggering ? 'Memproses Demo...' : '⚡ Test Commit [done #TASK-02]'}
+              <Zap className="w-3.5 h-3.5 text-zinc-950 fill-zinc-950" />
+              <span>Test Commit [done #TASK-02]</span>
             </button>
-          </div>
-        </div>
-
-        {/* Status Indicators Bar */}
-        <div className="mt-6 pt-5 border-t border-slate-800/80 flex flex-wrap items-center gap-4 text-xs font-mono">
-          <span className="text-slate-500 text-[11px] uppercase tracking-wider">Status Koneksi API:</span>
-
-          <div className="flex items-center gap-2 bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-slate-300">GitHub:</span>
-            <span className="text-emerald-400 font-semibold">Connected 🟢</span>
-          </div>
-
-          <div className="flex items-center gap-2 bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-slate-300">Trello:</span>
-            <span className="text-emerald-400 font-semibold">Connected 🟢</span>
-          </div>
-
-          <div className="flex items-center gap-2 bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-slate-300">Discord:</span>
-            <span className="text-emerald-400 font-semibold">Connected 🟢</span>
-          </div>
-
-          <div className="flex items-center gap-2 bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800">
-            <Database className="w-3.5 h-3.5 text-blue-400" />
-            <span className="text-slate-300">MySQL:</span>
-            <span className={status.mysql ? 'text-emerald-400 font-semibold' : 'text-amber-400 font-semibold'}>
-              {status.mysql ? 'Active 🟢' : 'Memory Sync 🟡'}
-            </span>
           </div>
         </div>
       </header>
 
-      {/* MAIN CONTENT GRID */}
-      <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* LEFT 2 COLUMNS: Leaderboard & Task Table */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* SECTION 1: KLASEMEN KONTRIBUSI ANGGOTA */}
-          <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-2.5">
-                <Trophy className="w-5 h-5 text-amber-400" />
-                <h2 className="text-lg font-bold text-white">Klasemen Kontribusi Anggota</h2>
-              </div>
-              <span className="text-xs text-slate-400 font-mono flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5" /> Total Anggota: {members.length}
+      {/* SUB-HEADER: REPO & CONNECTIVITY STATUS */}
+      <section className="border-b border-zinc-800/60 bg-[#090b10] py-2.5 px-4 sm:px-6 lg:px-8 text-xs font-mono">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-zinc-400">
+            <GitBranch className="w-3.5 h-3.5 text-zinc-500" />
+            <span>Target Repo:</span>
+            <span className="text-zinc-200 bg-zinc-800/50 px-2 py-0.5 rounded border border-zinc-700/50">
+              kelompok-devops/si-patir-core:main
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 bg-zinc-900/80 px-2.5 py-1 rounded border border-zinc-800">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span className="text-zinc-400">GitHub:</span>
+              <span className="text-emerald-400 font-medium">Ready</span>
+            </div>
+
+            <div className="flex items-center gap-1.5 bg-zinc-900/80 px-2.5 py-1 rounded border border-zinc-800">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span className="text-zinc-400">Trello:</span>
+              <span className="text-emerald-400 font-medium">Synced</span>
+            </div>
+
+            <div className="flex items-center gap-1.5 bg-zinc-900/80 px-2.5 py-1 rounded border border-zinc-800">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              <span className="text-zinc-400">Discord:</span>
+              <span className="text-emerald-400 font-medium">Active</span>
+            </div>
+
+            <div className="flex items-center gap-1.5 bg-zinc-900/80 px-2.5 py-1 rounded border border-zinc-800">
+              <Database className="w-3 h-3 text-blue-400" />
+              <span className="text-zinc-400">MySQL:</span>
+              <span className={status.mysql ? 'text-emerald-400 font-medium' : 'text-amber-400 font-medium'}>
+                {status.mysql ? 'Connected' : 'Memory Fallback'}
               </span>
             </div>
+          </div>
+        </div>
+      </section>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 text-xs uppercase font-mono tracking-wider">
-                    <th className="pb-3 pl-3">Rank</th>
-                    <th className="pb-3">Developer</th>
-                    <th className="pb-3 text-center">Commits</th>
-                    <th className="pb-3 text-center">Tugas Selesai</th>
-                    <th className="pb-3 text-right pr-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60">
-                  {members.map((member, idx) => {
-                    const medals = ['🥇', '🥈', '🥉'];
-                    const isTop = idx === 0;
-                    const isActive = member.total_commits >= 8;
-
-                    return (
-                      <tr key={member.id} className="hover:bg-slate-800/30 transition">
-                        <td className="py-3.5 pl-3 font-mono font-bold text-base">
-                          {idx < 3 ? medals[idx] : <span className="text-slate-500 pl-1">{idx + 1}</span>}
-                        </td>
-                        <td className="py-3.5">
-                          <div className="font-semibold text-white flex items-center gap-2">
-                            {member.name}
-                            {isTop && (
-                              <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30">
-                                Top Contributor
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-xs font-mono text-slate-400">@{member.github_username}</div>
-                        </td>
-                        <td className="py-3.5 text-center">
-                          <span className="px-2.5 py-1 bg-indigo-950/60 border border-indigo-800/50 rounded-lg text-indigo-300 font-mono font-bold text-xs">
-                            {member.total_commits} commits
-                          </span>
-                        </td>
-                        <td className="py-3.5 text-center">
-                          <span className="px-2.5 py-1 bg-emerald-950/60 border border-emerald-800/50 rounded-lg text-emerald-300 font-mono font-bold text-xs">
-                            {member.tasks_done} tasks
-                          </span>
-                        </td>
-                        <td className="py-3.5 text-right pr-3 font-mono text-xs">
-                          {isActive ? (
-                            <span className="text-emerald-400 bg-emerald-950/40 px-2 py-1 rounded border border-emerald-900/50">
-                              Aktif 🔥
-                            </span>
-                          ) : (
-                            <span className="text-amber-400 bg-amber-950/40 px-2 py-1 rounded border border-amber-900/50">
-                              Kurang Aktif 💤
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+      {/* CORE CONTENT */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* SUMMARY METRICS BAR */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="bg-[#12151e] border border-zinc-800/80 rounded-lg p-4">
+            <div className="flex items-center justify-between text-zinc-400 text-xs">
+              <span>Total Commits</span>
+              <GitCommit className="w-4 h-4 text-zinc-500" />
             </div>
-          </section>
+            <div className="text-2xl font-bold font-mono text-white mt-1">{metrics.totalCommits}</div>
+            <div className="text-[11px] text-zinc-500 mt-1">Terekam di repositori</div>
+          </div>
 
-          {/* SECTION 2: TABEL DAFTAR TUGAS TRELLO */}
-          <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-2.5">
-                <CheckSquare className="w-5 h-5 text-indigo-400" />
-                <h2 className="text-lg font-bold text-white">Daftar Tugas & Status Trello</h2>
-              </div>
-              <span className="text-xs text-slate-400 font-mono">
-                Sinkron Otomatis via Webhook
-              </span>
+          <div className="bg-[#12151e] border border-zinc-800/80 rounded-lg p-4">
+            <div className="flex items-center justify-between text-zinc-400 text-xs">
+              <span>Tugas Selesai</span>
+              <CheckSquare className="w-4 h-4 text-emerald-500" />
             </div>
-
-            <div className="space-y-3">
-              {tasks.map((task) => {
-                const isDone = task.status === 'Done';
-                const isInProgress = task.status === 'In Progress';
-
-                return (
-                  <div
-                    key={task.id}
-                    className="p-4 rounded-xl bg-slate-950/50 border border-slate-800/80 hover:border-slate-700/80 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="pt-0.5">
-                        {isDone ? (
-                          <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                        ) : isInProgress ? (
-                          <Clock className="w-5 h-5 text-amber-400 animate-spin" />
-                        ) : (
-                          <Layers className="w-5 h-5 text-slate-500" />
-                        )}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-indigo-950/80 border border-indigo-800/60 text-indigo-300">
-                            [#{task.task_code}]
-                          </span>
-                          <span className="font-semibold text-white text-sm">{task.title}</span>
-                        </div>
-                        <div className="text-xs text-slate-400 mt-1">
-                          Assignee: <span className="font-mono text-slate-300">@{task.assignee}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 self-end sm:self-center">
-                      <span
-                        className={`text-xs font-mono font-bold px-3 py-1 rounded-full border ${
-                          isDone
-                            ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300'
-                            : isInProgress
-                            ? 'bg-amber-950/60 border-amber-500/40 text-amber-300'
-                            : 'bg-slate-800/60 border-slate-700 text-slate-400'
-                        }`}
-                      >
-                        {task.status}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="text-2xl font-bold font-mono text-emerald-400 mt-1">
+              {metrics.totalDone} <span className="text-zinc-500 text-sm font-normal">/ {tasks.length}</span>
             </div>
-          </section>
+            <div className="text-[11px] text-zinc-500 mt-1">Sinkronisasi status Trello</div>
+          </div>
+
+          <div className="bg-[#12151e] border border-zinc-800/80 rounded-lg p-4">
+            <div className="flex items-center justify-between text-zinc-400 text-xs">
+              <span>Tingkat Penyelesaian</span>
+              <Activity className="w-4 h-4 text-blue-500" />
+            </div>
+            <div className="text-2xl font-bold font-mono text-white mt-1">{metrics.completionRate}%</div>
+            <div className="w-full bg-zinc-800 h-1 rounded-full mt-2 overflow-hidden">
+              <div
+                className="bg-blue-500 h-full rounded-full transition-all duration-500"
+                style={{ width: `${metrics.completionRate}%` }}
+              ></div>
+            </div>
+          </div>
+
+          <div className="bg-[#12151e] border border-zinc-800/80 rounded-lg p-4">
+            <div className="flex items-center justify-between text-zinc-400 text-xs">
+              <span>Protokol Keamanan</span>
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="text-sm font-semibold font-mono text-emerald-300 mt-1 flex items-center gap-1.5">
+              <span>HMAC SHA-256</span>
+            </div>
+            <div className="text-[11px] text-zinc-500 mt-1">Replay & DoS Hardened</div>
+          </div>
         </div>
 
-        {/* RIGHT 1 COLUMN: LIVE WEBHOOK LOG TERMINAL */}
-        <div className="space-y-6">
-          <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-sm shadow-xl flex flex-col h-[680px]">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
-              <div className="flex items-center gap-2">
-                <Terminal className="w-5 h-5 text-emerald-400" />
-                <h3 className="font-bold text-white text-sm tracking-wide">Live Webhook Log</h3>
-              </div>
-              <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-400">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                LISTENING
-              </div>
-            </div>
-
-            {/* Terminal Window */}
-            <div className="flex-1 bg-black/70 border border-slate-800/90 rounded-xl p-4 font-mono text-xs overflow-y-auto space-y-3.5 scrollbar-thin">
-              <div className="text-slate-500 text-[11px]">
-                // Menunggu sinyal push git dari terminal...
-              </div>
-
-              {logs.map((log) => (
-                <div key={log.id} className="border-l-2 border-indigo-500/70 pl-3 py-1 space-y-1">
-                  <div className="flex items-center justify-between text-[11px] text-slate-400">
-                    <span className="text-indigo-400 font-bold">[{log.event_type}]</span>
-                    <span>{log.created_at}</span>
-                  </div>
-                  <div className="text-slate-200">
-                    Author: <span className="text-amber-300">@{log.author}</span>
-                  </div>
-                  <div className="text-slate-400 truncate">
-                    Msg: <span className="text-slate-200 italic">"{log.commit_message}"</span>
-                  </div>
-                  {log.task_code && (
-                    <div className="text-emerald-400 text-[11px] flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" />
-                      Trello & Discord synced: #{log.task_code}
-                    </div>
-                  )}
+        {/* WORKSPACE DUAL COLUMN GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* LEFT 2 COLUMNS: Leaderboard & Task Management */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* 1. KLASEMEN KONTRIBUSI */}
+            <section className="bg-[#12151e] border border-zinc-800/80 rounded-xl overflow-hidden shadow-sm">
+              <div className="px-5 py-3.5 border-b border-zinc-800/80 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-amber-400" />
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-200">
+                    Klasemen Kontribusi Anggota
+                  </h2>
                 </div>
-              ))}
-            </div>
-
-            {/* Quick Demo Helper Box */}
-            <div className="mt-4 p-3 bg-slate-950/70 border border-slate-800 rounded-xl text-xs space-y-2">
-              <div className="font-semibold text-slate-300 flex items-center gap-1.5">
-                <GitCommit className="w-4 h-4 text-indigo-400" /> Cara Demo di Terminal:
+                <div className="text-[11px] text-zinc-400 font-mono flex items-center gap-1">
+                  <Users className="w-3.5 h-3.5 text-zinc-500" />
+                  <span>{members.length} Developer</span>
+                </div>
               </div>
-              <code className="block bg-slate-900 px-2 py-1.5 rounded text-[11px] text-indigo-300 select-all border border-slate-800">
-                git commit -m "Selesai [done #TASK-02]"
-              </code>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-zinc-800 bg-[#0d0f17] text-zinc-400 font-mono text-[11px]">
+                      <th className="py-2.5 px-4 w-12 text-center">#</th>
+                      <th className="py-2.5 px-4">Nama & Akun GitHub</th>
+                      <th className="py-2.5 px-4 text-center">Commits</th>
+                      <th className="py-2.5 px-4 text-center">Tasks Done</th>
+                      <th className="py-2.5 px-4 text-right">Status Kerja</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-800/60">
+                    {members.map((member, index) => {
+                      const isTop = index === 0;
+                      const isActive = member.total_commits >= 8;
+
+                      return (
+                        <tr key={member.id} className="hover:bg-zinc-800/25 transition">
+                          <td className="py-3 px-4 text-center font-mono font-bold text-zinc-400">
+                            {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="font-medium text-white flex items-center gap-1.5">
+                              {member.name}
+                              {isTop && (
+                                <span className="text-[10px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20 font-mono">
+                                  Lead
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] font-mono text-zinc-400">@{member.github_username}</div>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-zinc-800 text-zinc-200 border border-zinc-700/50">
+                              {member.total_commits}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-emerald-950/40 text-emerald-300 border border-emerald-800/40">
+                              {member.tasks_done}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-right font-mono text-[11px]">
+                            {isActive ? (
+                              <span className="inline-flex items-center gap-1 text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                                <span className="w-1 h-1 rounded-full bg-emerald-400"></span>
+                                Kontributif
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-zinc-400 bg-zinc-800/40 px-2 py-0.5 rounded border border-zinc-700/40">
+                                Perlu Dorongan
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/* 2. DAFTAR TUGAS TRELLO & FILTER */}
+            <section className="bg-[#12151e] border border-zinc-800/80 rounded-xl overflow-hidden shadow-sm">
+              <div className="px-5 py-3.5 border-b border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <CheckSquare className="w-4 h-4 text-blue-400" />
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-200">
+                    Daftar Kartu Tugas (Trello Sync)
+                  </h2>
+                </div>
+
+                {/* Filter Tabs */}
+                <div className="flex items-center gap-1 bg-[#090b10] p-0.5 rounded-lg border border-zinc-800 text-xs">
+                  {(['ALL', 'In Progress', 'Done', 'To Do'] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setStatusFilter(tab)}
+                      className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition cursor-pointer ${statusFilter === tab
+                        ? 'bg-zinc-800 text-white shadow-xs'
+                        : 'text-zinc-400 hover:text-zinc-200'
+                        }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Search Bar */}
+              <div className="p-3 border-b border-zinc-800/60 bg-[#0d0f17]">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-zinc-500" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Cari kode tugas, judul, atau assignee..."
+                    className="w-full pl-8 pr-3 py-1.5 rounded-md bg-[#12151e] border border-zinc-800 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-hidden focus:border-zinc-600 transition"
+                  />
+                </div>
+              </div>
+
+              {/* Task Items List */}
+              <div className="divide-y divide-zinc-800/50">
+                {filteredTasks.length === 0 ? (
+                  <div className="p-8 text-center text-xs text-zinc-500">Tidak ada tugas yang sesuai filter.</div>
+                ) : (
+                  filteredTasks.map((task) => {
+                    const isDone = task.status === 'Done';
+                    const isInProgress = task.status === 'In Progress';
+
+                    return (
+                      <div
+                        key={task.id}
+                        className="px-5 py-3.5 hover:bg-zinc-800/20 transition flex items-center justify-between gap-3"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div>
+                            {isDone ? (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                            ) : isInProgress ? (
+                              <Clock className="w-4 h-4 text-amber-400" />
+                            ) : (
+                              <Layers className="w-4 h-4 text-zinc-600" />
+                            )}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-bold text-xs text-zinc-200 bg-zinc-800/80 px-1.5 py-0.5 rounded border border-zinc-700/60">
+                                [#{task.task_code}]
+                              </span>
+                              <span className="text-xs font-medium text-white">{task.title}</span>
+                            </div>
+                            <div className="text-[11px] text-zinc-400 mt-0.5">
+                              Penanggung jawab: <span className="font-mono text-zinc-300">@{task.assignee}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <span
+                            className={`text-[11px] font-mono px-2.5 py-1 rounded-full border ${isDone
+                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                              : isInProgress
+                                ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                : 'bg-zinc-800 text-zinc-400 border-zinc-700'
+                              }`}
+                          >
+                            {task.status}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </section>
+          </div>
+
+          {/* RIGHT 1 COLUMN: LIVE WEBHOOK AUDIT STREAM */}
+          <aside className="space-y-4">
+            <div className="bg-[#12151e] border border-zinc-800/80 rounded-xl overflow-hidden flex flex-col h-160 shadow-sm">
+              <div className="px-4 py-3.5 border-b border-zinc-800/80 flex items-center justify-between bg-[#0e111a]">
+                <div className="flex items-center gap-2">
+                  <Terminal className="w-4 h-4 text-emerald-400" />
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-200">
+                    Live Webhook Stream
+                  </h3>
+                </div>
+                <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-400">
+                  <Radio className="w-3 h-3 text-emerald-400 animate-pulse" />
+                  <span>LISTENING</span>
+                </div>
+              </div>
+
+              {/* Streaming Output Body */}
+              <div className="flex-1 bg-[#090b10] p-4 font-mono text-xs overflow-y-auto space-y-3 divide-y divide-zinc-800/40">
+                <div className="text-zinc-600 text-[11px] pb-2">
+                  // Siap menerima sinyal push git dari webhook / hook lokal...
+                </div>
+
+                {logs.map((log) => (
+                  <div key={log.id} className="pt-2.5 space-y-1">
+                    <div className="flex items-center justify-between text-[11px] text-zinc-500">
+                      <span className="text-blue-400 font-bold">[{log.event_type}]</span>
+                      <span>{log.created_at}</span>
+                    </div>
+                    <div className="text-zinc-300 text-[11px]">
+                      Author: <span className="text-amber-300">@{log.author}</span>
+                    </div>
+                    <div className="text-zinc-400 text-[11px] truncate">
+                      Msg: <span className="text-zinc-200 italic">"{log.commit_message}"</span>
+                    </div>
+                    {log.task_code && (
+                      <div className="text-emerald-400 text-[10px] flex items-center gap-1 pt-0.5">
+                        <CheckCircle2 className="w-3 h-3" />
+                        Trello card #{log.task_code} shifted to Done & Discord notified
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Instructions Panel */}
+              <div className="p-3 bg-[#0d0f17] border-t border-zinc-800/80 text-[11px] space-y-1.5">
+                <div className="font-semibold text-zinc-300 flex items-center gap-1">
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-400" /> Perintah Demo di Terminal:
+                </div>
+                <div className="bg-[#12151e] p-2 rounded border border-zinc-800 font-mono text-[10px] text-emerald-300 select-all">
+                  git commit -m "Fix bug [done #TASK-02]"
+                </div>
+              </div>
             </div>
-          </section>
+          </aside>
         </div>
       </main>
     </div>

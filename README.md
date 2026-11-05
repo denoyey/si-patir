@@ -8,18 +8,31 @@ Dashboard monitoring aktivitas tugas kelompok terpadu yang menghubungkan **GitHu
 ## 📁 Struktur Direktori
 ```text
 si-patir/
-├── backend/            # Express.js + TypeScript + MySQL (mysql2) + Socket.io
+├── docs/
+│   └── prd/            # Kumpulan Dokumen Kebutuhan Produk (PRD) Terstruktur
+│       ├── 00-INDEX-AND-OVERVIEW.md
+│       ├── 01-SYSTEM-INTEGRATION-PRD.md
+│       ├── 02-DATABASE-AND-STORAGE-PRD.md
+│       ├── 03-SECURITY-AND-HARDENING-PRD.md
+│       ├── 04-FRONTEND-UI-UX-PRD.md
+│       ├── 05-API-AND-WEBHOOK-CONTRACTS-PRD.md
+│       └── 06-OPERATIONS-AND-DEMO-RUNBOOK-PRD.md
+├── backend/            # Express.js + TypeScript + MySQL (mysql2) + Socket.io (OOP Architecture)
 │   ├── src/
-│   │   ├── config/     # Konfigurasi database MySQL & environment
-│   │   ├── services/   # Integrasi Discord, Trello & Parser Commit
-│   │   └── server.ts   # Endpoint Webhook & WebSocket Server
+│   │   ├── config/     # EnvironmentConfig Singleton
+│   │   ├── database/   # DatabaseService & Repositories (Prepared Statements)
+│   │   ├── services/   # Integrasi Discord, Trello, Security & Parser
+│   │   ├── controllers/# Webhook, Task, Member & System Controllers
+│   │   └── Application.ts # Gateway Express & Socket.io Lifecycle
 │   ├── .env.example    # Contoh konfigurasi kredensial
 │   └── package.json
-├── frontend/           # React 19 + Vite 8 + Tailwind CSS v4 + Lucide Icons
+├── frontend/           # React 19 + Vite 8 + Tailwind CSS v4 + Lucide Icons (Pure Human UI)
 │   ├── src/            # Dashboard UI & Socket.io client
 │   └── package.json
-└── scripts/
-    └── setup-local-git-hook.sh  # Skrip otomatis pasang hook git lokal
+├── scripts/
+│   └── setup-local-git-hook.sh  # Skrip otomatis pasang hook git lokal
+├── start.sh            # One-click starter dengan auto-kill port (Linux/macOS)
+└── start.bat           # One-click starter dengan auto-kill port (Windows)
 ```
 
 ---

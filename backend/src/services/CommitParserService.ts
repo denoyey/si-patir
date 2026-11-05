@@ -34,3 +34,4 @@ export class CommitParserService {
       .slice(0, 50);
   }
 }
+

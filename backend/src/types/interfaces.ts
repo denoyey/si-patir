@@ -80,3 +80,4 @@ export interface ITaskNotificationDTO {
   oldStatus?: string;
   newStatus?: string;
 }
+
