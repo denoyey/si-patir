@@ -172,4 +172,35 @@ Setiap perubahan tampilan antarmuka wajib mempertahankan dukungan responsif penu
    * Tabel dan bilah tombol wajib mendukung *momentum horizontal touch scrolling* (`.touch-scroll`) tanpa merusak lebar halaman (*zero horizontal body overflow*).
    * Tombol aksi harus ramah sentuhan (*touch target size* minimum 36px–44px).
 
+### 🌿 Aturan 3: Protokol Git Otomatis & Standar Percabangan (Branching & Conventional Commits)
+Setiap kali agen AI atau pengembang berhasil melakukan pembaruan kode, sistem **WAJIB MENGIKUTI STANDAR BEST-PRACTICE GIT DEVOPS**:
+1. **Dilarang Keras Push Langsung ke Branch `main`**:
+   * Branch `main` adalah branch produksi terproteksi (*protected branch*).
+   * Seluruh pembaruan kode, perbaikan, maupun dokumentasi **wajib dibuatkan branch baru** (*feature/fix branch*).
+2. **Konvensi Penamaan Branch (*Branch Naming Convention*)**:
+   * `feat/<deskripsi-singkat>` : Penambahan fitur atau komponen baru (contoh: `feat/responsive-dashboard-layout`).
+   * `fix/<deskripsi-bug>`       : Perbaikan bug atau error sistem (contoh: `fix/hmac-timing-attack-verification`).
+   * `refactor/<modul>`          : Restrukturisasi arsitektur kode tanpa mengubah fungsi (contoh: `refactor/oop-service-layer`).
+   * `docs/<topik>`              : Pembaruan dokumen PRD atau README (contoh: `docs/sync-prd-specifications`).
+   * `chore/<tugas>`             : Pemeliharaan dependensi atau konfigurasi tooling (contoh: `chore/port-killer-scripts`).
+3. **Standar Pesan Commit (*Conventional Commits v1.0.0*)**:
+   * Format: `<type>(<scope>): <pesan deskriptif jelas dan bermakna>`
+   * Dilarang menggunakan pesan commit asal-asalan seperti *"update"*, *"fix"*, *"test"*, atau *"benerin"*.
+   * Contoh commit standar profesional:
+     * `feat(ui): implement adaptive safe-area layout and standardize border radius to md/lg`
+     * `fix(webhook): enforce constant-time buffer comparison to prevent timing attacks`
+     * `refactor(backend): decouple express controllers and repositories into oop classes`
+     * `docs(prd): synchronize modular PRD suite with dual-tier storage specs`
+4. **Gerbang Verifikasi Pra-Push (*Pre-Push Quality Gate*)**:
+   Sebelum menjalankan `git push`, wajib memverifikasi:
+   * `cd backend && npx tsc --noEmit` -> Harus return code 0 (Nol error tipe).
+   * `cd frontend && npm run build` -> Harus return code 0 (Build sukses tanpa error).
+   * Jika salah satu verifikasi gagal, **DILARANG COMMIT/PUSH**.
+5. **Eksekusi Push Otomatis ke Remote GitHub**:
+   * Buat branch baru: `git checkout -b <branch-name>`
+   * Stage file terkait: `git add .`
+   * Commit pesan berstandar: `git commit -m "<conventional-commit-message>"`
+   * Push ke remote dengan upstream: `git push -u origin <branch-name>`
+
+
 

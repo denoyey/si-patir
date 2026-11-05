@@ -85,3 +85,53 @@ Pilih salah satu dari 2 opsi pemicu:
 | **Discord Tidak Menerima Notifikasi** | URL Webhook di `.env` masih kosong | Buka Discord -> Channel Settings -> Integrations -> Webhooks -> Buat Webhook baru dan tempel URL-nya di `backend/.env`. |
 | **Trello Tidak Bergeser** | Kredensial Trello belum diisi | Ambil API Key & Token di [trello.com/app-key](https://trello.com/app-key), isi Board ID & Done List ID di `backend/.env`. Jika kosong, sistem otomatis masuk ke mode simulasi sukses. |
 
+---
+
+## 5. Alur Kerja Git Otomatis & Standar Percabangan (DevOps Git Best Practices)
+
+Setiap agen pengembang atau developer di proyek SI-PATIR wajib mengikuti alur kerja *Git Feature Branch Workflow* dan *Conventional Commits*:
+
+### 5.1 Larangan Push Langsung ke Branch `main`
+* Branch `main` adalah branch produksi terproteksi (*protected branch*).
+* Segala bentuk commit langsung (`direct commit / push`) ke `main` dilarang keras. Semua perubahan wajib melalui branch terisolasi (*Feature Branch*).
+
+### 5.2 Standar Konvensi Nama Branch
+* **Format**: `<tipe>/<nama-singkat-fitur-atau-isu>`
+* **Daftar Prefix Resmi**:
+  * `feat/*` : Penambahan fungsionalitas baru (misal: `feat/realtime-socket-filter`).
+  * `fix/*` : Perbaikan bug / insiden (misal: `fix/trello-token-fallback`).
+  * `refactor/*` : Pembersihan dan restrukturisasi kode (misal: `refactor/repository-oop`).
+  * `docs/*` : Pembaruan dokumentasi PRD / panduan (misal: `docs/update-git-workflow-prd`).
+  * `chore/*` : Pembaruan skrip otomasi & perkakas (misal: `chore/port-killer-scripts`).
+
+### 5.3 Standar Pesan Commit (Conventional Commits v1.0.0)
+Format penulisan pesan commit wajib terstruktur dan bermakna:
+```text
+<type>(<scope>): <deskripsi singkat imperative>
+
+[optional body: penjelasan latar belakang masalah dan solusi teknis]
+
+[optional footer: referensi tugas, e.g., Resolves #TASK-02]
+```
+* **Contoh Pesan Commit Berkualitas Tinggi**:
+  * `feat(ui): refine dashboard layout and enforce rounded-md/lg design tokens`
+  * `fix(security): implement constant-time buffer comparison against timing attacks`
+  * `refactor(database): decouple database pool into singleton DatabaseService`
+  * `docs(prd): add autonomous git workflow and conventional branching protocol`
+
+### 5.4 Pre-Push Quality Gate (Verifikasi Otomatis)
+Sebelum branch di-push ke remote GitHub, gerbang verifikasi berikut harus lolos tanpa error:
+```bash
+# 1. Typecheck Backend
+cd backend && npx tsc --noEmit
+# 2. Build Production Frontend
+cd ../frontend && npm run build
+```
+Jika kedua pengujian menghasilkan status lolos (`exit code 0`), branch baru di-push ke GitHub:
+```bash
+git checkout -b feat/nama-fitur-baru
+git add .
+git commit -m "feat(scope): deskripsi bermakna"
+git push -u origin feat/nama-fitur-baru
+```
+

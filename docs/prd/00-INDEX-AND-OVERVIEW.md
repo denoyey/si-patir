@@ -76,4 +76,5 @@ Dokumentasi spesifikasi kebutuhan produk (PRD) SI-PATIR dipecah menjadi modul-mo
 >
 > * Tidak diperbolehkan membiarkan kode berubah tanpa memperbarui PRD spesifiknya (`01-SYSTEM-INTEGRATION-PRD.md`, `02-DATABASE-AND-STORAGE-PRD.md`, `03-SECURITY-AND-HARDENING-PRD.md`, `04-FRONTEND-UI-UX-PRD.md`, dll).
 > * PRD adalah *Single Source of Truth* resmi yang harus selalu merefleksikan keadaan riil dari implementasi kode di lapangan.
+> * **Protokol Git Auto-Push & Branching**: Setiap pembaruan kode yang berhasil diverifikasi wajib di-commit dengan standar *Conventional Commits v1.0.0* dan di-push otomatis ke **branch baru** (`feat/*`, `fix/*`, `docs/*`). **Dilarang keras push langsung ke branch `main`**.
 
