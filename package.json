@@ -1,0 +1,11 @@
+{
+  "name": "si-patir",
+  "version": "1.0.0",
+  "description": "SI-PATIR: Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repositori",
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build"
+  }
+}
+

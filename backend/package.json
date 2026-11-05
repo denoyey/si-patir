@@ -1,0 +1,28 @@
+{
+  "name": "si-patir-backend",
+  "version": "1.0.0",
+  "description": "Backend SI-PATIR: Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repositori",
+  "type": "module",
+  "main": "src/server.ts",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "axios": "^1.21.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "mysql2": "^3.24.6",
+    "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.13.9",
+    "tsx": "^4.23.15",
+    "typescript": "^5.8.2"
+  }
+}
+
