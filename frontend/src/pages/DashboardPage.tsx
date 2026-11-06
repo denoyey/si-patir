@@ -1291,9 +1291,12 @@ export function DashboardPage() {
             </section>
           </div>
 
-          {/* RIGHT 1 COLUMN: LIVE WEBHOOK AUDIT STREAM */}
-          <aside data-anim="content-grid" className="space-y-4">
-            <div className="bg-white dark:bg-[#0e121b] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[580px] sm:h-[680px] lg:h-[760px] shadow-xs">
+          {/* RIGHT 1 COLUMN: LIVE WEBHOOK AUDIT STREAM & STICKY TERMINAL */}
+          <aside className="space-y-4 lg:sticky lg:top-[4.5rem] lg:self-start z-20">
+            <div
+              data-anim="content-grid"
+              className="bg-white dark:bg-[#0e121b] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[580px] sm:h-[680px] lg:h-[calc(100vh-5.5rem)] lg:max-h-[850px] lg:min-h-[580px] shadow-xs transition-all"
+            >
               <div className="px-5 py-3.5 min-h-[52px] border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-[#121623]">
                 <div className="flex items-center gap-2">
                   <div className="p-1 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
