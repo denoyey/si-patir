@@ -106,3 +106,14 @@ Middleware `SecurityMiddleware.globalErrorHandler` mencegat seluruh error intern
 }
 ```
 
+---
+
+### 3.7 Manajemen Kredensial & Higienitas Git (Zero-Leakage Git Ignore Architecture)
+* **Ancaman**: Kebocoran token kredensial produksi (Discord Webhook URL, GitHub Webhook Secret, Trello API Token, MySQL Password) dan pembengkakan repositori akibat *dependency tracking* (`node_modules`) yang tidak sengaja terdorong (*push*) ke remote GitHub publik/organisasi.
+* **Solusi Rekayasa Berlapis**:
+  1. **Enterprise Root `.gitignore`**: Mengabaikan seluruh varian berkas environment (`.env`, `.env.*`, `*.env`), sertifikat/kunci rahasia (`*.key`, `*.pem`, `*.token`, `id_rsa*`), artefak kompilasi (`dist/`, `build/`, `*.tsbuildinfo`), logs (`*.log`), dan dependensi (`node_modules/`).
+  2. **Sub-package Defense-in-Depth**: Penempatan `.gitignore` independen pada `backend/.gitignore` dan `frontend/.gitignore` untuk menjamin isolasi lokal meskipun pengembang bekerja di dalam subdirektori.
+  3. **Pembersihan Cache Git Index (`git rm --cached`)**: Seluruh berkas sensitif dan modul yang sebelumnya sempat terlacak di indeks git dihapus dari status pelacakan tanpa menghapus berkas fisik lokal.
+  4. **Strict Template Whitelist (`!.env.example`)**: Hanya berkas percontohan konfigurasi nir-kredensial (`.env.example`) yang diizinkan masuk ke remote repository sebagai acuan anggota tim pengembang baru.
+
+

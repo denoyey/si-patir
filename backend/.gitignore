@@ -1,0 +1,26 @@
+# ==============================================================================
+# SI-PATIR Backend .gitignore
+# ==============================================================================
+
+# Secrets and environment configs
+.env
+.env.*
+*.env
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Compilation outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Logs & Diagnostics
+*.log
+logs/
+npm-debug.log*
+
+# OS & Editor
+.DS_Store
+Thumbs.db

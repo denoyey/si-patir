@@ -95,3 +95,4 @@ export class GitHubIntegrationService {
     return { success: true, count: synced.length, members: synced };
   }
 }
+
