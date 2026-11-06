@@ -412,10 +412,9 @@ export function DashboardPage() {
         </aside>
       )}
 
-      {/* TOP NAVBAR - RESPONSIVE & IPHONE NOTCH SAFE & SMART SCROLL AUTO-HIDE */}
+      {/* TOP NAVBAR - FIXED & SMART SCROLL AUTO-HIDE */}
       <header
-        data-anim="header"
-        className={`border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-[#0d1017]/90 backdrop-blur-md sticky top-0 z-40 pt-[env(safe-area-inset-top,0px)] transition-transform duration-300 ease-in-out will-change-transform ${
+        className={`fixed top-0 left-0 right-0 z-40 border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-[#0d1017]/90 backdrop-blur-md pt-[env(safe-area-inset-top,0px)] transition-transform duration-300 ease-in-out will-change-transform ${
           isNavbarVisible
             ? 'translate-y-0 shadow-xs pointer-events-auto'
             : '-translate-y-full shadow-none pointer-events-none'
@@ -503,6 +502,9 @@ export function DashboardPage() {
           </div>
         </div>
       </header>
+
+      {/* Spacer to reserve layout height under fixed top navbar */}
+      <div className="h-[3.5rem] pt-[env(safe-area-inset-top,0px)] shrink-0" aria-hidden="true" />
 
       {/* REPOSITORY & SYSTEM CONNECTIVITY BAR */}
       <section

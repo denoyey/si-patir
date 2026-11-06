@@ -69,9 +69,9 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#090b10] text-zinc-900 dark:text-zinc-100 font-sans selection:bg-zinc-800 selection:text-white transition-colors duration-150">
-      {/* TOP NAVIGATION BAR - SMART AUTO-HIDE ON SCROLL DOWN, REVEAL ON SCROLL UP */}
+      {/* TOP NAVIGATION BAR - FIXED & SMART AUTO-HIDE ON SCROLL */}
       <header
-        className={`border-b border-zinc-200 dark:border-zinc-800/80 bg-white/80 dark:bg-[#0d1017]/80 backdrop-blur-md sticky top-0 z-40 pt-[env(safe-area-inset-top,0px)] transition-transform duration-300 ease-in-out will-change-transform ${
+        className={`fixed top-0 left-0 right-0 z-40 border-b border-zinc-200 dark:border-zinc-800/80 bg-white/90 dark:bg-[#0d1017]/90 backdrop-blur-md pt-[env(safe-area-inset-top,0px)] transition-transform duration-300 ease-in-out will-change-transform ${
           isNavbarVisible
             ? 'translate-y-0 shadow-xs pointer-events-auto'
             : '-translate-y-full shadow-none pointer-events-none'
@@ -129,6 +129,9 @@ export function LandingPage() {
           </div>
         </div>
       </header>
+
+      {/* Spacer to reserve layout height under fixed navbar */}
+      <div className="h-[3.75rem] pt-[env(safe-area-inset-top,0px)] shrink-0" aria-hidden="true" />
 
       {/* HERO SECTION */}
       <section className="relative overflow-hidden py-12 sm:py-24 border-b border-zinc-200 dark:border-zinc-800/80">

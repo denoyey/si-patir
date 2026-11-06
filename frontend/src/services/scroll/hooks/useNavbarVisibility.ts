@@ -1,8 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { LenisScrollEngine } from '../LenisScrollEngine';
-import type { ScrollEventData } from '../interfaces/IScrollStrategy';
-
-const engine = LenisScrollEngine.getInstance();
 
 interface UseNavbarVisibilityOptions {
   /**
@@ -11,19 +7,21 @@ interface UseNavbarVisibilityOptions {
    */
   threshold?: number;
   /**
-   * Minimum scroll delta required to trigger a show/hide transition.
-   * Prevents erratic flickering on micro-scrolls.
+   * Minimum scroll delta (in px) required to trigger a show/hide transition.
    * Defaults to 6px.
    */
   deltaThreshold?: number;
 }
 
 /**
- * Hook to manage smart auto-hiding navbar behavior:
- * - Hides when scrolling down past threshold
- * - Reveals smoothly when scrolling up
- * - Always visible when at the top of the page
- * - Works universally across desktop, tablet, and mobile devices (including iPhone)
+ * Universal auto-hiding navbar visibility hook.
+ * Uses a single requestAnimationFrame-throttled scroll listener to eliminate
+ * any race conditions between smooth scroll engines (Lenis) and native mobile touch events.
+ *
+ * Rules:
+ * - At top of page (scrollY <= threshold): ALWAYS visible
+ * - Scrolling DOWN (diff > deltaThreshold): hides (-translate-y-full)
+ * - Scrolling UP (diff < -deltaThreshold): reveals (translate-y-0)
  */
 export function useNavbarVisibility({
   threshold = 60,
@@ -31,41 +29,46 @@ export function useNavbarVisibility({
 }: UseNavbarVisibilityOptions = {}) {
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
+  const isTicking = useRef(false);
 
   useEffect(() => {
-    engine.init();
+    // Sync initial scroll position on mount
+    if (typeof window !== 'undefined') {
+      lastScrollY.current = Math.max(0, window.scrollY);
+    }
 
-    const handleScrollEvent = (currentScrollY: number) => {
-      const sanitizedScrollY = Math.max(0, currentScrollY);
-      const prevScrollY = lastScrollY.current;
-      const diff = sanitizedScrollY - prevScrollY;
+    const onScroll = () => {
+      if (!isTicking.current) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = Math.max(0, window.scrollY);
+          const prevScrollY = lastScrollY.current;
+          const diff = currentScrollY - prevScrollY;
 
-      if (sanitizedScrollY <= threshold) {
-        setIsVisible(true);
-      } else if (diff > deltaThreshold) {
-        setIsVisible(false);
-      } else if (diff < -deltaThreshold) {
-        setIsVisible(true);
+          // 1. If near or at the top of the viewport, always show
+          if (currentScrollY <= threshold) {
+            setIsVisible(true);
+          }
+          // 2. Scrolling DOWN past delta threshold
+          else if (diff > deltaThreshold) {
+            setIsVisible(false);
+          }
+          // 3. Scrolling UP past delta threshold
+          else if (diff < -deltaThreshold) {
+            setIsVisible(true);
+          }
+
+          lastScrollY.current = currentScrollY;
+          isTicking.current = false;
+        });
+
+        isTicking.current = true;
       }
-
-      lastScrollY.current = sanitizedScrollY;
     };
 
-    // 1. Lenis reactive scroll watcher
-    const unsubscribeLenis = engine.on('scroll', (data: ScrollEventData) => {
-      handleScrollEvent(data.scroll);
-    });
-
-    // 2. Native window scroll event fallback
-    const handleNativeScroll = () => {
-      handleScrollEvent(window.scrollY);
-    };
-
-    window.addEventListener('scroll', handleNativeScroll, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
 
     return () => {
-      unsubscribeLenis();
-      window.removeEventListener('scroll', handleNativeScroll);
+      window.removeEventListener('scroll', onScroll);
     };
   }, [threshold, deltaThreshold]);
 
