@@ -10,9 +10,9 @@ export class DatabaseService {
 
   // In-memory persistent fallback if MySQL is offline or not yet configured
   private memoryMembers: IMember[] = [
-    { id: 1, name: 'Deni', github_username: 'denoyey', total_commits: 18, tasks_done: 2 },
-    { id: 2, name: 'Rafli', github_username: 'muhamadrafli16', total_commits: 0, tasks_done: 1 },
-    { id: 3, name: 'Fatir', github_username: 'Patirparkerr', total_commits: 0, tasks_done: 1 },
+    { id: 1, name: 'Deni', github_username: 'denoyey', total_commits: 42, tasks_done: 2 },
+    { id: 2, name: 'Fatir', github_username: 'Patirparkerr', total_commits: 2, tasks_done: 1 },
+    { id: 3, name: 'Rafli', github_username: 'muhamadrafli16', total_commits: 0, tasks_done: 1 },
     { id: 4, name: 'Fajri', github_username: 'AATTTRAWRRR', total_commits: 0, tasks_done: 0 },
   ];
 

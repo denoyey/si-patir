@@ -99,6 +99,23 @@ export class MemberRepository {
     this.db.setMemoryMembers(filtered);
   }
 
+  public async recalculateTasksDone(): Promise<void> {
+    if (this.db.isConnected() && this.db.getPool()) {
+      try {
+        await this.db.getPool()!.query(`
+          UPDATE members m
+          SET tasks_done = (
+            SELECT COUNT(*) FROM tasks t
+            WHERE LOWER(REPLACE(t.assignee, '@', '')) = LOWER(REPLACE(m.github_username, '@', ''))
+              AND t.status = 'Done'
+          )
+        `);
+      } catch (err: any) {
+        console.error('[MemberRepository] recalculateTasksDone error:', err.message);
+      }
+    }
+  }
+
   public async upsertContributor(
     username: string,
     contributions: number,
@@ -111,8 +128,8 @@ export class MemberRepository {
       try {
         const existing = await this.findByUsername(cleanUser);
         if (existing) {
-          const newCommits = Math.max(existing.total_commits, contributions);
-          const newTasks = tasksDone !== undefined ? Math.max(existing.tasks_done, tasksDone) : existing.tasks_done;
+          const newCommits = contributions;
+          const newTasks = tasksDone !== undefined ? tasksDone : existing.tasks_done;
           await this.db.getPool()!.query(
             'UPDATE members SET total_commits = ?, name = COALESCE(?, name), tasks_done = ? WHERE id = ?',
             [newCommits, displayName || null, newTasks, existing.id]

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { execSync } from 'child_process';
 import { EnvironmentConfig } from '../config/EnvironmentConfig.js';
 import { MemberRepository } from '../database/repositories/MemberRepository.js';
 import { TaskRepository } from '../database/repositories/TaskRepository.js';
@@ -21,9 +22,9 @@ export interface IGitHubIssue {
 }
 
 export const OFFICIAL_TEAM_COLLABORATORS = [
-  { name: 'Deni', username: 'denoyey', defaultCommits: 18, defaultTasksDone: 2 },
+  { name: 'Deni', username: 'denoyey', defaultCommits: 42, defaultTasksDone: 2 },
   { name: 'Rafli', username: 'muhamadrafli16', defaultCommits: 0, defaultTasksDone: 1 },
-  { name: 'Fatir', username: 'Patirparkerr', defaultCommits: 0, defaultTasksDone: 1 },
+  { name: 'Fatir', username: 'Patirparkerr', defaultCommits: 2, defaultTasksDone: 1 },
   { name: 'Fajri', username: 'AATTTRAWRRR', defaultCommits: 0, defaultTasksDone: 0 },
 ];
 
@@ -40,6 +41,7 @@ export class GitHubIntegrationService {
 
   /**
    * Mengambil kontributor asli dari repositori GitHub
+   * Dilengkapi fallback cerdas ke riwayat git repositori lokal jika GitHub API rate-limited
    */
   public async fetchContributors(): Promise<IGitHubContributor[]> {
     const repo = this.config.githubRepo;
@@ -49,9 +51,45 @@ export class GitHubIntegrationService {
           'User-Agent': 'SI-PATIR-Integration-Engine',
           Accept: 'application/vnd.github.v3+json',
         },
-        timeout: 8000,
+        timeout: 5000,
       });
-      return response.data as IGitHubContributor[];
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        return response.data as IGitHubContributor[];
+      }
+    } catch {
+      // Fallback ke pembacaan commit nyata lokal jika API GitHub terkena rate-limit
+    }
+
+    try {
+      const gitOutput = execSync('git shortlog -sn --all', {
+        encoding: 'utf8',
+        timeout: 5000,
+      });
+      const map = new Map<string, number>();
+      const lines = gitOutput.split('\n');
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        const parts = trimmed.split(/\s+/);
+        if (parts.length >= 2) {
+          const count = parseInt(parts[0], 10);
+          const author = parts.slice(1).join(' ').trim().toLowerCase();
+          if (!isNaN(count)) {
+            map.set(author, (map.get(author) || 0) + count);
+          }
+        }
+      }
+
+      const contributors: IGitHubContributor[] = [];
+      for (const [author, count] of map.entries()) {
+        contributors.push({
+          login: author,
+          id: Math.floor(Math.random() * 100000),
+          avatar_url: `https://github.com/${author}.png`,
+          contributions: count,
+        });
+      }
+      return contributors;
     } catch (err: any) {
       console.warn(`[GitHubIntegrationService] Gagal fetch kontributor dari ${repo}:`, err.message);
       return [];
@@ -114,6 +152,9 @@ export class GitHubIntegrationService {
         synced.push(member);
       }
     }
+
+    // 5. Kalkulasi ulang jumlah tugas yang selesai (tasks_done) murni berdasarkan tabel tasks
+    await this.memberRepo.recalculateTasksDone();
 
     console.log(
       `[GitHubIntegrationService] Berhasil menyinkronkan ${synced.length} kolaborator asli GitHub untuk ${this.config.githubRepo}`
