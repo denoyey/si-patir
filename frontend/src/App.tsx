@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useLayoutEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { LandingPage } from './pages/LandingPage';
@@ -9,7 +9,7 @@ import { LenisScrollEngine } from './services/scroll/LenisScrollEngine';
 function ScrollToTopOnNavigate() {
   const { pathname, hash } = useLocation();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const engine = LenisScrollEngine.getInstance();
     engine.init();
 
@@ -19,8 +19,14 @@ function ScrollToTopOnNavigate() {
       }, 100);
       return () => clearTimeout(timer);
     } else {
-      window.scrollTo(0, 0);
-      engine.scrollTo(0, { immediate: true });
+      // Synchronously reset scroll to top before browser paint
+      engine.resetToTop();
+
+      // Double-check on next animation frame after DOM is fully mounted
+      const rafId = requestAnimationFrame(() => {
+        engine.resetToTop();
+      });
+      return () => cancelAnimationFrame(rafId);
     }
   }, [pathname, hash]);
 

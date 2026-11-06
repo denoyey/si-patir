@@ -151,6 +151,36 @@ export class LenisScrollEngine implements IScrollStrategy {
     this.scrollTo(0, { duration, immediate: false, offset: 0, force: true });
   }
 
+  /**
+   * Resets scroll position immediately to the very top (0, 0)
+   * used synchronously on route transitions between pages.
+   */
+  public resetToTop(): void {
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0);
+      if (document.documentElement) document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    }
+    if (this.lenis) {
+      try {
+        const lenisAny = this.lenis as any;
+        lenisAny.targetScroll = 0;
+        lenisAny.animatedScroll = 0;
+        lenisAny.actualScroll = 0;
+        lenisAny.velocity = 0;
+        lenisAny.lastVelocity = 0;
+        lenisAny.isScrolling = false;
+        this.lenis.resize();
+        this.lenis.scrollTo(0, { immediate: true, force: true, offset: 0 });
+        if (typeof lenisAny.reset === 'function') {
+          lenisAny.reset();
+        }
+      } catch (err) {
+        console.warn('[LenisScrollEngine] resetToTop error:', err);
+      }
+    }
+  }
+
   public stop(): void {
     this.lenis?.stop();
   }

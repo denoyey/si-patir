@@ -23,6 +23,7 @@ export interface IScrollStrategy {
   destroy(): void;
   scrollTo(target: number | HTMLElement | string, options?: ScrollToOptions): void;
   scrollToTop(duration?: number): void;
+  resetToTop(): void;
   stop(): void;
   start(): void;
   getScroll(): number;

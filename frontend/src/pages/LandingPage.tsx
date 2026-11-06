@@ -1,3 +1,4 @@
+import { useLayoutEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   GitBranch,
@@ -67,7 +68,14 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 export function LandingPage() {
   const isNavbarVisible = useNavbarVisibility({ threshold: 60 });
-  const { scrollTo } = useLenisScroll();
+  const { scrollTo, scrollToTop, engine } = useLenisScroll();
+
+  // Reset scroll to top upon mounting unless a hash anchor is provided
+  useLayoutEffect(() => {
+    if (!window.location.hash) {
+      engine.resetToTop();
+    }
+  }, [engine]);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
@@ -87,7 +95,15 @@ export function LandingPage() {
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-[3.75rem] py-2 sm:py-0 flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand */}
-          <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
+          <Link
+            to="/"
+            onClick={() => {
+              if (window.location.pathname === '/' && !window.location.hash) {
+                scrollToTop(1.0);
+              }
+            }}
+            className="flex items-center gap-2 sm:gap-3 group shrink-0"
+          >
             <div className="w-8 h-8 rounded-md bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-800 dark:to-zinc-900 border border-zinc-700 text-white flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-xs group-hover:scale-105 transition">
               SP
             </div>

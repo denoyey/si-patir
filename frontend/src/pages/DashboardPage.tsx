@@ -1,8 +1,9 @@
-import { useState, useEffect, useMemo, useRef, type FormEvent } from 'react';
+import { useState, useEffect, useLayoutEffect, useMemo, useRef, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import { useGsapScope } from '../animations/hooks/useGsapScope';
+import { LenisScrollEngine } from '../services/scroll/LenisScrollEngine';
 import {
   GitBranch,
   GitCommit,
@@ -102,6 +103,11 @@ interface SystemStatus {
 export function DashboardPage() {
   const { containerRef, engine } = useGsapScope();
   const isNavbarVisible = useNavbarVisibility({ threshold: 60 });
+
+  // Ensure dashboard starts at the top (0, 0) upon navigating to this page
+  useLayoutEffect(() => {
+    LenisScrollEngine.getInstance().resetToTop();
+  }, []);
 
   // GSAP Animation Element References
   const totalCommitsRef = useRef<HTMLDivElement | null>(null);
