@@ -202,11 +202,13 @@ Tersedia perintah ringkas dari root folder untuk kebutuhan operasional developer
 
 ### C. Utilitas Skrip Pengembang (`scripts/`)
 
-| Skrip | Contoh Perintah | Deskripsi |
-| :---- | :-------------- | :-------- |
-| `auto-git-push.sh` | `./scripts/auto-git-push.sh feat my-feature ui "implement new feature"` | Quality gate otomatis, checkout feature branch, conventional commit, dan push ke GitHub |
-| `clean-merged-branches.sh` | `./scripts/clean-merged-branches.sh` atau `npm run clean:branches` | Mendeteksi dan menghapus branch yang sudah ter-merge ke `main` agar repo tetap rapi |
-| `setup-local-git-hook.sh` | `./scripts/setup-local-git-hook.sh /path/ke/repo/lokal` | Memasang post-commit hook lokal agar commit terminal lokal otomatis memicu webhook SI-PATIR |
+Mendukung eksekusi lintas sistem operasi secara penuh (**Linux, macOS, dan Windows CMD / PowerShell / Git Bash**):
+
+| Utilitas | Linux / macOS | Windows (CMD / PowerShell) | Deskripsi |
+| :------- | :------------ | :------------------------- | :-------- |
+| **Auto Git Push** | `./scripts/auto-git-push.sh feat my-feat ui "msg"` | `scripts\auto-git-push.bat feat my-feat ui "msg"` | Quality gate otomatis (typecheck + build), checkout branch, commit conventional, dan push ke GitHub |
+| **Clean Merged Branches** | `./scripts/clean-merged-branches.sh` (atau `npm run clean:branches`) | `scripts\clean-merged-branches.bat` (atau `npm run clean:branches`) | Menghapus branch lokal & remote yang sudah di-merge ke `main` agar repo tetap bersih |
+| **Setup Local Git Hook** | `./scripts/setup-local-git-hook.sh /path/repo` | `./scripts/setup-local-git-hook.sh /path/repo` (Git Bash) | Memasang post-commit hook lokal agar commit otomatis memicu webhook SI-PATIR |
 
 ---
 
@@ -268,8 +270,10 @@ si-patir/
 │   └── package.json
 ├── scripts/
 │   ├── setup-local-git-hook.sh      # Skrip pemasang Git hook lokal (tanpa tunnel)
-│   ├── auto-git-push.sh             # Skrip otomatis branch feature & Conventional Commits
-│   └── clean-merged-branches.sh     # Skrip pembersih branch usang yang sudah selesai di-merge
+│   ├── auto-git-push.sh             # Skrip otomatis branch feature & Conventional Commits (Linux/macOS)
+│   ├── auto-git-push.bat            # Skrip otomatis branch feature & Conventional Commits (Windows CMD/PowerShell)
+│   ├── clean-merged-branches.sh     # Skrip pembersih branch usang yang sudah selesai di-merge (Linux/macOS)
+│   └── clean-merged-branches.bat    # Skrip pembersih branch usang yang sudah selesai di-merge (Windows)
 ├── start.sh                         # Skrip starter Linux/macOS dengan auto-kill port
 ├── start.bat                        # Skrip starter Windows dengan auto-kill port
 └── README.md
@@ -291,11 +295,16 @@ si-patir/
 ### Alur Kerja Git Developer (*Best Practices*):
 * **Dilarang push langsung ke branch `main`**. Selalu buat branch fitur terpisah: `feat/<nama-fitur>`, `fix/<nama-bug>`, atau `docs/<topik>`.
 * Gunakan standar pesan commit **Conventional Commits v1.0.0**: `<type>(<scope>): <pesan deskriptif>`.
-* Anda dapat menggunakan skrip pembantu otomatis kami:
-  ```bash
-  ./scripts/auto-git-push.sh feat responsive-ui ui "refine dashboard layout and enforce rounded-md"
-  ```
-  *(Skrip akan otomatis menjalankan verifikasi tipe & build, membuat branch baru, membuat conventional commit, dan melakukan push ke remote GitHub).*
+* Seluruh anggota tim (Deni, Rafli, Fatir, Fajri) dapat menggunakan skrip otomatis multi-platform:
+  * **Di Linux / macOS / Git Bash**:
+    ```bash
+    ./scripts/auto-git-push.sh feat responsive-ui ui "refine dashboard layout and enforce rounded-md"
+    ```
+  * **Di Windows (Command Prompt / PowerShell)**:
+    ```cmd
+    scripts\auto-git-push.bat feat responsive-ui ui "refine dashboard layout and enforce rounded-md"
+    ```
+  *(Skrip akan otomatis menjalankan verifikasi tipe & build produksi, membuat branch baru jika belum ada, membuat conventional commit, dan melakukan push ke GitHub remote).*
 
 ---
 
