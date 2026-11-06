@@ -18,6 +18,7 @@ import {
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { ExpandableDescription } from '../components/ExpandableDescription';
 import { useNavbarVisibility } from '../services/scroll/hooks/useNavbarVisibility';
+import { useLenisScroll } from '../services/scroll/hooks/useLenisScroll';
 
 const TEAM_MEMBERS = [
   {
@@ -66,6 +67,13 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 export function LandingPage() {
   const isNavbarVisible = useNavbarVisibility({ threshold: 60 });
+  const { scrollTo } = useLenisScroll();
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    scrollTo(targetId, { offset: -75, duration: 1.2 });
+    window.history.pushState(null, '', targetId);
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#090b10] text-zinc-900 dark:text-zinc-100 font-sans selection:bg-zinc-800 selection:text-white transition-colors duration-150">
@@ -93,13 +101,25 @@ export function LandingPage() {
 
           {/* Navigation Links (Desktop) */}
           <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            <a href="#alur" className="hover:text-zinc-950 dark:hover:text-white transition">
+            <a
+              href="#alur"
+              onClick={(e) => handleNavClick(e, '#alur')}
+              className="hover:text-zinc-950 dark:hover:text-white transition cursor-pointer"
+            >
               Alur Kerja
             </a>
-            <a href="#fitur" className="hover:text-zinc-950 dark:hover:text-white transition">
+            <a
+              href="#fitur"
+              onClick={(e) => handleNavClick(e, '#fitur')}
+              className="hover:text-zinc-950 dark:hover:text-white transition cursor-pointer"
+            >
               Fitur Integrasi
             </a>
-            <a href="#tim" className="hover:text-zinc-950 dark:hover:text-white transition">
+            <a
+              href="#tim"
+              onClick={(e) => handleNavClick(e, '#tim')}
+              className="hover:text-zinc-950 dark:hover:text-white transition cursor-pointer"
+            >
               Tim Pengembang
             </a>
             <a

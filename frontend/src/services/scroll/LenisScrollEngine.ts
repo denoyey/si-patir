@@ -27,13 +27,15 @@ export class LenisScrollEngine implements IScrollStrategy {
 
     this.lenis = new Lenis({
       autoRaf: true,
-      duration: 1.1,
+      duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
       wheelMultiplier: 1.0,
-      touchMultiplier: 1.8,
+      touchMultiplier: 1.5,
+      anchors: { offset: -75, duration: 1.2 },
+      stopInertiaOnNavigate: true,
       prevent: (node: HTMLElement) => this.shouldPreventScroll(node),
     });
 
@@ -59,19 +61,19 @@ export class LenisScrollEngine implements IScrollStrategy {
   }
 
   /**
-   * Deteksi otomatis cerdas: jika scroll terjadi pada tabel, stream log,
-   * dialog modal, atau elemen yang memiliki scrollbar internal, Lenis
-   * akan otomatis dinonaktifkan pada elemen tersebut agar scrolling bawaan (native)
-   * tetap berjalan lancar tanpa terganggu.
+   * Deteksi otomatis cerdas tanpa layout thrashing: jika scroll terjadi pada tabel, stream log,
+   * dialog modal, atau elemen yang memiliki attribute data-lenis-prevent, Lenis
+   * akan otomatis dinonaktifkan pada elemen tersebut agar scrolling native tetap mulus.
    */
   public shouldPreventScroll(node: HTMLElement): boolean {
     if (!node || typeof node.hasAttribute !== 'function') return false;
 
-    // 1. Explicit data-lenis-prevent attribute
+    // 1. Explicit data-lenis-prevent attribute or closest ancestor
     if (
       node.hasAttribute('data-lenis-prevent') ||
       node.hasAttribute('data-lenis-prevent-touch') ||
-      node.hasAttribute('data-lenis-prevent-wheel')
+      node.hasAttribute('data-lenis-prevent-wheel') ||
+      Boolean(node.closest?.('[data-lenis-prevent]'))
     ) {
       return true;
     }
@@ -83,34 +85,20 @@ export class LenisScrollEngine implements IScrollStrategy {
     }
 
     // 3. Modal Dialog / Popover / Backdrops
-    if (node.getAttribute('role') === 'dialog' || node.closest?.('[role="dialog"]')) {
+    if (node.getAttribute('role') === 'dialog' || Boolean(node.closest?.('[role="dialog"]'))) {
       return true;
     }
 
-    // 4. Tables, table wrapper, dan terminal stream
+    // 4. Tables, table wrapper, dan scrollable containers
     if (
       tagName === 'table' ||
-      node.closest?.('table') ||
+      Boolean(node.closest?.('table')) ||
       node.classList?.contains('overflow-y-auto') ||
       node.classList?.contains('overflow-x-auto') ||
       node.classList?.contains('overflow-auto') ||
       node.classList?.contains('touch-scroll')
     ) {
       return true;
-    }
-
-    // 5. Elemen yang memiliki scrollable content (scrollHeight > clientHeight)
-    if (node !== document.documentElement && node !== document.body) {
-      try {
-        const style = window.getComputedStyle(node);
-        const hasScrollY =
-          (style.overflowY === 'auto' || style.overflowY === 'scroll') && node.scrollHeight > node.clientHeight;
-        const hasScrollX =
-          (style.overflowX === 'auto' || style.overflowX === 'scroll') && node.scrollWidth > node.clientWidth;
-        if (hasScrollY || hasScrollX) return true;
-      } catch {
-        // Fallback aman jika getComputedStyle gagal
-      }
     }
 
     return false;
@@ -131,21 +119,36 @@ export class LenisScrollEngine implements IScrollStrategy {
 
   public scrollTo(target: number | HTMLElement | string, options?: ScrollToOptions): void {
     if (this.lenis) {
-      this.lenis.scrollTo(target as any, options as any);
+      try {
+        this.lenis.scrollTo(target as any, {
+          duration: options?.duration ?? 1.2,
+          offset: options?.offset ?? 0,
+          immediate: options?.immediate ?? false,
+          lock: options?.lock ?? false,
+          force: options?.force ?? true,
+          onComplete: options?.onComplete,
+        });
+      } catch (err) {
+        console.warn('[LenisScrollEngine] scrollTo error:', err);
+      }
     } else if (typeof window !== 'undefined') {
       if (typeof target === 'number') {
-        window.scrollTo({ top: target, behavior: 'smooth' });
+        window.scrollTo({ top: target, behavior: options?.immediate ? 'auto' : 'smooth' });
       } else if (typeof target === 'string') {
         const el = document.querySelector(target);
-        el?.scrollIntoView({ behavior: 'smooth' });
+        if (el) {
+          const y = el.getBoundingClientRect().top + window.scrollY + (options?.offset ?? 0);
+          window.scrollTo({ top: y, behavior: options?.immediate ? 'auto' : 'smooth' });
+        }
       } else if (target instanceof HTMLElement) {
-        target.scrollIntoView({ behavior: 'smooth' });
+        const y = target.getBoundingClientRect().top + window.scrollY + (options?.offset ?? 0);
+        window.scrollTo({ top: y, behavior: options?.immediate ? 'auto' : 'smooth' });
       }
     }
   }
 
   public scrollToTop(duration: number = 1.0): void {
-    this.scrollTo(0, { duration, immediate: false });
+    this.scrollTo(0, { duration, immediate: false, offset: 0, force: true });
   }
 
   public stop(): void {
@@ -165,23 +168,15 @@ export class LenisScrollEngine implements IScrollStrategy {
   }
 
   public isScrolling(): boolean {
-    return !!this.lenis?.isScrolling;
+    return this.lenis?.isScrolling !== false;
   }
 
   public on(event: 'scroll', callback: ScrollEventListener): () => void {
-    if (event === 'scroll') {
-      this.listeners.add(callback);
-      return () => {
-        this.listeners.delete(callback);
-      };
-    }
-    return () => {};
+    this.listeners.add(callback);
+    return () => this.off(event, callback);
   }
 
-  public off(event: 'scroll', callback: ScrollEventListener): void {
-    if (event === 'scroll') {
-      this.listeners.delete(callback);
-    }
+  public off(_event: 'scroll', callback: ScrollEventListener): void {
+    this.listeners.delete(callback);
   }
 }
-

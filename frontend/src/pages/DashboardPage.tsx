@@ -114,6 +114,7 @@ export function DashboardPage() {
   const modalTaskBackdropRef = useRef<HTMLDivElement | null>(null);
   const modalMemberRef = useRef<HTMLDivElement | null>(null);
   const modalMemberBackdropRef = useRef<HTMLDivElement | null>(null);
+  const streamContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [members, setMembers] = useState<Member[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -187,6 +188,7 @@ export function DashboardPage() {
       }
       setTimeout(() => setActiveToast(null), 5000);
       refreshData();
+      streamContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
 
       // Highlight new log item with GSAP
       setTimeout(() => {
@@ -1049,6 +1051,7 @@ export function DashboardPage() {
 
               {/* Streaming Output Body (Clean without phrase & Isolated Native Scroll) */}
               <div
+                ref={streamContainerRef}
                 data-lenis-prevent
                 className="flex-1 bg-zinc-100/70 dark:bg-[#090b10] p-4 font-mono text-xs overflow-y-auto touch-scroll space-y-3"
               >

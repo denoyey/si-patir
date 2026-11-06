@@ -275,6 +275,11 @@ Untuk mencegah Lenis membajak (*scroll hijacking*) elemen bersarang di dalam hal
 2. **Atribut Eksplisit `data-lenis-prevent`**:
    Disematkan pada kontainer tabel klasemen, konsol log Live Webhook Stream, dan modal form penambahan tugas/anggota untuk menjamin isolasi scroll native di semua perangkat sentuh maupun desktop.
 
+### 12.3 Arsitektur Auto-Scrolling Mulus & Pemulihan Navigasi
+1. **Intersepsi Anchor Link Otomatis**: Lenis dikonfigurasikan dengan `anchors: { offset: -75, duration: 1.2 }` dan penangan klik programmatic pada navigasi (`#alur`, `#fitur`, `#tim`), mencegah hentakan kasar (*abrupt jump*) dan menggantinya dengan auto-scroll meluncur yang halus dan presisi.
+2. **Komponen `ScrollToTopOnNavigate`**: Terintegrasi di level root `App.tsx` untuk secara otomatis mengembalikan posisi gulir ke paling atas saat terjadi perpindahan rute (misal dari Landing Page ke Dashboard atau sebaliknya), menghilangkan anomali halaman mendarat di tengah/bawah konten.
+3. **Auto-Scroll Stream Log Live**: Kontainer Live Webhook Stream pada dashboard secara otomatis menggulir halus ke entri paling atas begitu event webhook baru masuk.
+
 ---
 
 ## 13. Smart Auto-Hiding Navbar & Expandable Description UX
