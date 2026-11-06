@@ -195,6 +195,11 @@ export function DashboardPage() {
   const [isSyncMenuOpen, setIsSyncMenuOpen] = useState(false);
   const syncMenuRef = useRef<HTMLDivElement | null>(null);
 
+  // Active Developer Simulator & Test State
+  const [selectedTestDev, setSelectedTestDev] = useState<string>('');
+  const [isTestDropdownOpen, setIsTestDropdownOpen] = useState(false);
+  const testDropdownRef = useRef<HTMLDivElement | null>(null);
+
   // Reusable custom confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
@@ -289,6 +294,50 @@ export function DashboardPage() {
     return { totalCommits, totalDone, completionRate };
   }, [members, tasks]);
 
+  // Menentukan default developer penguji aktif:
+  // Utamakan yang dipilih pengguna -> jika belum dipilih, utamakan yang masih Standby (0 commit) agar langsung terlihat hasilnya -> lalu assignee task belum selesai -> default members[0]
+  const currentTestDev = useMemo(() => {
+    if (selectedTestDev) return selectedTestDev;
+    const standbyMember = members.find((m) => m.total_commits === 0);
+    if (standbyMember) return standbyMember.github_username;
+    const targetTask = tasks.find((t) => t.status !== 'Done');
+    if (targetTask?.assignee) return targetTask.assignee.replace(/^@/, '');
+    return members[0]?.github_username || 'denoyey';
+  }, [selectedTestDev, members, tasks]);
+
+  // Syarat resolusi author commit secara cerdas:
+  const resolveCommitAuthor = (commandText: string, preferredDev?: string): string => {
+    // 1. Cek apakah pengguna menulis flag --author="username" atau --author=username di terminal
+    const authorFlag = commandText.match(/--author=["']?([a-zA-Z0-9_-]+)/i);
+    if (authorFlag && authorFlag[1]) {
+      return authorFlag[1];
+    }
+
+    // 2. Cek apakah pengguna menulis -c user.name="username"
+    const gitConfigFlag = commandText.match(/user\.name=["']?([a-zA-Z0-9_-]+)/i);
+    if (gitConfigFlag && gitConfigFlag[1]) {
+      return gitConfigFlag[1];
+    }
+
+    // 3. Cek tag tugas [done #TASK-XX] atau #TASK-XX dan cocokkan dengan assignee di daftar tugas
+    const taskMatch = commandText.match(/#(TASK-[0-9A-Za-z_-]+)/i);
+    if (taskMatch && taskMatch[1]) {
+      const code = taskMatch[1].toUpperCase();
+      const matchedTask = tasks.find((t) => t.task_code.toUpperCase() === code);
+      if (matchedTask && matchedTask.assignee) {
+        return matchedTask.assignee.replace(/^@/, '');
+      }
+    }
+
+    // 4. Gunakan developer yang dipilih pengguna di UI jika ada
+    if (preferredDev) {
+      return preferredDev;
+    }
+
+    // 5. Fallback ke currentTestDev
+    return currentTestDev;
+  };
+
   // Reactive GSAP Animations for Dynamic Metric Changes
   useEffect(() => {
     if (totalCommitsRef.current) {
@@ -349,6 +398,31 @@ export function DashboardPage() {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isSyncMenuOpen]);
+
+  // Test Dropdown Click-Outside & Keyboard Escape Handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (testDropdownRef.current && !testDropdownRef.current.contains(event.target as Node)) {
+        setIsTestDropdownOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsTestDropdownOpen(false);
+      }
+    };
+
+    if (isTestDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isTestDropdownOpen]);
 
   // Sync real contributors from GitHub repository
   const handleSyncGitHub = async () => {
@@ -494,19 +568,37 @@ export function DashboardPage() {
     }
   };
 
-  // Instant demo commit with real developer
-  const handleSimulateCommit = async () => {
+  // Instant demo commit with specified or resolved developer
+  const handleSimulateCommit = async (customAuthor?: string) => {
     setIsSimulating(true);
-    const activeDev = members[0]?.github_username || 'denoyey';
     const targetTask = tasks.find((t) => t.status !== 'Done') || tasks[0];
     const targetCode = targetTask ? targetTask.task_code : 'TASK-01';
 
+    // Prioritas author:
+    // 1. customAuthor jika dipanggil langsung
+    // 2. Assignee kartu tugas tujuan jika ada
+    // 3. Developer yang dipilih aktif oleh user (selectedTestDev)
+    // 4. Developer yang masih Standby (0 commits)
+    // 5. Fallback ke currentTestDev
+    const authorToUse =
+      customAuthor ||
+      (targetTask?.assignee ? targetTask.assignee.replace(/^@/, '') : '') ||
+      selectedTestDev ||
+      currentTestDev;
+
     try {
       await axios.post('/api/simulate-commit', {
-        developer: activeDev,
+        developer: authorToUse,
         message: `Selesaikan implementasi fitur [done #${targetCode}]`,
       });
       await refreshData();
+      setActiveToast({
+        title: 'Test Commit Berhasil',
+        desc: `@${authorToUse} berhasil melakukan commit & menutup [${targetCode}].`,
+      });
+      setTimeout(() => setActiveToast(null), 4000);
+    } catch (err: any) {
+      console.error('Simulate commit error:', err);
     } finally {
       setIsSimulating(false);
     }
@@ -531,26 +623,32 @@ export function DashboardPage() {
       setTerminalLogs((prev) => [
         ...prev,
         { id: Math.random().toString(), type: 'cmd', text: `$ ${raw}`, time },
-        { id: Math.random().toString(), type: 'info', text: 'Perintah didukung: git commit -m "<pesan> [done #TASK-XX]", clear, help', time },
+        { id: Math.random().toString(), type: 'info', text: 'Perintah didukung: git commit -m "<pesan> [done #TASK-XX]", git commit --author="username" -m "...", clear, help', time },
       ]);
       return;
     }
 
     // Parse commit message
     let commitMessage = raw;
-    const match = raw.match(/git\s+commit\s+-m\s+["'](.+?)["']/i);
-    if (match && match[1]) {
-      commitMessage = match[1];
-    } else if (raw.toLowerCase().startsWith('git commit -m ')) {
-      commitMessage = raw.slice(14).replace(/^["']|["']$/g, '');
+    const match = raw.match(/git\s+commit\s+.*?(-m\s+["'](.+?)["'])/i);
+    if (match && match[2]) {
+      commitMessage = match[2];
+    } else {
+      const simpleMatch = raw.match(/-m\s+["'](.+?)["']/i);
+      if (simpleMatch && simpleMatch[1]) {
+        commitMessage = simpleMatch[1];
+      } else if (raw.toLowerCase().includes('commit')) {
+        commitMessage = raw.replace(/^git\s+commit\s*/i, '').replace(/^["']|["']$/g, '');
+      }
     }
 
     setIsExecutingTerminal(true);
-    const activeDev = members[0]?.github_username || 'denoyey';
+    // Tentukan pelaku commit cerdas (berdasarkan flag --author, tag taskCode, atau penguji yang dipilih)
+    const activeDev = resolveCommitAuthor(raw, selectedTestDev);
 
     setTerminalLogs((prev) => [
       ...prev,
-      { id: Math.random().toString(), type: 'cmd', text: `$ ${raw}`, time },
+      { id: Math.random().toString(), type: 'cmd', text: `@${activeDev} $ ${raw}`, time },
     ]);
 
     try {
@@ -565,7 +663,7 @@ export function DashboardPage() {
         {
           id: Math.random().toString(),
           type: 'output',
-          text: `[main ${shortHash}] ${commitMessage}\n 1 file changed, 1 insertion(+)\n✓ Webhook diproses! Papan Trello & Discord tersinkronisasi.`,
+          text: `[main ${shortHash}] ${commitMessage}\n Author: ${activeDev} <${activeDev}@users.noreply.github.com>\n 1 file changed, 1 insertion(+)\n✓ Webhook diproses! Papan Trello & Discord tersinkronisasi.`,
           time,
         },
       ]);
@@ -573,7 +671,7 @@ export function DashboardPage() {
       await refreshData();
       setActiveToast({
         title: 'Commit Berhasil Dijalankan',
-        desc: `"${commitMessage.slice(0, 45)}..." berhasil diproses oleh webhook.`,
+        desc: `@${activeDev}: "${commitMessage.slice(0, 40)}..." berhasil diproses oleh webhook.`,
       });
       setTimeout(() => setActiveToast(null), 4000);
     } catch (err: any) {
@@ -772,24 +870,94 @@ export function DashboardPage() {
               )}
             </div>
 
-            {/* Test Real Commit */}
-            <button
-              onClick={(e) => {
-                engine.animateButtonPress(e.currentTarget);
-                handleSimulateCommit();
-              }}
-              disabled={isSimulating}
-              aria-label="Simulasi Push Commit"
-              className="h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-md bg-zinc-950 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 active:scale-95 text-white dark:text-zinc-950 border border-zinc-900 dark:border-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer shadow-xs touch-manipulation shrink-0"
-              title="Kirim payload commit webhook untuk pengujian instan"
-            >
-              <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-400 dark:fill-amber-500 dark:text-amber-500 shrink-0" />
-              <span className="hidden sm:inline">Test Commit</span>
-              <span className="sm:hidden text-xs">Test</span>
-              <span className="hidden lg:inline font-mono text-[11px] text-zinc-300 dark:text-zinc-700">
-                [@{members[0]?.github_username || 'denoyey'}]
-              </span>
-            </button>
+            {/* Test Real Commit with Developer Selector */}
+            <div ref={testDropdownRef} className="relative shrink-0 flex items-center">
+              <button
+                type="button"
+                onClick={(e) => {
+                  engine.animateButtonPress(e.currentTarget);
+                  handleSimulateCommit();
+                }}
+                disabled={isSimulating}
+                aria-label="Simulasi Push Commit"
+                className="h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-l-md bg-zinc-950 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 active:scale-95 text-white dark:text-zinc-950 border border-zinc-900 dark:border-zinc-300 border-r-zinc-800 dark:border-r-zinc-200 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer shadow-xs touch-manipulation shrink-0"
+                title={`Kirim commit webhook atas nama @${currentTestDev}`}
+              >
+                <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-400 dark:fill-amber-500 dark:text-amber-500 shrink-0" />
+                <span className="hidden sm:inline">Test Commit</span>
+                <span className="sm:hidden text-xs">Test</span>
+                <span className="font-mono text-[11px] text-amber-300 dark:text-zinc-700">
+                  [@{currentTestDev}]
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  engine.animateButtonPress(e.currentTarget);
+                  setIsTestDropdownOpen((prev) => !prev);
+                }}
+                disabled={isSimulating}
+                aria-label="Pilih developer untuk test commit"
+                className="h-8 sm:h-8.5 px-1.5 rounded-r-md bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 border-y border-r border-zinc-900 dark:border-zinc-300 text-white dark:text-zinc-950 text-xs flex items-center justify-center transition cursor-pointer touch-manipulation active:scale-95"
+                title="Pilih developer penguji"
+              >
+                <ChevronDown
+                  className={`w-3 h-3 transition-transform duration-150 ${
+                    isTestDropdownOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {/* Dropdown Menu to Pick Developer */}
+              {isTestDropdownOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full mt-1.5 w-60 rounded-md bg-white dark:bg-[#12151f] border border-zinc-200 dark:border-zinc-800 shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100 font-sans"
+                >
+                  <div className="px-2 py-1 text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                    Pilih Developer Penguji
+                  </div>
+                  {members.map((m) => {
+                    const isSelected = currentTestDev === m.github_username;
+                    const isStandby = m.total_commits === 0;
+                    return (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedTestDev(m.github_username);
+                          setIsTestDropdownOpen(false);
+                          handleSimulateCommit(m.github_username);
+                        }}
+                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs text-left transition cursor-pointer ${
+                          isSelected
+                            ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 font-semibold'
+                            : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 truncate">
+                          <span className="font-medium truncate">{m.name}</span>
+                          <span className="font-mono text-[10px] text-zinc-500 dark:text-zinc-400 truncate">
+                            @{m.github_username}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {isStandby && (
+                            <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                              Standby
+                            </span>
+                          )}
+                          <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                            {m.total_commits}c
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -1079,7 +1247,7 @@ export function DashboardPage() {
                       <th className="py-2.5 sm:py-3 px-1.5 sm:px-4">DEVELOPER</th>
                       <th className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">COMMITS</th>
                       <th className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">TASKS</th>
-                      <th className="hidden md:table-cell py-2.5 sm:py-3 px-4 text-right" title="Aktif jika memiliki minimal 1 commit atau 1 tugas selesai">
+                      <th className="hidden md:table-cell py-2.5 sm:py-3 px-4 text-right" title="Aktif jika memiliki minimal 1 commit di repositori">
                         STATUS KERJA
                       </th>
                     </tr>
@@ -1087,8 +1255,8 @@ export function DashboardPage() {
                   <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800/60">
                     {members.map((member, index) => {
                       const isTop = index === 0;
-                      // Developer dinyatakan aktif jika telah melakukan minimal 1 commit atau menyelesaikan tugas
-                      const isActive = member.total_commits > 0 || member.tasks_done > 0;
+                      // Developer dinyatakan aktif murni berdasarkan jumlah commit (> 0)
+                      const isActive = member.total_commits > 0;
 
                       return (
                         <tr key={member.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/25 transition">
@@ -1148,7 +1316,7 @@ export function DashboardPage() {
                             {isActive ? (
                               <span
                                 className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-200 dark:border-emerald-500/20 text-xs font-medium"
-                                title="Developer aktif: telah melakukan commit atau menyelesaikan tugas"
+                                title="Developer aktif: telah melakukan minimal 1 commit di repositori"
                               >
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Aktif Berkontribusi
@@ -1156,7 +1324,7 @@ export function DashboardPage() {
                             ) : (
                               <span
                                 className="inline-flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/60 px-2.5 py-1 rounded-md border border-zinc-300 dark:border-zinc-700 text-xs"
-                                title="Standby: belum ada commit atau penyelesaian tugas"
+                                title="Standby: belum ada riwayat commit di repositori"
                               >
                                 Standby
                               </span>
@@ -1462,6 +1630,32 @@ export function DashboardPage() {
                   </div>
                 )}
 
+                {/* Developer Author Selection Chips */}
+                <div className="flex items-center gap-1.5 flex-wrap text-[11px] pb-1 border-b border-zinc-200/60 dark:border-zinc-800/60">
+                  <span className="text-zinc-500 dark:text-zinc-400 text-[10px] shrink-0 font-medium">Penguji (Author):</span>
+                  {members.map((m) => {
+                    const isSelected = currentTestDev === m.github_username;
+                    return (
+                      <button
+                        key={m.github_username}
+                        type="button"
+                        onClick={() => {
+                          setSelectedTestDev(m.github_username);
+                        }}
+                        className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono transition cursor-pointer active:scale-95 flex items-center gap-1 border ${
+                          isSelected
+                            ? 'bg-blue-600 text-white border-blue-600 font-bold shadow-xs'
+                            : 'bg-zinc-200/80 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border-zinc-300 dark:border-zinc-700'
+                        }`}
+                        title={`Atur pelaku commit sebagai @${m.github_username} (${m.name})`}
+                      >
+                        <span>@{m.github_username}</span>
+                        <span className="text-[9px] opacity-75">({m.total_commits}c)</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
                 {/* Quick Task Selection Chips */}
                 <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
                   <span className="text-zinc-500 dark:text-zinc-400 text-[10px] shrink-0">Pilih Cepat:</span>
@@ -1471,10 +1665,13 @@ export function DashboardPage() {
                       type="button"
                       onClick={() => {
                         setTerminalInput(`git commit -m "Selesaikan ${t.title.slice(0, 24)} [done #${t.task_code}]"`);
+                        if (t.assignee) {
+                          setSelectedTestDev(t.assignee.replace(/^@/, ''));
+                        }
                         terminalInputRef.current?.focus();
                       }}
                       className="px-1.5 py-0.5 rounded-md bg-zinc-200/80 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-mono text-[10px] border border-zinc-300 dark:border-zinc-700 transition cursor-pointer active:scale-95"
-                      title={`Klik untuk mengisi commit tugas #${t.task_code}`}
+                      title={`Klik untuk mengisi commit tugas #${t.task_code} (assignee: @${t.assignee || 'tim'})`}
                     >
                       #{t.task_code}
                     </button>
@@ -1516,7 +1713,10 @@ export function DashboardPage() {
 
                   {/* Interactive Terminal Prompt & Input Form */}
                   <form onSubmit={handleExecuteTerminal} className="flex items-center gap-1.5 pt-0.5">
-                    <span className="text-emerald-500 font-bold select-none text-xs shrink-0">$</span>
+                    <span className="text-emerald-500 font-bold select-none text-xs shrink-0 flex items-center gap-1">
+                      <span className="text-emerald-400/90 font-mono text-[10px]">@{currentTestDev}</span>
+                      <span>$</span>
+                    </span>
                     <input
                       ref={terminalInputRef}
                       id="terminal-command-input"
@@ -1524,7 +1724,7 @@ export function DashboardPage() {
                       type="text"
                       value={terminalInput}
                       onChange={(e) => setTerminalInput(e.target.value)}
-                      placeholder='Ketik perintah misal: git commit -m "Fitur selesai [done #TASK-01]"'
+                      placeholder='git commit -m "Selesaikan fitur [done #TASK-01]"'
                       autoComplete="off"
                       aria-label="Perintah git commit"
                       className="flex-1 bg-transparent border-none text-emerald-300 font-mono text-xs focus:outline-hidden placeholder-zinc-600 truncate focus:truncate-none"

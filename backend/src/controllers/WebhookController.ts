@@ -118,11 +118,29 @@ export class WebhookController {
 
   public handleSimulate = async (req: Request, res: Response): Promise<void> => {
     const defaultDev = this.config.githubRepo.split('/')[0] || 'denoyey';
-    const { developer = defaultDev, message = 'Fix bug tombol login [done #TASK-02]' } = req.body;
+    const { developer, message = 'Fix bug tombol login [done #TASK-02]' } = req.body;
 
     const commitMsg = this.parserService.sanitizeCommitMessage(message);
-    const author = this.parserService.sanitizeAuthor(developer);
     const taskCode = this.parserService.extractTaskCode(commitMsg);
+
+    // Syarat penentuan author penguji commit:
+    // 1. Jika developer dikirim eksplisit oleh klien/UI
+    // 2. Jika tidak ada dan pesan memuat taskCode, deteksi otomatis assignee kartu tugas di database
+    // 3. Fallback ke default repository owner
+    let targetAuthor = developer ? this.parserService.sanitizeAuthor(developer) : '';
+
+    if (!targetAuthor && taskCode) {
+      const task = await this.taskRepo.findByCode(taskCode);
+      if (task && task.assignee) {
+        targetAuthor = this.parserService.sanitizeAuthor(task.assignee);
+      }
+    }
+
+    if (!targetAuthor) {
+      targetAuthor = this.parserService.sanitizeAuthor(defaultDev);
+    }
+
+    const author = targetAuthor;
     const simulatedCommitUrl = `https://github.com/${this.config.githubRepo}/commit/7a8b9c1`;
 
     if (taskCode) {
