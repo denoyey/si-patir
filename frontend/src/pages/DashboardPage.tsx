@@ -410,14 +410,14 @@ export function DashboardPage() {
         </aside>
       )}
 
-      {/* TOP NAVBAR */}
+      {/* TOP NAVBAR - RESPONSIVE & IPHONE NOTCH SAFE */}
       <header
         data-anim="header"
-        className="border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-[#0d1017]/90 backdrop-blur-md sticky top-0 z-40 safe-top"
+        className="border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-[#0d1017]/90 backdrop-blur-md sticky top-0 z-40 pt-[env(safe-area-inset-top,0px)]"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-[3.5rem] py-1.5 sm:py-0 flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand Logo & Back to Landing */}
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Link
               to="/"
               className="p-1.5 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition flex items-center gap-1 text-xs shrink-0"
@@ -433,9 +433,9 @@ export function DashboardPage() {
               SP
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="font-semibold text-sm tracking-tight text-zinc-950 dark:text-white">SI-PATIR</span>
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700 shrink-0">
+                <span className="hidden md:inline-flex text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700 shrink-0">
                   Live Monitoring
                 </span>
               </div>
@@ -443,7 +443,7 @@ export function DashboardPage() {
           </div>
 
           {/* Action Buttons & Theme Switcher */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             {/* Theme Switcher (System / Light / Dark) */}
             <ThemeSwitcher />
 
@@ -455,11 +455,11 @@ export function DashboardPage() {
               }}
               disabled={isSyncingGitHub}
               aria-label="Sinkronisasi GitHub"
-              className="h-8.5 px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-750 active:scale-95 border border-zinc-300 dark:border-zinc-700 text-xs font-medium text-zinc-700 dark:text-zinc-200 flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation shadow-xs"
+              className="h-8.5 px-2 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-750 active:scale-95 border border-zinc-300 dark:border-zinc-700 text-xs font-medium text-zinc-700 dark:text-zinc-200 flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation shadow-xs shrink-0"
               title="Tarik data kontributor & commit nyata dari repositori GitHub"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isSyncingGitHub ? 'animate-spin text-emerald-500' : ''}`} />
-              <span className="hidden xs:inline sm:inline">Sync GitHub</span>
+              <span className="hidden md:inline">Sync GitHub</span>
             </button>
 
             {/* Sync Trello */}
@@ -470,10 +470,10 @@ export function DashboardPage() {
               }}
               disabled={isSyncingTrello}
               aria-label="Sinkronisasi Trello"
-              className="h-8.5 px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-750 active:scale-95 border border-zinc-300 dark:border-zinc-700 text-xs font-medium text-zinc-700 dark:text-zinc-200 flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation shadow-xs"
+              className="h-8.5 px-2 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-750 active:scale-95 border border-zinc-300 dark:border-zinc-700 text-xs font-medium text-zinc-700 dark:text-zinc-200 flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation shadow-xs shrink-0"
             >
               <CheckSquare className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
-              <span className="hidden xs:inline sm:inline">Sync Trello</span>
+              <span className="hidden md:inline">Sync Trello</span>
             </button>
 
             {/* Test Real Commit */}
@@ -484,12 +484,13 @@ export function DashboardPage() {
               }}
               disabled={isSimulating}
               aria-label="Simulasi Push Commit"
-              className="h-8.5 px-3.5 rounded-md bg-zinc-950 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 active:scale-95 text-white dark:text-zinc-950 border border-zinc-900 dark:border-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer shadow-sm touch-manipulation"
+              className="h-8.5 px-2.5 sm:px-3.5 rounded-md bg-zinc-950 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 active:scale-95 text-white dark:text-zinc-950 border border-zinc-900 dark:border-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer shadow-sm touch-manipulation shrink-0"
               title="Kirim payload commit webhook untuk pengujian instan"
             >
               <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-400 dark:fill-amber-500 dark:text-amber-500 shrink-0" />
-              <span>Test Commit</span>
-              <span className="hidden md:inline font-mono text-[11px] text-zinc-300 dark:text-zinc-700">
+              <span className="hidden xs:inline">Test Commit</span>
+              <span className="xs:hidden">Test</span>
+              <span className="hidden lg:inline font-mono text-[11px] text-zinc-300 dark:text-zinc-700">
                 [@{members[0]?.github_username || 'denoyey'}]
               </span>
             </button>
@@ -551,7 +552,7 @@ export function DashboardPage() {
       </section>
 
       {/* CORE DASHBOARD CONTENT */}
-      <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1 safe-bottom">
+      <main className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 pb-24 sm:pb-12 space-y-6 flex-1 safe-bottom">
         {/* VISUAL PIPELINE AUTOMATION GUIDE */}
         <section
           data-anim="header"

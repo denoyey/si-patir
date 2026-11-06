@@ -60,24 +60,24 @@ const TEAM_MEMBERS = [
   },
 ];
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 export function LandingPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#090b10] text-zinc-900 dark:text-zinc-100 font-sans selection:bg-zinc-800 selection:text-white transition-colors duration-150">
       {/* TOP NAVIGATION BAR */}
-      <header className="border-b border-zinc-200 dark:border-zinc-800/80 bg-white/80 dark:bg-[#0d1017]/80 backdrop-blur-md sticky top-0 z-40 safe-top">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-15 flex items-center justify-between gap-4">
+      <header className="border-b border-zinc-200 dark:border-zinc-800/80 bg-white/80 dark:bg-[#0d1017]/80 backdrop-blur-md sticky top-0 z-40 pt-[env(safe-area-inset-top,0px)]">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-[3.75rem] py-2 sm:py-0 flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
             <div className="w-8 h-8 rounded-md bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-750 dark:to-zinc-900 border border-zinc-700 text-white flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-xs group-hover:scale-105 transition">
               SP
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-sm tracking-tight text-zinc-950 dark:text-white">SI-PATIR</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-150 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700">
-                  v2.0
-                </span>
-              </div>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="font-bold text-sm tracking-tight text-zinc-950 dark:text-white">SI-PATIR</span>
+              <span className="hidden sm:inline-flex text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-150 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700">
+                v2.0
+              </span>
             </div>
           </Link>
 
@@ -104,36 +104,37 @@ export function LandingPage() {
           </nav>
 
           {/* Right Controls: Theme Switcher & Dashboard CTA */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <ThemeSwitcher />
 
             <Link
               to="/dashboard"
-              className="h-8.5 px-3.5 rounded-md bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-950 active:scale-95 text-xs font-semibold flex items-center gap-1.5 transition shadow-sm cursor-pointer touch-manipulation"
+              className="h-8.5 px-2.5 sm:px-3.5 rounded-md bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-950 active:scale-95 text-xs font-semibold flex items-center gap-1.5 transition shadow-sm cursor-pointer touch-manipulation shrink-0"
             >
               <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-400 dark:fill-amber-500 dark:text-amber-500 shrink-0" />
-              <span>Buka Dashboard</span>
-              <ArrowRight className="w-3.5 h-3.5 hidden sm:inline shrink-0" />
+              <span className="hidden sm:inline">Buka Dashboard</span>
+              <span className="sm:hidden">Dashboard</span>
+              <ArrowRight className="w-3.5 h-3.5 hidden md:inline shrink-0" />
             </Link>
           </div>
         </div>
       </header>
 
       {/* HERO SECTION */}
-      <section className="relative overflow-hidden py-16 sm:py-24 border-b border-zinc-200 dark:border-zinc-800/80">
+      <section className="relative overflow-hidden py-12 sm:py-24 border-b border-zinc-200 dark:border-zinc-800/80">
         {/* Subtle background glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-tr from-blue-500/10 via-purple-500/10 to-emerald-500/10 blur-3xl pointer-events-none -z-10 rounded-full" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
           {/* Announcement pill */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-zinc-100 dark:bg-[#121624] border border-zinc-300 dark:border-zinc-700/80 text-xs text-zinc-700 dark:text-zinc-300 shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-zinc-100 dark:bg-[#121624] border border-zinc-300 dark:border-zinc-700/80 text-[11px] sm:text-xs text-zinc-700 dark:text-zinc-300 shadow-xs max-w-full truncate">
             <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-            <span className="font-medium">Platform Automasi Multi-Sistem Terpadu</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="font-medium truncate">Platform Automasi Multi-Sistem Terpadu</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
           </div>
 
           {/* Main Title */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-950 dark:text-white max-w-4xl mx-auto leading-tight sm:leading-tight">
+          <h1 className="text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-950 dark:text-white max-w-4xl mx-auto leading-tight sm:leading-tight px-1">
             Satu Commit Git. <br />
             <span className="bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500 bg-clip-text text-transparent">
               Tugas Trello Selesai. Tim Discord Terberitahu.
@@ -141,54 +142,54 @@ export function LandingPage() {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-base text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed px-1">
             <strong>SI-PATIR</strong> mengotomatisasi siklus hidup tugas rekayasa perangkat lunak tim secara real-time.
             Cukup sematkan kode tugas pada pesan commit di terminal Anda, sistem yang bekerja tanpa ribet manual.
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 pt-2 max-w-sm sm:max-w-none mx-auto w-full px-1">
             <Link
               to="/dashboard"
-              className="w-full sm:w-auto h-10 px-6 rounded-md bg-zinc-950 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-950 font-semibold text-xs flex items-center justify-center gap-2 transition shadow-md active:scale-95 cursor-pointer touch-manipulation"
+              className="w-full sm:w-auto h-11 px-6 rounded-md bg-zinc-950 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-950 font-semibold text-xs flex items-center justify-center gap-2 transition shadow-md active:scale-95 cursor-pointer touch-manipulation"
             >
-              <Zap className="w-4 h-4 fill-amber-400 text-amber-400 dark:fill-amber-500 dark:text-amber-500" />
+              <Zap className="w-4 h-4 fill-amber-400 text-amber-400 dark:fill-amber-500 dark:text-amber-500 shrink-0" />
               <span>Masuk ke Dashboard Monitoring</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 shrink-0" />
             </Link>
 
             <a
               href="https://github.com/denoyey/si-patir"
               target="_blank"
               rel="noreferrer"
-              className="w-full sm:w-auto h-10 px-5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-850 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700 font-medium text-xs flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer shadow-xs"
+              className="w-full sm:w-auto h-11 px-5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-850 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700 font-medium text-xs flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer shadow-xs"
             >
-              <GitBranch className="w-4 h-4 text-zinc-500" />
+              <GitBranch className="w-4 h-4 text-zinc-500 shrink-0" />
               <span>Lihat Source Code GitHub</span>
             </a>
           </div>
 
-          {/* Live System Connectivity Badges */}
-          <div className="pt-8 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs font-mono">
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+          {/* Live System Connectivity Badges - 2x2 on Mobile, Flex on Desktop */}
+          <div className="pt-6 sm:pt-8 grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-2 sm:gap-3 text-[11px] font-mono max-w-md sm:max-w-none mx-auto">
+            <div className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
               <span className="text-zinc-500 dark:text-zinc-400">GitHub:</span>
-              <span className="font-semibold text-emerald-600 dark:text-emerald-400">Webhook Ready</span>
+              <span className="font-semibold text-emerald-600 dark:text-emerald-400">Ready</span>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+            <div className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
               <span className="text-zinc-500 dark:text-zinc-400">Trello:</span>
-              <span className="font-semibold text-blue-600 dark:text-blue-400">REST API Synced</span>
+              <span className="font-semibold text-blue-600 dark:text-blue-400">Synced</span>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+            <div className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
               <span className="text-zinc-500 dark:text-zinc-400">Discord:</span>
-              <span className="font-semibold text-indigo-600 dark:text-indigo-400">Active Webhook</span>
+              <span className="font-semibold text-indigo-600 dark:text-indigo-400">Active</span>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-              <span className="text-zinc-500 dark:text-zinc-400">WebSocket:</span>
-              <span className="font-semibold text-amber-600 dark:text-amber-400">Socket.io Live</span>
+            <div className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+              <span className="text-zinc-500 dark:text-zinc-400">Socket:</span>
+              <span className="font-semibold text-amber-600 dark:text-amber-400">Live</span>
             </div>
           </div>
         </div>
@@ -468,26 +469,43 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="border-t border-zinc-200 dark:border-zinc-800 py-8 bg-white dark:bg-[#090b10] text-xs text-zinc-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-zinc-900 dark:text-white">SI-PATIR</span>
-            <span>— Sistem Integrasi Pemantau Aktivitas Tugas &amp; Informasi Repositori</span>
+      {/* FOOTER - MOBILE SAFE & NO OVERLAP */}
+      <footer className="border-t border-zinc-200 dark:border-zinc-800 pt-8 pb-24 sm:pb-8 bg-white dark:bg-[#090b10] text-xs text-zinc-500 safe-bottom">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="w-5 h-5 rounded-md bg-zinc-900 dark:bg-zinc-800 text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
+                SP
+              </div>
+              <span className="font-bold text-zinc-900 dark:text-white">SI-PATIR</span>
+              <span className="text-zinc-400 dark:text-zinc-600 hidden sm:inline">•</span>
+              <span className="text-[11px] text-zinc-500 leading-snug">
+                Sistem Integrasi Pemantau Aktivitas Tugas &amp; Informasi Repositori
+              </span>
+            </div>
+
+            <div className="flex items-center gap-4 text-xs font-medium">
+              <Link
+                to="/dashboard"
+                className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white transition"
+              >
+                Dashboard
+              </Link>
+              <a
+                href="https://github.com/denoyey/si-patir"
+                target="_blank"
+                rel="noreferrer"
+                className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white transition flex items-center gap-1"
+              >
+                <span>GitHub</span>
+                <ExternalLink className="w-3 h-3 opacity-60" />
+              </a>
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-[11px]">
+
+          <div className="pt-3 border-t border-zinc-100 dark:border-zinc-850 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-zinc-500 dark:text-zinc-400">
             <span>Dibuat oleh Tim: Deni, Rafli, Fatir, Fajri</span>
-            <Link to="/dashboard" className="text-blue-600 dark:text-blue-400 hover:underline">
-              Dashboard
-            </Link>
-            <a
-              href="https://github.com/denoyey/si-patir"
-              target="_blank"
-              rel="noreferrer"
-              className="text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              GitHub
-            </a>
+            <span>&copy; {CURRENT_YEAR} SI-PATIR. Open Source Engineering.</span>
           </div>
         </div>
       </footer>

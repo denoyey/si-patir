@@ -195,6 +195,15 @@ Mengatasi kelemahan fundamental layar sentuh ponsel (di mana *hover state* tidak
 3. **Anti-Zooming Form Fields**:
    Ukuran teks pada seluruh elemen input form diatur pada `text-base sm:text-xs` (16px pada viewport ponsel) untuk mencegah peramban Safari iOS melakukan auto-zoom yang merusak tata letak layar saat pengguna mengetik.
 
+### 8.1 Dukungan Menyeluruh Seluruh Generasi iPhone (iOS Safe-Areas & Dynamic Layout)
+Antarmuka telah dioptimalkan secara presisi untuk seluruh spektrum iPhone (iPhone SE 320px, iPhone Mini, iPhone 11/12/13/14/15/16 Pro Max dengan Dynamic Island):
+* **Safe-Area Notch & Dynamic Island Inset**: Header bilah navigasi menggunakan padding dinamis `pt-[env(safe-area-inset-top,0px)]` dan tinggi adaptif `min-h-[3.5rem]` sehingga konten tidak pernah terpotong oleh notch fisik atau pill Dynamic Island kamera depan.
+* **Anti-Truncation pada Navbar Sempit**: Elemen header disesuaikan secara cerdas pada layar kecil (<640px) dengan menyembunyikan badge versi `v2.0` dan memperpendek label tombol menjadi `Dashboard` (dari `Buka Dashboard` di desktop), mencegah tombol terpotong pada layar 320px–375px.
+* **Grid Konektivitas 2x2 pada Mobile**: Empat pill indikator status sistem (GitHub, Trello, Discord, Socket) tersusun rapi dalam grid 2 kolom 2 baris yang seimbang pada layar ponsel, dan membentang fleksibel secara horizontal pada desktop.
+* **Proteksi Tumpang-Tindih Tombol Melayang (Back-to-Top Safe Margin)**:
+  - Tombol melayang `BackToTop` diposisikan secara aman di atas indikator navigasi gestur iOS: `bottom-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+0.75rem))]`.
+  - Seluruh footer dan kontainer halaman bawah diberi padding `pb-24 sm:pb-8` sehingga tombol kembali ke atas tidak pernah menutupi teks, tautan GitHub, atau tombol aksi lainnya.
+
 ---
 
 ## 9. Arsitektur Client-Side Routing (React Router v7)
