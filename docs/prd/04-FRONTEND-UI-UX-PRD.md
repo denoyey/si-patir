@@ -46,7 +46,7 @@ Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-genera
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────────────────┐
-│ [SP] SI-PATIR  Sistem Monitoring              [Sync GitHub]  [Sync Trello]  [⚡ Test Commit]     │
+│ [SP] SI-PATIR  Sistem Monitoring    [Beranda] [🖥️/☀️/🌙 Theme] [Sync GitHub] [⚡ Test Commit]   │
 ├───────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Target Repo: denoyey/si-patir:main ↗ │ GitHub: Ready 🟢 │ Trello: Synced 🟢 │ Discord: Active 🟢│
 ├───────────────────────────────────────────────────────────────────────────────────────────────┤
@@ -56,11 +56,11 @@ Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-genera
 │ [Total Commits: 15]                  │ [Tasks Done: 4 / 5]  │ [Rate: 80%] │ [Sec: HMAC-256]    │
 ├──────────────────────────────────────┴──────────────────────┬─────────────────────────────────┤
 │ 🏆 KLASEMEN KONTRIBUSI ANGGOTA (AVATAR & RATIO)             │ 💻 LIVE WEBHOOK AUDIT STREAM    │
-│ #1 👤 denoyey (@denoyey) • 15 commits • 3 task (Lead)       │ // Siap mendengarkan sinyal...  │
-│    [+ Tambah Anggota]  [Hapus Dummy]                        │ [PUSH_EVENT] @denoyey           │
-│                                                             │ "Redesign dashboard UI"         │
-├─────────────────────────────────────────────────────────────┤ Trello #TASK-03 shifted to Done │
-│ 📋 DAFTAR KARTU TUGAS (BORDER STATUS ACCENTS)               │ & Discord notified              │
+│ #1 👤 denoyey (@denoyey) • 15 commits • 3 task (Lead)       │ [PUSH_EVENT] @denoyey           │
+│    [+ Tambah Anggota]  [Hapus Dummy]                        │ "feat(ui): add landing page"    │
+│                                                             │ Trello #TASK-03 shifted to Done │
+├─────────────────────────────────────────────────────────────┤ & Discord notified              │
+│ 📋 DAFTAR KARTU TUGAS (BORDER STATUS ACCENTS)               │                                 │
 │ [Filter: ALL | In Progress | Done | To Do]   [+ Tambah Tugas]│                                │
 │ [#TASK-01] Buat Database User       [Done]                  │                                 │
 │ [#TASK-02] Integrasi Halaman Login  [Done]                  │                                 │
@@ -194,6 +194,50 @@ Mengatasi kelemahan fundamental layar sentuh ponsel (di mana *hover state* tidak
    Sebagai pengganti hover, seluruh tombol dilengkapi umpan balik taktil saat disentuh (`active:scale-95` dan `active:bg-...`) serta kelas `touch-manipulation` untuk menghilangkan penundaan sentuh 300ms (*tap delay*).
 3. **Anti-Zooming Form Fields**:
    Ukuran teks pada seluruh elemen input form diatur pada `text-base sm:text-xs` (16px pada viewport ponsel) untuk mencegah peramban Safari iOS melakukan auto-zoom yang merusak tata letak layar saat pengguna mengetik.
+
+---
+
+## 9. Arsitektur Client-Side Routing (React Router v7)
+
+Untuk memisahkan presentasi publik proyek dan sistem operasional pemantauan real-time tanpa *full page reload*, antarmuka menggunakan pustaka `react-router-dom`:
+
+* **Route `/` (`LandingPage`)**: Halaman landing interaktif berstandar enterprise yang memperkenalkan platform SI-PATIR, diagram interaktif alur webhook 3-tahap (GitHub -> Trello -> Discord), showcase fitur teknis (HMAC SHA-256, Anti-DoS, Real-time WebSockets), serta profil tim inti.
+* **Route `/dashboard` (`DashboardPage`)**: Ruang kerja operasional pemantauan real-time yang memuat metrik komit, klasemen kontributor nyata, sinkronisasi Trello API, form penambahan tugas/anggota, serta konsol log audit live stream.
+* **Catch-all Route `*`**: Mengarahkan seluruh URL yang tidak valid kembali ke `/` secara otomatis dengan flag `replace`.
+
+---
+
+## 10. Sistem Tema Tri-State (System / Light / Dark)
+
+Sistem antarmuka SI-PATIR mendukung peralihan tema adaptif 3-mode:
+
+1. **Mode Default: Sistem Otomatis (`'system'`)**:
+   - Dilambangkan dengan ikon komputer/layar (`Monitor` dari `lucide-react`).
+   - Mendeteksi preferensi tema sistem operasi pengguna melalui `window.matchMedia('(prefers-color-scheme: dark)')`.
+   - Menggunakan event listener perubahan tema OS dinamis sehingga tema aplikasi otomatis berganti jika pengguna mengubah mode OS tanpa perlu me-refresh halaman.
+2. **Mode Terang (`'light'`)**:
+   - Dilambangkan dengan ikon matahari (`Sun` dari `lucide-react`).
+   - Latar belakang abu-abu terang bernuansa sejuk (`bg-slate-50`), kartu putih bersih berbingkai (`bg-white border-zinc-200`), dan tipografi kontras tinggi (`text-zinc-900`).
+3. **Mode Gelap (`'dark'`)**:
+   - Dilambangkan dengan ikon bulan sabit (`Moon` dari `lucide-react`).
+   - Latar belakang kanvas hitam industrial (`bg-[#090b10]`), kartu pekat bergradasi halus (`bg-[#11141e] border-zinc-800`), dan tipografi terang anti-silau (`text-zinc-100`).
+4. **Persistensi & CSS Class Binding**:
+   - Pilihan pengguna disimpan secara lokal di peramban via `localStorage.getItem('sipatir-theme')`.
+   - Mengaktifkan kelas `.dark` dan properti `colorScheme` pada elemen `<html>` root untuk integrasi penuh Tailwind CSS v4.
+
+---
+
+## 11. Daftar Resmi Tim Pengembang (Official Core Team)
+
+Sesuai spesifikasi tim proyek, seluruh anggota tim memiliki nama dan tanggung jawab baku:
+
+| Nama Anggota | Posisi / Spesialisasi | Akun Pengenal | Fokus Pekerjaan Utama |
+| :--- | :--- | :--- | :--- |
+| **Deni** | Lead Architect & DevOps Integrator | `@denoyey` | Arsitektur integrasi sistem, ingestion webhook GitHub, validasi HMAC SHA-256, dan pipeline deployment. |
+| **Rafli** | Frontend UI & Data Visualization | `@rafli_dev` | Antarmuka interaktif React 19, animasi GSAP OOP, komponen tema, dan visualisasi klasemen kontributor. |
+| **Fatir** | Kanban Trello & Database Engineer | `@fatir_eng` | Integrasi REST API Trello untuk mutasi kartu otomatis, manajemen basis data MySQL, dan sinkronisasi tugas. |
+| **Fajri** | QA, Security Testing & Documentation | `@fajri_qa` | Pengujian unit otomatis, audit ketahanan rate limiting & anti-DoS, diagram arsitektur UML, dan laporan akademik. |
+
 
 
 
