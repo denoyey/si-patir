@@ -24,6 +24,24 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr LISTENING') 
 echo [OK] Port 5000 dan 3000 siap digunakan!
 echo.
 
+:: Auto-initialize .env jika belum ada
+if not exist "%~dp0backend\.env" (
+    echo [!] backend\.env belum ada. Menyalin dari .env.example...
+    copy "%~dp0backend\.env.example" "%~dp0backend\.env" >nul
+    echo [OK] backend\.env berhasil disiapkan.
+)
+
+:: Auto-install dependencies jika node_modules belum ada
+if not exist "%~dp0backend\node_modules" (
+    echo [*] Menginstal dependensi backend (npm install)...
+    cd /d "%~dp0backend" && call npm install
+)
+
+if not exist "%~dp0frontend\node_modules" (
+    echo [*] Menginstal dependensi frontend (npm install)...
+    cd /d "%~dp0frontend" && call npm install
+)
+
 echo [2/3] Menjalankan Backend Server (Port 5000)...
 start "SI-PATIR Backend (Port 5000)" cmd /k "cd /d %~dp0backend && npm run dev"
 

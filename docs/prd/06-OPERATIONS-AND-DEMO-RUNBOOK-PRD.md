@@ -25,9 +25,11 @@ cd /home/whoami/Documents/Projects/si-patir
 **Mekanisme Otomatis `start.sh`:**
 1. Memeriksa apakah port `5000` (Backend) atau `3000` (Frontend) sedang diduduki proses lain menggunakan `lsof` atau `fuser`.
 2. Jika ada, skrip langsung mematikan PID tersebut (`kill -9 $PID`) dan memberi umpan balik hijau.
-3. Menyalakan Backend Server di latar belakang.
-4. Menyalakan Frontend Vite Dashboard.
-5. Memasang *trap handler*: Begitu Anda menekan `Ctrl + C`, kedua server otomatis dimatikan dan kedua port dijamin kembali bersih (*completely free*).
+3. Memastikan berkas `.env` ada; jika belum ada, otomatis menyalin dari template aman `.env.example`.
+4. Memeriksa keberadaan direktori `node_modules`; jika belum terpasang (misal setelah kloning baru), otomatis mengeksekusi `npm install`.
+5. Menyalakan Backend Server di latar belakang.
+6. Menyalakan Frontend Vite Dashboard.
+7. Memasang *trap handler*: Begitu Anda menekan `Ctrl + C`, kedua server otomatis dimatikan dan kedua port dijamin kembali bersih (*completely free*).
 
 ---
 

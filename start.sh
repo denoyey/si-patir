@@ -42,9 +42,27 @@ kill_port() {
   fi
 }
 
-echo -e "\n${CYAN}[1/3] Memeriksa ketersediaan port...${NC}"
+echo -e "\n${CYAN}[1/3] Memeriksa ketersediaan port & dependensi...${NC}"
 kill_port "$BACKEND_PORT"
 kill_port "$FRONTEND_PORT"
+
+# Auto-initialize .env jika belum ada
+if [ ! -f "$PROJECT_DIR/backend/.env" ]; then
+  echo -e "${YELLOW}⚠️  Berkas backend/.env belum ditemukan. Menyalin dari .env.example...${NC}"
+  cp "$PROJECT_DIR/backend/.env.example" "$PROJECT_DIR/backend/.env"
+  echo -e "${GREEN}✅ backend/.env berhasil dibuat.${NC}"
+fi
+
+# Auto-install dependencies jika node_modules belum ada
+if [ ! -d "$PROJECT_DIR/backend/node_modules" ]; then
+  echo -e "${YELLOW}📦 Menginstal dependensi backend (npm install)...${NC}"
+  (cd "$PROJECT_DIR/backend" && npm install)
+fi
+
+if [ ! -d "$PROJECT_DIR/frontend/node_modules" ]; then
+  echo -e "${YELLOW}📦 Menginstal dependensi frontend (npm install)...${NC}"
+  (cd "$PROJECT_DIR/frontend" && npm install)
+fi
 
 # Trap handler saat user menekan Ctrl+C
 cleanup() {
