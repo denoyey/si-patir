@@ -5,6 +5,7 @@
 
 Platform automasi dan monitoring terpadu yang menghubungkan alur kerja **GitHub Webhook**, **Trello Kanban API**, dan notifikasi **Discord Webhook** ke dalam satu dashboard rekayasa berbasis **WebSocket Real-time** dan basis data **MySQL**.
 
+[![Version](https://img.shields.io/badge/Release-v2.0.0-6366F1?style=flat-square&logo=git&logoColor=white)](https://github.com/denoyey/si-patir/releases/tag/v2.0.0)
 [![Node.js](https://img.shields.io/badge/Node.js-v20+-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-v5.8-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-v19.3-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
@@ -25,7 +26,7 @@ Platform automasi dan monitoring terpadu yang menghubungkan alur kerja **GitHub 
 4. [Prasyarat Sistem](#-4-prasyarat-sistem)
 5. [Panduan Instalasi Cepat (Quickstart dari Clone)](#-5-panduan-instalasi-cepat-quickstart-dari-clone)
 6. [Panduan Konfigurasi `.env`](#-6-panduan-konfigurasi-env)
-7. [Cara Menjalankan Sistem (One-Click)](#-7-cara-menjalankan-sistem-one-click)
+7. [Cara Menjalankan Sistem & Perintah CLI (Running Commands)](#-7-cara-menjalankan-sistem--perintah-cli-running-commands)
 8. [Skenario Demo 30 Detik (Untuk Evaluasi Dosen/Penguji)](#-8-skenario-demo-30-detik-untuk-evaluasi-dosenpenguji)
 9. [Struktur Folder Proyek](#-9-struktur-folder-proyek)
 10. [Dokumentasi PRD & Standar Kontribusi Git](#-10-dokumentasi-prd--standar-kontribusi-git)
@@ -160,22 +161,52 @@ GITHUB_WEBHOOK_SECRET=sipatir_secret_123
 
 ---
 
-## 🚀 7. Cara Menjalankan Sistem (One-Click)
+## 🚀 7. Cara Menjalankan Sistem & Perintah CLI (Running Commands)
 
-SI-PATIR dilengkapi skrip otomatis yang memiliki fitur **Pembersih Port Otomatis** (mendeteksi dan mematikan proses lama di port `5000` dan `3000` terlebih dahulu agar tidak terjadi bentrok *port already in use*).
+SI-PATIR mendukung dua metode eksekusi: **Skrip Otomatis Satu-Klik (*One-Click*)** dengan fitur pembersih bentrok port otomatis, serta **Perintah CLI Standar (`npm run`)**.
 
-### Di Linux / macOS:
-```bash
-./start.sh
-```
-*(Tekan `Ctrl + C` kapan saja untuk mematikan kedua service secara bersih)*
+### A. Metode Satu-Klik (Rekomendasi Utama)
+Skrip otomatis mendeteksi dan mematikan proses lama di port `5000` dan `3000`, menginisialisasi `.env`, menginstal dependensi jika belum ada, lalu menjalankan backend dan frontend sekaligus.
 
-### Di Windows:
-Cukup klik ganda (double-click) file:
-```cmd
-start.bat
-```
-*(Skrip otomatis membersihkan port lama, menjalankan backend & frontend, lalu membuka browser ke `http://localhost:3000`)*
+* **Di Linux / macOS**:
+  ```bash
+  ./start.sh
+  # atau
+  npm start
+  ```
+  *(Tekan `Ctrl + C` kapan saja untuk mematikan kedua service secara bersih)*
+
+* **Di Windows**:
+  Cukup klik ganda (*double-click*) file:
+  ```cmd
+  start.bat
+  ```
+  *(Skrip otomatis membersihkan port lama, menjalankan backend & frontend, lalu membuka browser ke `http://localhost:3000`)*
+
+---
+
+### B. Perintah NPM CLI (Root Workspace)
+Tersedia perintah ringkas dari root folder untuk kebutuhan operasional developer:
+
+| Perintah | Deskripsi & Kegunaan |
+| :------- | :------------------- |
+| `npm start` atau `npm run dev` | Menjalankan seluruh sistem (Backend & Frontend) via `start.sh` dengan auto-kill port |
+| `npm run dev:backend` | Menjalankan server backend secara mandiri (`tsx watch` di port 5000) |
+| `npm run dev:frontend` | Menjalankan dev server frontend secara mandiri (Vite di port 3000) |
+| `npm run build` | Melakukan build produksi lengkap (TypeScript compile backend & Vite bundle frontend) |
+| `npm run typecheck` | Menjalankan validasi tipe TypeScript (`tsc --noEmit`) pada backend dan frontend |
+| `npm run lint` | Menjalankan audit linter cepat (`oxlint`) pada kode sumber frontend |
+| `npm run clean:branches` | Membersihkan branch lokal & remote yang sudah selesai di-merge ke `main` secara otomatis |
+
+---
+
+### C. Utilitas Skrip Pengembang (`scripts/`)
+
+| Skrip | Contoh Perintah | Deskripsi |
+| :---- | :-------------- | :-------- |
+| `auto-git-push.sh` | `./scripts/auto-git-push.sh feat my-feature ui "implement new feature"` | Quality gate otomatis, checkout feature branch, conventional commit, dan push ke GitHub |
+| `clean-merged-branches.sh` | `./scripts/clean-merged-branches.sh` atau `npm run clean:branches` | Mendeteksi dan menghapus branch yang sudah ter-merge ke `main` agar repo tetap rapi |
+| `setup-local-git-hook.sh` | `./scripts/setup-local-git-hook.sh /path/ke/repo/lokal` | Memasang post-commit hook lokal agar commit terminal lokal otomatis memicu webhook SI-PATIR |
 
 ---
 
@@ -237,7 +268,8 @@ si-patir/
 │   └── package.json
 ├── scripts/
 │   ├── setup-local-git-hook.sh      # Skrip pemasang Git hook lokal (tanpa tunnel)
-│   └── auto-git-push.sh             # Skrip otomatis branch feature & Conventional Commits
+│   ├── auto-git-push.sh             # Skrip otomatis branch feature & Conventional Commits
+│   └── clean-merged-branches.sh     # Skrip pembersih branch usang yang sudah selesai di-merge
 ├── start.sh                         # Skrip starter Linux/macOS dengan auto-kill port
 ├── start.bat                        # Skrip starter Windows dengan auto-kill port
 └── README.md

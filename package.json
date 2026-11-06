@@ -1,11 +1,17 @@
 {
   "name": "si-patir",
-  "version": "1.0.0",
-  "description": "SI-PATIR: Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repositori",
+  "version": "2.0.0",
+  "description": "SI-PATIR: Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repositori (DevOps Lite)",
   "scripts": {
+    "start": "bash ./start.sh",
+    "dev": "bash ./start.sh",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
-    "build": "cd backend && npm run build && cd ../frontend && npm run build"
+    "build": "cd backend && npm run build && cd ../frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "lint": "cd frontend && npm run lint",
+    "typecheck": "cd backend && npx tsc --noEmit && cd ../frontend && npx tsc --noEmit",
+    "clean:branches": "bash ./scripts/clean-merged-branches.sh"
   }
 }
-
