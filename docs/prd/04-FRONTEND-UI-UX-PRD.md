@@ -39,22 +39,22 @@ Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-genera
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────────────────┐
-│ [SP] SI-PATIR  DevOps Control              [Sync Trello]  [⚡ Test Commit [done #TASK-02]]    │
+│ [SP] SI-PATIR  DevOps Control              [Sync GitHub]  [Sync Trello]  [⚡ Test Commit]     │
 ├───────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Target Repo: kelompok/si-patir:main  │ GitHub: Ready 🟢 │ Trello: Synced 🟢 │ Discord: Active 🟢│
+│ Target Repo: denoyey/si-patir:main   │ GitHub: Ready 🟢 │ Trello: Synced 🟢 │ Discord: Active 🟢│
 ├──────────────────────────────────────┬────────────────────────────────────────────────────────┤
-│ [Total Commits: 40]                  │ [Tasks Done: 3 / 5]  │ [Rate: 60%] │ [Sec: HMAC-256]    │
+│ [Total Commits: 9]                   │ [Tasks Done: 4 / 5]  │ [Rate: 80%] │ [Sec: HMAC-256]    │
 ├──────────────────────────────────────┴──────────────────────┬─────────────────────────────────┤
-│ 🏆 KLASEMEN KONTRIBUSI ANGGOTA                              │ 💻 LIVE WEBHOOK AUDIT STREAM    │
-│ 🥇 Andi Saputra (@andi_dev)  • 14 commits • 3 tasks (Lead) │ // Menunggu sinyal push git...  │
-│ 🥈 Citra Lestari (@citra_ui) • 11 commits • 2 tasks         │ [TASK_COMPLETED] 20:45:10       │
-│ 🥉 Budi Santoso (@budi99)    • 9 commits  • 1 task          │ Author: @budi99                 │
-│                                                             │ Msg: "Fix bug [done #TASK-02]"  │
-├─────────────────────────────────────────────────────────────┤ Trello #TASK-02 shifted to Done │
-│ 📋 DAFTAR KARTU TUGAS (Trello Sync)                         │                                 │
-│ [Filter: ALL | In Progress | Done | To Do]   [Search Task]  │                                 │
+│ 🏆 KLASEMEN KONTRIBUSI ANGGOTA (REAL DATA)                  │ 💻 LIVE WEBHOOK AUDIT STREAM    │
+│ 🥇 denoyey (@denoyey) • 9 commits • 1 task (Lead)           │ // Menunggu sinyal push git...  │
+│    [+ Tambah Anggota Tim]                                   │ [TASK_COMPLETED] 20:45:10       │
+│                                                             │ Author: @denoyey                │
+│                                                             │ Msg: "Fix bug [done #TASK-01]"  │
+├─────────────────────────────────────────────────────────────┤ Trello #TASK-01 shifted to Done │
+│ 📋 DAFTAR KARTU TUGAS (REAL-TIME SYNC)                      │                                 │
+│ [Filter: ALL | In Progress | Done | To Do]   [+ Tambah Tugas]│                                │
 │ [#TASK-01] Buat Database User       [Done]                  │                                 │
-│ [#TASK-02] Integrasi Halaman Login  [In Progress]           │                                 │
+│ [#TASK-02] Integrasi Halaman Login  [Done]                  │                                 │
 │ [#TASK-05] Testing Push ke Discord  [To Do]                 │                                 │
 └─────────────────────────────────────────────────────────────┴─────────────────────────────────┘
 ```

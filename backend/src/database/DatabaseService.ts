@@ -10,18 +10,15 @@ export class DatabaseService {
 
   // In-memory persistent fallback if MySQL is offline or not yet configured
   private memoryMembers: IMember[] = [
-    { id: 1, name: 'Andi Saputra', github_username: 'andi_dev', total_commits: 14, tasks_done: 3 },
-    { id: 2, name: 'Budi Santoso', github_username: 'budi99', total_commits: 9, tasks_done: 1 },
-    { id: 3, name: 'Citra Lestari', github_username: 'citra_ui', total_commits: 11, tasks_done: 2 },
-    { id: 4, name: 'Doni Pratama', github_username: 'doni_backend', total_commits: 6, tasks_done: 1 },
+    { id: 1, name: 'denoyey', github_username: 'denoyey', total_commits: 9, tasks_done: 1 },
   ];
 
   private memoryTasks: ITask[] = [
-    { id: 1, task_code: 'TASK-01', title: 'Buat Database & Skema User', status: 'Done', assignee: 'andi_dev' },
-    { id: 2, task_code: 'TASK-02', title: 'Integrasi Halaman Login & Auth', status: 'In Progress', assignee: 'budi99' },
-    { id: 3, task_code: 'TASK-03', title: 'Desain Layout Dashboard & Sidebar', status: 'Done', assignee: 'citra_ui' },
-    { id: 4, task_code: 'TASK-04', title: 'Setup Webhook Handler & Logger', status: 'Done', assignee: 'doni_backend' },
-    { id: 5, task_code: 'TASK-05', title: 'Testing Otomasi Push ke Discord', status: 'To Do', assignee: 'budi99' },
+    { id: 1, task_code: 'TASK-01', title: 'Buat Database & Skema User', status: 'Done', assignee: 'denoyey' },
+    { id: 2, task_code: 'TASK-02', title: 'Integrasi Halaman Login & Auth', status: 'Done', assignee: 'denoyey' },
+    { id: 3, task_code: 'TASK-03', title: 'Desain Layout Dashboard & Sidebar', status: 'Done', assignee: 'denoyey' },
+    { id: 4, task_code: 'TASK-04', title: 'Setup Webhook Handler & Logger', status: 'Done', assignee: 'denoyey' },
+    { id: 5, task_code: 'TASK-05', title: 'Testing Otomasi Push ke Discord', status: 'To Do', assignee: 'denoyey' },
   ];
 
   private memoryLogs: IActivityLog[] = [

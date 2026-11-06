@@ -93,16 +93,16 @@ Mengambil semua daftar tugas lokal/cache Trello.
       "task_code": "TASK-01",
       "title": "Buat Database & Skema User",
       "status": "Done",
-      "assignee": "andi_dev",
-      "updated_at": "2026-11-05T21:40:00.000Z"
+      "assignee": "denoyey",
+      "updated_at": "2026-11-06T07:29:02.000Z"
     },
     {
       "id": 2,
       "task_code": "TASK-02",
       "title": "Integrasi Halaman Login & Auth",
-      "status": "In Progress",
-      "assignee": "budi99",
-      "updated_at": "2026-11-05T21:42:10.000Z"
+      "status": "Done",
+      "assignee": "denoyey",
+      "updated_at": "2026-11-06T07:29:02.000Z"
     }
   ]
   ```
@@ -199,11 +199,11 @@ Dipancarkan saat pesan commit memuat kode penyelesaian tugas (`[done #TASK-XX]`)
 ```json
 {
   "type": "TASK_COMPLETED",
-  "author": "budi99",
+  "author": "denoyey",
   "taskCode": "TASK-02",
   "taskTitle": "Integrasi Halaman Login & Auth",
   "commitMsg": "Fix bug tombol login [done #TASK-02]",
-  "commitUrl": "https://github.com/kelompok-devops/si-patir-core/commit/7a8b9c1",
+  "commitUrl": "https://github.com/denoyey/si-patir/commit/7a8b9c1",
   "time": "20:45:10"
 }
 ```
@@ -213,8 +213,9 @@ Dipancarkan saat ada commit biasa tanpa penyelesaian tugas:
 ```json
 {
   "type": "COMMIT_PUSHED",
-  "author": "citra_ui",
+  "author": "denoyey",
   "commitMsg": "Refactor styling button",
+  "commitUrl": "https://github.com/denoyey/si-patir/commit/8b9c1d2",
   "time": "20:46:22"
 }
 ```

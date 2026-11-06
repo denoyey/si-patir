@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Server as SocketServer } from 'socket.io';
+import { EnvironmentConfig } from '../config/EnvironmentConfig.js';
 import { WebhookSecurityService } from '../services/WebhookSecurityService.js';
 import { CommitParserService } from '../services/CommitParserService.js';
 import { DiscordNotificationService } from '../services/DiscordNotificationService.js';
@@ -9,6 +10,7 @@ import { TaskRepository } from '../database/repositories/TaskRepository.js';
 import { ActivityLogRepository } from '../database/repositories/ActivityLogRepository.js';
 
 export class WebhookController {
+  private config: EnvironmentConfig;
   private securityService: WebhookSecurityService;
   private parserService: CommitParserService;
   private discordService: DiscordNotificationService;
@@ -19,6 +21,7 @@ export class WebhookController {
   private io: SocketServer;
 
   constructor(io: SocketServer) {
+    this.config = EnvironmentConfig.getInstance();
     this.securityService = new WebhookSecurityService();
     this.parserService = new CommitParserService();
     this.discordService = new DiscordNotificationService();
@@ -114,11 +117,13 @@ export class WebhookController {
   };
 
   public handleSimulate = async (req: Request, res: Response): Promise<void> => {
-    const { developer = 'budi99', message = 'Fix bug tombol login [done #TASK-02]' } = req.body;
+    const defaultDev = this.config.githubRepo.split('/')[0] || 'denoyey';
+    const { developer = defaultDev, message = 'Fix bug tombol login [done #TASK-02]' } = req.body;
 
     const commitMsg = this.parserService.sanitizeCommitMessage(message);
     const author = this.parserService.sanitizeAuthor(developer);
     const taskCode = this.parserService.extractTaskCode(commitMsg);
+    const simulatedCommitUrl = `https://github.com/${this.config.githubRepo}/commit/7a8b9c1`;
 
     if (taskCode) {
       const task = await this.taskRepo.findByCode(taskCode);
@@ -129,13 +134,13 @@ export class WebhookController {
       await this.memberRepo.incrementStats(author, true);
       await this.logRepo.record('TASK_COMPLETED', author, commitMsg, taskCode, 'SUCCESS');
 
-      await this.trelloService.moveCardToDone(taskCode, commitMsg);
+      await this.trelloService.moveCardToDone(taskCode, commitMsg, simulatedCommitUrl);
       await this.discordService.sendTaskCompletion({
         developer: author,
         taskCode,
         taskTitle,
         commitMsg,
-        commitUrl: 'https://github.com/kelompok-devops/si-patir-core/commit/7a8b9c1',
+        commitUrl: simulatedCommitUrl,
         oldStatus,
         newStatus: 'Done',
       });
@@ -146,7 +151,7 @@ export class WebhookController {
         taskCode,
         taskTitle,
         commitMsg,
-        commitUrl: 'https://github.com/kelompok-devops/si-patir-core/commit/7a8b9c1',
+        commitUrl: simulatedCommitUrl,
         time: new Date().toLocaleTimeString('id-ID'),
       });
     } else {
@@ -157,6 +162,7 @@ export class WebhookController {
         type: 'COMMIT_PUSHED',
         author,
         commitMsg,
+        commitUrl: simulatedCommitUrl,
         time: new Date().toLocaleTimeString('id-ID'),
       });
     }

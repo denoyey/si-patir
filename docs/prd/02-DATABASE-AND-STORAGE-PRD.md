@@ -121,9 +121,10 @@ Semua operasi query dienkapsulasi di dalam kelas repositori (`MemberRepository`,
 
 ---
 
-## 5. Seed Data Awal (Auto-Migration)
+## 5. Sinkronisasi Data Nyata & Auto-Migration
 
-Pada saat inisialisasi pertama kali (`DatabaseService.initialize()`), jika tabel terdeteksi kosong, sistem secara otomatis memasukkan data awal:
-* **4 Anggota Tim**: `Andi Saputra (andi_dev)`, `Budi Santoso (budi99)`, `Citra Lestari (citra_ui)`, `Doni Pratama (doni_backend)`.
-* **5 Kartu Tugas**: `#TASK-01` s/d `#TASK-05` yang siap digunakan untuk demonstrasi langsung.
+Pada saat inisialisasi pertama kali (`DatabaseService.initialize()`), sistem menerapkan arsitektur data riil:
+* **Kontributor Nyata**: Mengambil data kontributor riil langsung dari repositori GitHub yang dikonfigurasi (`denoyey/si-patir`) via GitHub REST API (`GitHubIntegrationService.syncRealContributors()`). Anggota dummy lama secara otomatis dibersihkan (`clearDummyMembers()`) sehingga hanya kontributor nyata (`denoyey` dkk) yang tersimpan di database.
+* **Tugas Nyata**: Mengelola daftar tugas riil (`#TASK-01` s/d `#TASK-05`) yang dialokasikan ke developer riil, dan mendukung penambahan anggota/tugas baru secara dinamis melalui antarmuka web.
+* **In-Memory Fallback Persistence**: Menyediakan data fallback yang diselaraskan dengan identitas kontributor aktif (`denoyey`) jika MySQL berada dalam mode simulasi sementara.
 
