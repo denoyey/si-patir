@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { LandingPage } from './pages/LandingPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { BackToTop } from './components/BackToTop';
 
 export function App() {
   return (
@@ -12,6 +13,7 @@ export function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <BackToTop />
       </BrowserRouter>
     </ThemeProvider>
   );

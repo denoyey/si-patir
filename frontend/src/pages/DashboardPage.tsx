@@ -775,7 +775,7 @@ export function DashboardPage() {
               </div>
 
               {/* Table with Safe Horizontal Scroll */}
-              <div className="overflow-x-auto touch-scroll">
+              <div className="overflow-x-auto touch-scroll" data-lenis-prevent>
                 <table className="w-full text-left text-xs min-w-[500px] sm:min-w-full">
                   <thead>
                     <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100/60 dark:bg-[#0a0d14] text-zinc-500 dark:text-zinc-400 font-mono text-[11px]">
@@ -820,9 +820,15 @@ export function DashboardPage() {
                                     </span>
                                   )}
                                 </div>
-                                <div className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 flex items-center gap-1 mt-0.5">
+                                <a
+                                  href={`https://github.com/${member.github_username}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[11px] font-mono text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white flex items-center gap-1 mt-0.5 group/gh transition"
+                                >
                                   <span>@{member.github_username}</span>
-                                </div>
+                                  <ExternalLink className="w-2.5 h-2.5 opacity-50 group-hover/gh:opacity-100 transition shrink-0" />
+                                </a>
                               </div>
                             </div>
                           </td>
@@ -1032,8 +1038,11 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              {/* Streaming Output Body (Clean without phrase) */}
-              <div className="flex-1 bg-zinc-100/70 dark:bg-[#090b10] p-4 font-mono text-xs overflow-y-auto touch-scroll space-y-3">
+              {/* Streaming Output Body (Clean without phrase & Isolated Native Scroll) */}
+              <div
+                data-lenis-prevent
+                className="flex-1 bg-zinc-100/70 dark:bg-[#090b10] p-4 font-mono text-xs overflow-y-auto touch-scroll space-y-3"
+              >
                 {logs.length === 0 ? (
                   <div className="text-center py-12 text-zinc-400 dark:text-zinc-600 text-[11px]">
                     Belum ada aktivitas webhook masuk.
@@ -1093,7 +1102,8 @@ export function DashboardPage() {
         >
           <div
             ref={modalTaskRef}
-            className="bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 w-full max-w-md shadow-2xl"
+            data-lenis-prevent
+            className="bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto touch-scroll"
           >
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">Tambah Kartu Tugas Nyata</h3>
@@ -1130,7 +1140,23 @@ export function DashboardPage() {
                 />
               </div>
               <div>
-                <label className="block text-zinc-600 dark:text-zinc-400 mb-1">Assignee (Username GitHub)</label>
+                <label className="block text-zinc-600 dark:text-zinc-400 mb-1">Assignee (Username GitHub Tim)</label>
+                <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+                  {members.map((m) => (
+                    <button
+                      key={m.github_username}
+                      type="button"
+                      onClick={() => setNewTaskAssignee(m.github_username)}
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded-md border transition cursor-pointer active:scale-95 touch-manipulation ${
+                        newTaskAssignee === m.github_username
+                          ? 'bg-blue-600 text-white border-blue-600 font-bold'
+                          : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:border-zinc-400'
+                      }`}
+                    >
+                      @{m.github_username}
+                    </button>
+                  ))}
+                </div>
                 <input
                   type="text"
                   placeholder="denoyey"
@@ -1179,7 +1205,8 @@ export function DashboardPage() {
         >
           <div
             ref={modalMemberRef}
-            className="bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 w-full max-w-md shadow-2xl"
+            data-lenis-prevent
+            className="bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto touch-scroll"
           >
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">Tambah Anggota Kelompok Nyata</h3>
@@ -1235,3 +1262,4 @@ export function DashboardPage() {
     </div>
   );
 }
+

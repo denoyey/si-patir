@@ -31,19 +31,19 @@ const TEAM_MEMBERS = [
   {
     name: 'Rafli',
     role: 'Frontend UI & Data Visualization Engineer',
-    username: 'rafli_dev',
+    username: 'muhamadrafli16',
     badge: 'UI/UX Specialist',
-    avatar: '',
+    avatar: 'https://github.com/muhamadrafli16.png?size=120',
     description:
       'Merancang antarmuka dashboard modern, visualisasi analitik kontribusi, dan interaksi tugas yang intuitif serta responsif di semua perangkat.',
-    skills: ['React 19', 'Tailwind CSS', 'GSAP', 'Data Visualization'],
+    skills: ['React 19', 'Tailwind CSS', 'GSAP', 'Lenis Scroll'],
   },
   {
     name: 'Fatir',
     role: 'Kanban Trello & Database Engineer',
-    username: 'fatir_eng',
+    username: 'Patirparkerr',
     badge: 'Integrations Lead',
-    avatar: '',
+    avatar: 'https://github.com/Patirparkerr.png?size=120',
     description:
       'Mengintegrasikan Trello REST API untuk pemindahan kartu otomatis, perancangan basis data MySQL, dan sinkronisasi status tugas.',
     skills: ['Trello API', 'MySQL', 'RESTful API', 'Database Design'],
@@ -51,9 +51,9 @@ const TEAM_MEMBERS = [
   {
     name: 'Fajri',
     role: 'QA, Security Testing & Academic Documentation',
-    username: 'fajri_qa',
+    username: 'AATTTRAWRRR',
     badge: 'Quality & Docs',
-    avatar: '',
+    avatar: 'https://github.com/AATTTRAWRRR.png?size=120',
     description:
       'Menyusun pengujian unit test otomatis, audit ketahanan rate limiting & DoS, serta perancangan laporan akademik dan diagram UML.',
     skills: ['Automated QA', 'Security Audit', 'UML Modeling', 'Technical Writing'],
@@ -396,9 +396,15 @@ export function LandingPage() {
                     <div className="text-xs font-medium text-blue-600 dark:text-blue-400 mt-0.5">
                       {member.role}
                     </div>
-                    <div className="text-[11px] font-mono text-zinc-500 mt-0.5">
-                      @{member.username}
-                    </div>
+                    <a
+                      href={`https://github.com/${member.username}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-mono text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-200 mt-0.5 group/link transition"
+                    >
+                      <span>@{member.username}</span>
+                      <ExternalLink className="w-2.5 h-2.5 opacity-60 group-hover/link:opacity-100 transition shrink-0" />
+                    </a>
                   </div>
 
                   {/* Description */}

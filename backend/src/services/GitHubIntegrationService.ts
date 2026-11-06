@@ -20,6 +20,13 @@ export interface IGitHubIssue {
   };
 }
 
+export const OFFICIAL_TEAM_COLLABORATORS = [
+  { name: 'Deni', username: 'denoyey', defaultCommits: 18, defaultTasksDone: 2 },
+  { name: 'Rafli', username: 'muhamadrafli16', defaultCommits: 0, defaultTasksDone: 1 },
+  { name: 'Fatir', username: 'Patirparkerr', defaultCommits: 0, defaultTasksDone: 1 },
+  { name: 'Fajri', username: 'AATTTRAWRRR', defaultCommits: 0, defaultTasksDone: 0 },
+];
+
 export class GitHubIntegrationService {
   private config: EnvironmentConfig;
   private memberRepo: MemberRepository;
@@ -75,24 +82,42 @@ export class GitHubIntegrationService {
    * Sinkronisasi data kontributor nyata dari GitHub ke dalam Database
    */
   public async syncRealContributors(): Promise<{ success: boolean; count: number; members: any[] }> {
-    const contributors = await this.fetchContributors();
-
-    if (contributors.length === 0) {
-      return { success: false, count: 0, members: [] };
-    }
-
-    // Bersihkan data dummy lama (Andi, Budi, Citra, Doni) jika ditemukan data asli GitHub
+    // 1. Bersihkan data dummy lama (Andi, Budi, Citra, Doni)
     await this.memberRepo.clearDummyMembers();
 
+    // 2. Fetch kontributor asli dari GitHub API
+    const contributors = await this.fetchContributors();
     const synced = [];
-    for (const c of contributors) {
-      // Upsert kontributor asli
-      const member = await this.memberRepo.upsertContributor(c.login, c.contributions);
+
+    // 3. Pastikan 4 kolaborator resmi terdaftar dengan data commit asli GitHub jika ada
+    for (const official of OFFICIAL_TEAM_COLLABORATORS) {
+      const matched = contributors.find(
+        (c) => c.login.toLowerCase() === official.username.toLowerCase()
+      );
+      const commitCount = matched ? matched.contributions : official.defaultCommits;
+      const member = await this.memberRepo.upsertContributor(
+        official.username,
+        commitCount,
+        official.name,
+        official.defaultTasksDone
+      );
       synced.push(member);
     }
 
-    console.log(`[GitHubIntegrationService] Berhasil menyinkronkan ${synced.length} developer asli dari GitHub ${this.config.githubRepo}`);
+    // 4. Daftarkan kontributor GitHub lain jika ada di luar tim resmi
+    for (const c of contributors) {
+      const isOfficial = OFFICIAL_TEAM_COLLABORATORS.some(
+        (o) => o.username.toLowerCase() === c.login.toLowerCase()
+      );
+      if (!isOfficial) {
+        const member = await this.memberRepo.upsertContributor(c.login, c.contributions);
+        synced.push(member);
+      }
+    }
+
+    console.log(
+      `[GitHubIntegrationService] Berhasil menyinkronkan ${synced.length} kolaborator asli GitHub untuk ${this.config.githubRepo}`
+    );
     return { success: true, count: synced.length, members: synced };
   }
 }
-

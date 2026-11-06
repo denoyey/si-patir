@@ -39,7 +39,7 @@ Berdasarkan audit arsitektur kode dan dokumentasi PRD SI-PATIR, berikut adalah p
 | No | Modul / Kebutuhan | Kondisi Saat Ini | Target Penyelesaian | Prioritas |
 | :--- | :--- | :--- | :--- | :---: |
 | 1 | **Trello Board Nyata** | Kunci API & Token di `.env` masih **KOSONG**, pemindahan kartu masih berjalan secara simulasi fallback. | Papan Trello resmi dibuat, API Key & Token diisi, kartu nyata bergeser otomatis saat commit masuk. | **Tinggi (P1)** |
-| 2 | **Pendaftaran Akun Anggota Nyata** | Anggota nyata baru ada `denoyey` (1 orang). Rafli, Fatir, dan Fajri belum terdaftar di database & repositori. | Mendaftarkan 4 akun GitHub nyata tim ke database dan memetakan task-nya masing-masing. | **Tinggi (P1)** |
+| 2 | **Pendaftaran Akun Anggota Nyata** | **SELESAI (DONE)**: 4 akun GitHub nyata telah di-acc sebagai kolaborator repositori dan tersinkronisasi ke basis data: `@denoyey` (Deni), `@muhamadrafli16` (Rafli), `@Patirparkerr` (Fatir), `@AATTTRAWRRR` (Fajri). | Terhubung penuh ke database MySQL & leaderboard. | **Tuntas (P1)** |
 | 3 | **Deployment Publik (Public HTTPS URL)** | Backend masih berjalan di `localhost:5000`. GitHub.com membutuhkan URL HTTPS publik untuk push webhook internet. | Deploy backend/frontend ke VPS/Railway/Render atau setup Cloudflare Tunnel / Ngrok permanen. | **Tinggi (P1)** |
 | 4 | **Visualisasi Grafik Kontribusi** | Belum ada diagram analitik perbandingan kontribusi commit & velocity tugas per anggota. | Menambahkan chart (Recharts / Chart.js) di tab analitik dashboard. | **Sedang (P2)** |
 | 5 | **Interaktivitas Tugas (Edit & Status)** | Status tugas hanya bisa diubah via commit atau add baru, belum bisa di-edit langsung dari dashboard UI. | Fitur edit judul, ganti status via dropdown/modal, dan deskripsi tugas. | **Sedang (P2)** |
@@ -72,6 +72,7 @@ Berdasarkan audit arsitektur kode dan dokumentasi PRD SI-PATIR, berikut adalah p
 ---
 
 ### 👤 1. DENI (Lead Engineer & DevOps Integrator)
+* **Akun GitHub:** `@denoyey` (Repo Owner)
 * **Peran Utama:** Pimpinan Proyek, Arsitektur Sistem, Integrasi GitHub Webhook Internet & Deployment Server.
 * **Tanggung Jawab:**
 
@@ -99,6 +100,7 @@ Berdasarkan audit arsitektur kode dan dokumentasi PRD SI-PATIR, berikut adalah p
 ---
 
 ### 👤 2. RAFLI (Frontend UI & Data Visualization Engineer)
+* **Akun GitHub:** `@muhamadrafli16` (Collaborator)
 * **Peran Utama:** Pengembangan Antarmuka Interaktif, Visualisasi Data Grafik, dan Fitur Reporting.
 * **Tanggung Jawab:**
 
@@ -126,6 +128,7 @@ Berdasarkan audit arsitektur kode dan dokumentasi PRD SI-PATIR, berikut adalah p
 ---
 
 ### 👤 3. FATIR (Kanban Trello Integrator & Database Engineer)
+* **Akun GitHub:** `@Patirparkerr` (Collaborator)
 * **Peran Utama:** Integrasi Nyata Papan Trello, Otomasi Kolom Tugas, dan Optimalisasi Basis Data MySQL.
 * **Tanggung Jawab:**
 
@@ -160,6 +163,7 @@ Berdasarkan audit arsitektur kode dan dokumentasi PRD SI-PATIR, berikut adalah p
 ---
 
 ### 👤 4. FAJRI (Quality Assurance, Security Testing & Academic Docs Specialist)
+* **Akun GitHub:** `@AATTTRAWRRR` (Nama Akun: Fajrii • Collaborator)
 * **Peran Utama:** Pengujian Otomatis (QA), Security Audit, Dokumentasi Laporan Akademik & Skenario Presentasi Demo.
 * **Tanggung Jawab:**
 

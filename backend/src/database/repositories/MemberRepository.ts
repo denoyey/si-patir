@@ -97,27 +97,38 @@ export class MemberRepository {
     this.db.setMemoryMembers(filtered);
   }
 
-  public async upsertContributor(username: string, contributions: number): Promise<IMember> {
+  public async upsertContributor(
+    username: string,
+    contributions: number,
+    displayName?: string,
+    tasksDone?: number
+  ): Promise<IMember> {
+    const finalName = displayName || username;
     if (this.db.isConnected() && this.db.getPool()) {
       try {
         const existing = await this.findByUsername(username);
         if (existing) {
           await this.db.getPool()!.query(
-            'UPDATE members SET total_commits = ? WHERE github_username = ?',
-            [contributions, username]
+            'UPDATE members SET total_commits = ?, name = COALESCE(?, name), tasks_done = COALESCE(?, tasks_done) WHERE github_username = ?',
+            [contributions, displayName || null, tasksDone !== undefined ? tasksDone : null, username]
           );
-          return { ...existing, total_commits: contributions };
+          return {
+            ...existing,
+            total_commits: contributions,
+            name: displayName || existing.name,
+            tasks_done: tasksDone !== undefined ? tasksDone : existing.tasks_done,
+          };
         } else {
           const [result]: any = await this.db.getPool()!.query(
-            'INSERT INTO members (name, github_username, total_commits, tasks_done) VALUES (?, ?, ?, 0)',
-            [username, username, contributions]
+            'INSERT INTO members (name, github_username, total_commits, tasks_done) VALUES (?, ?, ?, ?)',
+            [finalName, username, contributions, tasksDone || 0]
           );
           return {
             id: result.insertId,
-            name: username,
+            name: finalName,
             github_username: username,
             total_commits: contributions,
-            tasks_done: 0,
+            tasks_done: tasksDone || 0,
           };
         }
       } catch (err: any) {
@@ -129,14 +140,16 @@ export class MemberRepository {
     let mem = this.db.getMemoryMembers().find((m) => m.github_username.toLowerCase() === username.toLowerCase());
     if (mem) {
       mem.total_commits = contributions;
+      if (displayName) mem.name = displayName;
+      if (tasksDone !== undefined) mem.tasks_done = tasksDone;
       return mem;
     } else {
       const newMember: IMember = {
         id: this.db.getMemoryMembers().length + 1,
-        name: username,
+        name: finalName,
         github_username: username,
         total_commits: contributions,
-        tasks_done: 0,
+        tasks_done: tasksDone || 0,
       };
       this.db.getMemoryMembers().push(newMember);
       return newMember;

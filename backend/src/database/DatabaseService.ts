@@ -10,15 +10,18 @@ export class DatabaseService {
 
   // In-memory persistent fallback if MySQL is offline or not yet configured
   private memoryMembers: IMember[] = [
-    { id: 1, name: 'denoyey', github_username: 'denoyey', total_commits: 9, tasks_done: 1 },
+    { id: 1, name: 'Deni', github_username: 'denoyey', total_commits: 18, tasks_done: 2 },
+    { id: 2, name: 'Rafli', github_username: 'muhamadrafli16', total_commits: 0, tasks_done: 1 },
+    { id: 3, name: 'Fatir', github_username: 'Patirparkerr', total_commits: 0, tasks_done: 1 },
+    { id: 4, name: 'Fajri', github_username: 'AATTTRAWRRR', total_commits: 0, tasks_done: 0 },
   ];
 
   private memoryTasks: ITask[] = [
     { id: 1, task_code: 'TASK-01', title: 'Buat Database & Skema User', status: 'Done', assignee: 'denoyey' },
-    { id: 2, task_code: 'TASK-02', title: 'Integrasi Halaman Login & Auth', status: 'Done', assignee: 'denoyey' },
-    { id: 3, task_code: 'TASK-03', title: 'Desain Layout Dashboard & Sidebar', status: 'Done', assignee: 'denoyey' },
-    { id: 4, task_code: 'TASK-04', title: 'Setup Webhook Handler & Logger', status: 'Done', assignee: 'denoyey' },
-    { id: 5, task_code: 'TASK-05', title: 'Testing Otomasi Push ke Discord', status: 'To Do', assignee: 'denoyey' },
+    { id: 2, task_code: 'TASK-02', title: 'Integrasi Papan Kanban Trello', status: 'Done', assignee: 'Patirparkerr' },
+    { id: 3, task_code: 'TASK-03', title: 'Desain Layout Dashboard & UI Realtime', status: 'Done', assignee: 'muhamadrafli16' },
+    { id: 4, task_code: 'TASK-04', title: 'Setup Webhook Handler & Logger HMAC', status: 'Done', assignee: 'denoyey' },
+    { id: 5, task_code: 'TASK-05', title: 'Testing Otomasi QA & Security Rate Limiter', status: 'In Progress', assignee: 'AATTTRAWRRR' },
   ];
 
   private memoryLogs: IActivityLog[] = [

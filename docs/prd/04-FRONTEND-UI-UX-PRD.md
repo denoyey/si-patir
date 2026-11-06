@@ -231,12 +231,32 @@ Sistem antarmuka SI-PATIR mendukung peralihan tema adaptif 3-mode:
 
 Sesuai spesifikasi tim proyek, seluruh anggota tim memiliki nama dan tanggung jawab baku:
 
-| Nama Anggota | Posisi / Spesialisasi | Akun Pengenal | Fokus Pekerjaan Utama |
+| Nama Anggota | Posisi / Spesialisasi | Akun GitHub Resmi | Fokus Pekerjaan Utama |
 | :--- | :--- | :--- | :--- |
-| **Deni** | Lead Architect & DevOps Integrator | `@denoyey` | Arsitektur integrasi sistem, ingestion webhook GitHub, validasi HMAC SHA-256, dan pipeline deployment. |
-| **Rafli** | Frontend UI & Data Visualization | `@rafli_dev` | Antarmuka interaktif React 19, animasi GSAP OOP, komponen tema, dan visualisasi klasemen kontributor. |
-| **Fatir** | Kanban Trello & Database Engineer | `@fatir_eng` | Integrasi REST API Trello untuk mutasi kartu otomatis, manajemen basis data MySQL, dan sinkronisasi tugas. |
-| **Fajri** | QA, Security Testing & Documentation | `@fajri_qa` | Pengujian unit otomatis, audit ketahanan rate limiting & anti-DoS, diagram arsitektur UML, dan laporan akademik. |
+| **Deni** | Lead Architect & DevOps Integrator | `@denoyey` (Repo Owner) | Arsitektur integrasi sistem, ingestion webhook GitHub, validasi HMAC SHA-256, dan pipeline deployment. |
+| **Rafli** | Frontend UI & Data Visualization | `@muhamadrafli16` (Collaborator) | Antarmuka interaktif React 19, animasi GSAP OOP, smooth scroll Lenis, komponen tema, dan visualisasi klasemen kontributor. |
+| **Fatir** | Kanban Trello & Database Engineer | `@Patirparkerr` (Collaborator) | Integrasi REST API Trello untuk mutasi kartu otomatis, manajemen basis data MySQL, dan sinkronisasi tugas. |
+| **Fajri** | QA, Security Testing & Documentation | `@AATTTRAWRRR` (Collaborator / Fajrii) | Pengujian unit otomatis, audit ketahanan rate limiting & anti-DoS, diagram arsitektur UML, dan laporan akademik. |
+
+---
+
+## 12. Arsitektur Smooth Scroll OOP Lenis & Back to Top Engine
+
+Sistem scrolling SI-PATIR memanfaatkan pustaka **Lenis v1.3+** dengan standar arsitektur berbasis objek (**OOP**) yang bersih dan terisolasi:
+
+### 12.1 Struktur Modul Scroll
+* **`interfaces/IScrollStrategy.ts`**: Mendefinisikan kontrak interface (`init`, `destroy`, `scrollTo`, `scrollToTop`, `stop`, `start`, `on`, `off`, `shouldPreventScroll`).
+* **`services/LenisScrollEngine.ts`**: Kelas Singleton konkret yang membungkus instansiasi Lenis, integrasi `autoRaf: true`, interpolasi eksponensial matematis (`duration: 1.1`), dan detektor pencegahan scroll otomatis (*auto-prevention engine*).
+* **`hooks/useLenisScroll.ts`**: React Hook untuk berlangganan state scroll real-time (`scroll`, `velocity`, `direction`, `progress`) dan metode navigasi.
+* **`components/BackToTop.tsx`**: Tombol melayang dinamis di sudut kanan bawah (`fixed bottom-6 right-6`), muncul halus saat pengguna menggulir halaman lebih dari 250px, dan mengeksekusi `scrollToTop(1.0)` secara presisi.
+
+### 12.2 Isolasi Scroll Otomatis (Nested Native vs Page Smooth)
+Untuk mencegah Lenis membajak (*scroll hijacking*) elemen bersarang di dalam halaman:
+1. **Deteksi Otomatis Komputasi (`shouldPreventScroll`)**:
+   Engine secara cerdas memeriksa setiap elemen target. Jika elemen merupakan tabel (`<table>`), kontainer beraliran horizontal/vertikal (`overflow-y-auto`, `overflow-x-auto`), form input (`<textarea>`, `<input>`), atau dialog modal (`role="dialog"`), Lenis **secara otomatis dinonaktifkan** pada elemen tersebut sehingga scroll bawaan peramban berjalan lancar tanpa macet.
+2. **Atribut Eksplisit `data-lenis-prevent`**:
+   Disematkan pada kontainer tabel klasemen, konsol log Live Webhook Stream, dan modal form penambahan tugas/anggota untuk menjamin isolasi scroll native di semua perangkat sentuh maupun desktop.
+
 
 
 
