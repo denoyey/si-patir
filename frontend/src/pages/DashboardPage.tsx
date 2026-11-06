@@ -30,9 +30,21 @@ import {
   MessageSquare,
   ExternalLink,
   ChevronLeft,
+  Copy,
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { useNavbarVisibility } from '../services/scroll/hooks/useNavbarVisibility';
+
+function formatLogTime(timestamp: string): string {
+  if (!timestamp) return '';
+  try {
+    const d = new Date(timestamp);
+    if (isNaN(d.getTime())) return timestamp;
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  } catch {
+    return timestamp;
+  }
+}
 
 function AvatarWithFallback({ username, name }: { username: string; name: string }) {
   const [error, setError] = useState(false);
@@ -47,7 +59,7 @@ function AvatarWithFallback({ username, name }: { username: string; name: string
 
   if (error || !username) {
     return (
-      <div className="w-10 h-10 rounded-md bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 flex items-center justify-center text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300 shrink-0 shadow-xs">
+      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-md bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 flex items-center justify-center text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300 shrink-0 shadow-xs">
         {initials}
       </div>
     );
@@ -58,7 +70,7 @@ function AvatarWithFallback({ username, name }: { username: string; name: string
       src={`https://github.com/${username}.png?size=200`}
       alt={name}
       onError={() => setError(true)}
-      className="w-10 h-10 rounded-md border border-zinc-300 dark:border-zinc-700 object-cover shrink-0 bg-zinc-200 dark:bg-zinc-800 shadow-xs"
+      className="w-8 h-8 sm:w-10 sm:h-10 rounded-md border border-zinc-300 dark:border-zinc-700 object-cover shrink-0 bg-zinc-200 dark:bg-zinc-800 shadow-xs"
       loading="lazy"
     />
   );
@@ -430,28 +442,28 @@ export function DashboardPage() {
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-[3.5rem] py-1.5 sm:py-0 flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand Logo & Back to Landing */}
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 shrink-0">
             <Link
               to="/"
-              className="p-1.5 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition flex items-center gap-1 text-xs shrink-0"
+              className="p-1 sm:p-1.5 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition flex items-center gap-1 text-xs shrink-0"
               title="Kembali ke Landing Page"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-4 h-4 shrink-0" />
               <span className="hidden sm:inline">Beranda</span>
             </Link>
 
             <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800 hidden sm:block"></div>
 
-            <div className="w-8 h-8 rounded-md bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-800 dark:to-zinc-900 border border-zinc-700 text-white flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-xs">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-800 dark:to-zinc-900 border border-zinc-700 text-white flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-xs">
               SP
             </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="font-semibold text-sm tracking-tight text-zinc-950 dark:text-white">SI-PATIR</span>
-                <span className="hidden md:inline-flex text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700 shrink-0">
-                  Live Monitoring
-                </span>
-              </div>
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <span className="font-bold text-sm tracking-tight text-zinc-950 dark:text-white whitespace-nowrap">
+                SI-PATIR
+              </span>
+              <span className="hidden md:inline-flex text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700 shrink-0">
+                Live Monitoring
+              </span>
             </div>
           </div>
 
@@ -468,7 +480,7 @@ export function DashboardPage() {
               }}
               disabled={isSyncingGitHub}
               aria-label="Sinkronisasi GitHub"
-              className="h-8.5 px-2 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation shadow-xs shrink-0"
+              className="h-8 sm:h-8.5 px-2 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation shadow-xs shrink-0"
               title="Tarik data kontributor & commit nyata dari repositori GitHub"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isSyncingGitHub ? 'animate-spin text-emerald-500' : 'text-zinc-500 dark:text-zinc-400'}`} />
@@ -483,7 +495,8 @@ export function DashboardPage() {
               }}
               disabled={isSyncingTrello}
               aria-label="Sinkronisasi Trello"
-              className="h-8.5 px-2 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation shadow-xs shrink-0"
+              className="h-8 sm:h-8.5 px-2 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation shadow-xs shrink-0"
+              title="Sinkronisasi status Trello"
             >
               <CheckSquare className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
               <span className="hidden md:inline">Sync Trello</span>
@@ -497,12 +510,12 @@ export function DashboardPage() {
               }}
               disabled={isSimulating}
               aria-label="Simulasi Push Commit"
-              className="h-8.5 px-2.5 sm:px-3.5 rounded-md bg-zinc-950 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 active:scale-95 text-white dark:text-zinc-950 border border-zinc-900 dark:border-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer shadow-sm touch-manipulation shrink-0"
+              className="h-8 sm:h-8.5 px-2 sm:px-3.5 rounded-md bg-zinc-950 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 active:scale-95 text-white dark:text-zinc-950 border border-zinc-900 dark:border-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer shadow-sm touch-manipulation shrink-0"
               title="Kirim payload commit webhook untuk pengujian instan"
             >
               <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-400 dark:fill-amber-500 dark:text-amber-500 shrink-0" />
-              <span className="hidden xs:inline">Test Commit</span>
-              <span className="xs:hidden">Test</span>
+              <span className="hidden sm:inline">Test Commit</span>
+              <span className="sm:hidden text-xs">Test</span>
               <span className="hidden lg:inline font-mono text-[11px] text-zinc-300 dark:text-zinc-700">
                 [@{members[0]?.github_username || 'denoyey'}]
               </span>
@@ -537,7 +550,7 @@ export function DashboardPage() {
           </div>
 
           {/* Connection Status Badges */}
-          <div className="flex items-center gap-2 overflow-x-auto touch-scroll py-0.5 no-scrollbar">
+          <div className="flex items-center gap-2 overflow-x-auto touch-scroll py-0.5 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
             <div className="flex items-center gap-1.5 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 shrink-0 text-[11px] shadow-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
               <span className="text-zinc-500 dark:text-zinc-400">GitHub:</span>
@@ -664,10 +677,10 @@ export function DashboardPage() {
         </section>
 
         {/* SUMMARY METRICS CARDS */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div
             data-anim="stat-card"
-            className="bg-white dark:bg-gradient-to-b dark:from-[#131726] dark:to-[#0e111a] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition duration-200 rounded-lg p-5 min-h-[132px] flex flex-col justify-between shadow-xs"
+            className="bg-white dark:bg-gradient-to-b dark:from-[#131726] dark:to-[#0e111a] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition duration-200 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
           >
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium text-zinc-500 dark:text-zinc-400">Total Commits</span>
@@ -675,18 +688,19 @@ export function DashboardPage() {
                 <GitCommit className="w-4 h-4" />
               </div>
             </div>
-            <div ref={totalCommitsRef} className="text-3xl font-bold font-mono text-zinc-950 dark:text-white tracking-tight mt-1">
+            <div ref={totalCommitsRef} className="text-2xl sm:text-3xl font-bold font-mono text-zinc-950 dark:text-white tracking-tight mt-1">
               {metrics.totalCommits}
             </div>
             <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
               <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0"></span>
-              <span>Tercatat di Git repositori</span>
+              <span className="hidden sm:inline">Tercatat di Git repositori</span>
+              <span className="sm:hidden">Tercatat di Git</span>
             </div>
           </div>
 
           <div
             data-anim="stat-card"
-            className="bg-white dark:bg-gradient-to-b dark:from-[#131726] dark:to-[#0e111a] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition duration-200 rounded-lg p-5 min-h-[132px] flex flex-col justify-between shadow-xs"
+            className="bg-white dark:bg-gradient-to-b dark:from-[#131726] dark:to-[#0e111a] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition duration-200 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
           >
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium text-zinc-500 dark:text-zinc-400">Tugas Selesai</span>
@@ -694,19 +708,20 @@ export function DashboardPage() {
                 <CheckSquare className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-3xl font-bold font-mono text-emerald-600 dark:text-emerald-400 tracking-tight mt-1 flex items-baseline gap-1.5">
+            <div className="text-2xl sm:text-3xl font-bold font-mono text-emerald-600 dark:text-emerald-400 tracking-tight mt-1 flex items-baseline gap-1.5">
               <span ref={totalDoneRef}>{metrics.totalDone}</span>
               <span className="text-zinc-400 text-sm font-normal">/ {tasks.length}</span>
             </div>
             <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
-              <span>Status sinkron real-time Trello</span>
+              <span className="hidden sm:inline">Status sinkron real-time Trello</span>
+              <span className="sm:hidden">Sinkron real-time</span>
             </div>
           </div>
 
           <div
             data-anim="stat-card"
-            className="bg-white dark:bg-gradient-to-b dark:from-[#131726] dark:to-[#0e111a] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition duration-200 rounded-lg p-5 min-h-[132px] flex flex-col justify-between shadow-xs"
+            className="bg-white dark:bg-gradient-to-b dark:from-[#131726] dark:to-[#0e111a] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition duration-200 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
           >
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium text-zinc-500 dark:text-zinc-400">Penyelesaian Sprint</span>
@@ -714,7 +729,7 @@ export function DashboardPage() {
                 <Activity className="w-4 h-4" />
               </div>
             </div>
-            <div ref={completionRateRef} className="text-3xl font-bold font-mono text-zinc-950 dark:text-white tracking-tight mt-1">
+            <div ref={completionRateRef} className="text-2xl sm:text-3xl font-bold font-mono text-zinc-950 dark:text-white tracking-tight mt-1">
               {metrics.completionRate}%
             </div>
             <div className="w-full bg-zinc-200 dark:bg-zinc-800/80 h-2 rounded-md overflow-hidden">
@@ -728,7 +743,7 @@ export function DashboardPage() {
 
           <div
             data-anim="stat-card"
-            className="bg-white dark:bg-gradient-to-b dark:from-[#131726] dark:to-[#0e111a] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition duration-200 rounded-lg p-5 min-h-[132px] flex flex-col justify-between shadow-xs"
+            className="bg-white dark:bg-gradient-to-b dark:from-[#131726] dark:to-[#0e111a] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition duration-200 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
           >
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium text-zinc-500 dark:text-zinc-400">Proteksi Webhook</span>
@@ -736,12 +751,13 @@ export function DashboardPage() {
                 <ShieldCheck className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-300 tracking-tight mt-0.5 truncate">
+            <div className="text-base sm:text-xl font-bold font-mono text-emerald-600 dark:text-emerald-300 tracking-tight mt-0.5 truncate">
               HMAC SHA-256
             </div>
             <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 shrink-0"></span>
-              <span>Anti-Timing Attack &amp; DoS Guard</span>
+              <span className="hidden sm:inline">Anti-Timing Attack &amp; DoS Guard</span>
+              <span className="sm:hidden">Anti-Timing Attack</span>
             </div>
           </div>
         </div>
@@ -771,11 +787,12 @@ export function DashboardPage() {
                       engine.animateButtonPress(e.currentTarget);
                       setShowAddMemberModal(true);
                     }}
-                    className="h-8.5 px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
+                    className="h-8.5 px-2.5 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
                     title="Tambah anggota kelompok nyata"
                   >
                     <Plus className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                    <span>Tambah Anggota</span>
+                    <span className="hidden sm:inline">Tambah Anggota</span>
+                    <span className="sm:hidden">Tambah</span>
                   </button>
 
                   <button
@@ -791,16 +808,16 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              {/* Table with Safe Horizontal Scroll */}
-              <div className="overflow-x-auto touch-scroll" data-lenis-prevent>
-                <table className="w-full text-left text-xs min-w-[500px] sm:min-w-full">
+              {/* Table with Safe Horizontal Scroll & Clean Fit on Mobile */}
+              <div className="overflow-x-auto touch-scroll no-scrollbar" data-lenis-prevent>
+                <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100/60 dark:bg-[#0a0d14] text-zinc-500 dark:text-zinc-400 font-mono text-[11px]">
-                      <th className="py-3 px-4 w-16 text-center">RANK</th>
-                      <th className="py-3 px-4">DEVELOPER</th>
-                      <th className="py-3 px-4 text-center">COMMITS</th>
-                      <th className="py-3 px-4 text-center">TASKS</th>
-                      <th className="py-3 px-4 text-right">STATUS KERJA</th>
+                      <th className="py-2.5 sm:py-3 px-2 sm:px-4 w-12 sm:w-16 text-center">RANK</th>
+                      <th className="py-2.5 sm:py-3 px-2 sm:px-4">DEVELOPER</th>
+                      <th className="py-2.5 sm:py-3 px-2 sm:px-4 text-center">COMMITS</th>
+                      <th className="py-2.5 sm:py-3 px-2 sm:px-4 text-center">TASKS</th>
+                      <th className="hidden md:table-cell py-2.5 sm:py-3 px-4 text-right">STATUS KERJA</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800/60">
@@ -810,9 +827,9 @@ export function DashboardPage() {
 
                       return (
                         <tr key={member.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/25 transition">
-                          <td className="py-3 px-4 text-center">
+                          <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-center">
                             <span
-                              className={`inline-flex items-center justify-center font-mono text-xs font-bold px-2 py-0.5 rounded-md ${
+                              className={`inline-flex items-center justify-center font-mono text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-md ${
                                 index === 0
                                   ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 shadow-xs'
                                   : index === 1
@@ -825,8 +842,8 @@ export function DashboardPage() {
                               #{index + 1}
                             </span>
                           </td>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-3">
+                          <td className="py-2.5 sm:py-3 px-2 sm:px-4">
+                            <div className="flex items-center gap-2 sm:gap-3">
                               <AvatarWithFallback username={member.github_username} name={member.name} />
                               <div className="min-w-0">
                                 <div className="font-semibold text-zinc-950 dark:text-white flex items-center gap-1.5 flex-wrap">
@@ -835,6 +852,9 @@ export function DashboardPage() {
                                     <span className="text-[10px] bg-amber-500/15 text-amber-700 dark:text-amber-300 px-1.5 py-0.2 rounded-md border border-amber-500/30 font-mono font-medium">
                                       Lead
                                     </span>
+                                  )}
+                                  {isActive && (
+                                    <span className="md:hidden w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" title="Aktif Berkontribusi"></span>
                                   )}
                                 </div>
                                 <a
@@ -849,17 +869,17 @@ export function DashboardPage() {
                               </div>
                             </div>
                           </td>
-                          <td className="py-3 px-4 text-center">
-                            <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800/90 text-zinc-900 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-700 shadow-xs">
+                          <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-center">
+                            <span className="font-mono text-xs font-bold px-2 sm:px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800/90 text-zinc-900 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-700 shadow-xs">
                               {member.total_commits}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-center">
-                            <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 shadow-xs">
+                          <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-center">
+                            <span className="font-mono text-xs font-bold px-2 sm:px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 shadow-xs">
                               {member.tasks_done}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-right">
+                          <td className="hidden md:table-cell py-2.5 sm:py-3 px-4 text-right">
                             {isActive ? (
                               <span className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-200 dark:border-emerald-500/20 text-xs font-medium">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -906,7 +926,8 @@ export function DashboardPage() {
                     className="h-8.5 px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
                   >
                     <Plus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                    <span>Tambah Tugas</span>
+                    <span className="hidden sm:inline">Tambah Tugas</span>
+                    <span className="sm:hidden">Tugas</span>
                   </button>
 
                   {/* Filter Tabs */}
@@ -939,7 +960,7 @@ export function DashboardPage() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Cari kode tugas (#TASK-XX), judul, atau penanggung jawab..."
+                    placeholder="Cari tugas, kode (#TASK), atau assignee..."
                     className="w-full h-9 pl-9 pr-3 rounded-md bg-white dark:bg-[#121624] border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition shadow-inner"
                   />
                 </div>
@@ -1072,14 +1093,16 @@ export function DashboardPage() {
                       ref={index === 0 ? topLogRef : undefined}
                       className="p-3 rounded-md bg-white dark:bg-[#111522] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition shadow-xs space-y-2"
                     >
-                      <div className="flex items-center justify-between text-[11px]">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-mono font-bold text-[10px] px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/30">
+                      <div className="flex items-center justify-between text-[11px] gap-2 flex-wrap">
+                        <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                          <span className="font-mono font-bold text-[10px] px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/30 shrink-0">
                             {log.event_type}
                           </span>
-                          <span className="font-semibold text-zinc-800 dark:text-zinc-300">@{log.author}</span>
+                          <span className="font-semibold text-zinc-800 dark:text-zinc-300 truncate">@{log.author}</span>
                         </div>
-                        <span className="text-zinc-500 text-[10px]">{log.created_at}</span>
+                        <span className="text-zinc-500 font-mono text-[10px] shrink-0" title={log.created_at}>
+                          {formatLogTime(log.created_at)}
+                        </span>
                       </div>
 
                       <div className="p-2 rounded-md bg-zinc-50 dark:bg-[#090b10] border border-zinc-200 dark:border-zinc-800/80 text-zinc-800 dark:text-zinc-200 text-xs italic break-words">
@@ -1099,9 +1122,27 @@ export function DashboardPage() {
 
               {/* Instructions Panel */}
               <div className="p-3.5 bg-zinc-50 dark:bg-[#121623] border-t border-zinc-200 dark:border-zinc-800 text-xs space-y-2">
-                <div className="font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5 text-xs">
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                  <span>Uji Coba Commit Nyata di Terminal:</span>
+                <div className="flex items-center justify-between gap-1.5 font-semibold text-zinc-800 dark:text-zinc-200 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <SlidersHorizontal className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                    <span>Uji Coba Commit Nyata di Terminal:</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const cmd = `git commit -m "Selesaikan fitur [done #${tasks[0]?.task_code || 'TASK-01'}]"`;
+                      navigator.clipboard.writeText(cmd);
+                      setActiveToast({
+                        title: 'Perintah Berhasil Disalin',
+                        desc: 'Tempel (paste) dan jalankan pada terminal repo Git Anda.',
+                      });
+                    }}
+                    className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition active:scale-95 cursor-pointer touch-manipulation text-[11px] flex items-center gap-1 shrink-0"
+                    title="Salin perintah commit"
+                    aria-label="Salin perintah commit"
+                  >
+                    <Copy className="w-3 h-3" />
+                    <span className="hidden sm:inline">Salin</span>
+                  </button>
                 </div>
                 <div className="bg-white dark:bg-[#090b10] p-2.5 rounded-md border border-zinc-300 dark:border-zinc-800 font-mono text-[11px] text-emerald-600 dark:text-emerald-300 select-all break-all shadow-inner">
                   git commit -m "Selesaikan fitur [done #{tasks[0]?.task_code || 'TASK-01'}]"

@@ -29,6 +29,7 @@ Platform automasi dan monitoring terpadu yang menghubungkan alur kerja **GitHub 
 8. [Skenario Demo 30 Detik (Untuk Evaluasi Dosen/Penguji)](#-8-skenario-demo-30-detik-untuk-evaluasi-dosenpenguji)
 9. [Struktur Folder Proyek](#-9-struktur-folder-proyek)
 10. [Dokumentasi PRD & Standar Kontribusi Git](#-10-dokumentasi-prd--standar-kontribusi-git)
+11. [Tim Pengembang & Pembagian Tugas (Jobdesk)](#-11-tim-pengembang--pembagian-tugas-jobdesk)
 
 ---
 
@@ -225,7 +226,13 @@ si-patir/
 │   └── package.json
 ├── frontend/                        # React 19 + Vite 8 + Tailwind CSS v4 (Pure Human Engineering)
 │   ├── src/
-│   │   ├── App.tsx                  # Dashboard UI terpadu (Leaderboard, Tasks, Live Stream)
+│   │   ├── animations/              # GSAP Animation Engine OOP & reactive hooks
+│   │   ├── components/              # ThemeSwitcher, BackToTop, ExpandableDescription
+│   │   ├── context/                 # ThemeContext (System, Light, Dark)
+│   │   ├── pages/                   # LandingPage & DashboardPage
+│   │   ├── services/scroll/         # LenisScrollEngine OOP, contracts & smart navbar hooks
+│   │   ├── App.tsx                  # Client router & pre-paint scroll restoration
+│   │   ├── main.tsx                 # Root bootstrap & manual scroll restoration setup
 │   │   └── index.css                # Styling token & Safe Area Inset iPhone
 │   └── package.json
 ├── scripts/
@@ -257,6 +264,73 @@ si-patir/
   ./scripts/auto-git-push.sh feat responsive-ui ui "refine dashboard layout and enforce rounded-md"
   ```
   *(Skrip akan otomatis menjalankan verifikasi tipe & build, membuat branch baru, membuat conventional commit, dan melakukan push ke remote GitHub).*
+
+---
+
+## 👥 11. Tim Pengembang & Pembagian Tugas (Jobdesk)
+
+Proyek **SI-PATIR** dikembangkan secara kolaboratif oleh empat pengembang dengan spesialisasi tugas yang terstruktur untuk memastikan integrasi sistem, kehandalan basis data, keamanan siber, dan kualitas antarmuka pengguna berada pada standar rekayasa kelas industri.
+
+| No | Pengembang | Peran & Badge | Tanggung Jawab & Jobdesk Utama | Tech Stack & Fokus |
+|:--:|:-----------|:--------------|:-------------------------------|:-------------------|
+| **1** | **Deni**<br>[@denoyey](https://github.com/denoyey) | `Project Lead`<br>`Lead Architect & DevOps Integrator` | • Memimpin arsitektur terpadu gateway sistem SI-PATIR.<br>• Merancang Webhook Ingestion Pipeline & verifikasi kriptografi HMAC SHA-256 (`crypto.timingSafeEqual`).<br>• Mengonfigurasi WebSocket Socket.io server engine & dual-tier fallback memori.<br>• Otomasi skrip CI/CD deployment & environment orchestration. | `Node.js`, `Express`, `TypeScript`, `WebSocket`, `DevOps`, `HMAC Security` |
+| **2** | **Rafli**<br>[@muhamadrafli16](https://github.com/muhamadrafli16) | `UI/UX Specialist`<br>`Frontend UI & Data Visualization Engineer` | • Merancang arsitektur antarmuka dashboard modern & landing page interaktif.<br>• Menjamin responsivitas 100% di seluruh perangkat (desktop, tablet, hingga seluruh varian iPhone).<br>• Mengintegrasikan Lenis Smooth Scroll OOP engine & mikro-animasi GSAP.<br>• Mengembangkan sistem deteksi tema otomatis (System OS, Light, Dark) & dark mode accessibility. | `React 19`, `Tailwind CSS v4`, `GSAP`, `Lenis Scroll`, `Responsive UI` |
+| **3** | **Fatir**<br>[@Patirparkerr](https://github.com/Patirparkerr) | `Integrations Lead`<br>`Kanban Trello & Database Engineer` | • Mengintegrasikan Trello REST API untuk pemindahan kartu tugas otomatis (*In Progress* ➔ *Done*).<br>• Merancang dan memelihara skema basis data relasional MySQL lokal.<br>• Mengimplementasikan sinkronisasi status tugas real-time antara commit Git dan papan Kanban.<br>• Mengelola idempotensi update kartu & penanganan error REST API. | `Trello REST API`, `MySQL2`, `Database Design`, `RESTful API`, `Data Modeling` |
+| **4** | **Fajri**<br>[@AATTTRAWRRR](https://github.com/AATTTRAWRRR) | `Quality & Docs`<br>`QA, Security Testing & Academic Documentation` | • Menyusun pengujian unit test otomatis dan audit keamanan endpoint webhook.<br>• Melakukan pengujian audit ketahanan terhadap rate limiting, ReDoS, dan serangan DoS.<br>• Merancang laporan akademik lengkap, diagram UML (Use Case, Sequence, Activity, Class).<br>• Verifikasi kompatibilitas lintas peramban (*cross-browser*) & kepatuhan aksesibilitas. | `Automated QA`, `Security Audit`, `UML Modeling`, `Technical Documentation` |
+
+---
+
+### 🌟 Detail Kontribusi & Jobdesk Spesifik per Anggota
+
+<details open>
+<summary><b>1. Deni (@denoyey) — Project Lead & Lead Architect & DevOps Integrator</b></summary>
+
+- **Peran**: Penanggung jawab teknis proyek dan arsitektur backend.
+- **Jobdesk Spesifik**:
+  1. Mengembangkan gateway server Node.js/Express dengan arsitektur OOP (*Object-Oriented Programming*).
+  2. Mengimplementasikan verifikasi HMAC SHA-256 waktu konstan (`crypto.timingSafeEqual`) untuk melindungi endpoint webhook dari serangan *timing attack*.
+  3. Membangun middleware sanitasi ReDoS, pembatasan ukuran payload (100kb), dan rate limiter bertingkat.
+  4. Merancang sistem dual-tier storage: sinkronisasi MySQL utama dengan *in-memory resilient fallback* otomatis saat MySQL offline.
+  5. Mengonfigurasi WebSocket server (`Socket.io`) untuk penyiaran aktivitas real-time ke seluruh klien dashboard.
+  6. Menyusun skrip orkestrasi otomatis `start.sh`, `start.bat`, dan `auto-git-push.sh`.
+</details>
+
+<details open>
+<summary><b>2. Rafli (@muhamadrafli16) — UI/UX Specialist & Frontend UI Engineer</b></summary>
+
+- **Peran**: Perancang dan pengembang pengalaman pengguna serta visualisasi data frontend.
+- **Jobdesk Spesifik**:
+  1. Merancang dan mengimplementasikan antarmuka Landing Page dan Dashboard Monitoring berbasis React 19 dan Tailwind CSS v4.
+  2. Menerapkan filosofi *Pure Human Engineering UI* (standar token `rounded-md` untuk tombol/input/badge, `rounded-lg` untuk kartu/modal, kontainer `max-w-7xl`, palet Zinc/Slate).
+  3. Mengembangkan engine scroll halus Lenis OOP (`LenisScrollEngine`) yang terisolasi cerdas pada kontainer tabel dan modal dialog.
+  4. Membangun sistem navigasi auto-hiding navbar yang responsif terhadap arah scroll pengguna di semua perangkat.
+  5. Mengoptimalkan tampilan untuk seluruh varian iPhone (penanganan *Safe Area Insets*, *Dynamic Island*, dan *Notch*).
+  6. Menjamin kontras warna sempurna dan transisi mulus pada tema Sistem (Otomatis), Terang (*Light*), dan Gelap (*Dark*).
+</details>
+
+<details open>
+<summary><b>3. Fatir (@Patirparkerr) — Integrations Lead & Database Engineer</b></summary>
+
+- **Peran**: Pengembang integrasi platform pihak ketiga (Trello) dan basis data.
+- **Jobdesk Spesifik**:
+  1. Mengintegrasikan Trello REST API untuk melacak pergerakan kartu tugas berdasarkan kode tugas (misal: `#TASK-02`).
+  2. Mengotomatiskan pemindahan kartu dari kolom *In Progress* ke *Done* saat sinyal commit diterima.
+  3. Merancang struktur skema basis data MySQL `sipatir_db` (tabel `members`, `tasks`, `activity_logs`).
+  4. Mengimplementasikan repository database menggunakan *Parameterized Prepared Statements* untuk pencegahan mutlak SQL Injection.
+  5. Menangani sinkronisasi status tugas dua arah antara aktivitas lokal dan status papan Kanban Trello.
+</details>
+
+<details open>
+<summary><b>4. Fajri (@AATTTRAWRRR) — QA, Security Testing & Academic Documentation</b></summary>
+
+- **Peran**: Penjaminan mutu perangkat lunak, audit keamanan, dan penyusunan dokumentasi akademik.
+- **Jobdesk Spesifik**:
+  1. Merancang dan mengeksekusi skenario uji coba otomatis untuk memvalidasi alur integrasi Git ➔ Trello ➔ Discord ➔ Dashboard.
+  2. Melakukan audit pengujian keamanan siber pada endpoint webhook (uji coba payload berbahaya, format regex commit ekstrem, dan uji ketahanan rate limiter).
+  3. Menyusun modul dokumentasi akademik lengkap: Product Requirement Documents (PRD 00 s.d. 06).
+  4. Membuat pemodelan diagram UML standar rekayasa perangkat lunak (Use Case Diagram, Activity Diagram, Sequence Diagram, dan Class Diagram).
+  5. Melakukan verifikasi tampilan responsif lintas peramban (Chrome, Firefox, Safari, Edge, Mobile Safari iOS, Android Chrome).
+</details>
 
 ---
 
