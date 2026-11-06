@@ -235,3 +235,4 @@ Seluruh anggota (Deni, Rafli, Fatir, Fajri) **wajib** mengikuti aturan git berik
 ---
 
 Dokumen ini adalah panduan resmi pembagian tugas tim SI-PATIR. Simpan dan bagikan kepada Rafli, Fatir, dan Fajri untuk segera dieksekusi!
+

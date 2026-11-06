@@ -48,17 +48,19 @@ Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-genera
 ┌───────────────────────────────────────────────────────────────────────────────────────────────┐
 │ [SP] SI-PATIR  Sistem Monitoring              [Sync GitHub]  [Sync Trello]  [⚡ Test Commit]     │
 ├───────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Target Repo: denoyey/si-patir:main   │ GitHub: Ready 🟢 │ Trello: Synced 🟢 │ Discord: Active 🟢│
+│ Target Repo: denoyey/si-patir:main ↗ │ GitHub: Ready 🟢 │ Trello: Synced 🟢 │ Discord: Active 🟢│
+├───────────────────────────────────────────────────────────────────────────────────────────────┤
+│ ✦ PIPELINE AUTOMASI 3-SISTEM                                                                  │
+│ [1. Git Commit: #TASK-XX] ──➔ [2. Trello Sync: Geser Done] ──➔ [3. Discord: Notifikasi Live]   │
 ├──────────────────────────────────────┬────────────────────────────────────────────────────────┤
-│ [Total Commits: 9]                   │ [Tasks Done: 4 / 5]  │ [Rate: 80%] │ [Sec: HMAC-256]    │
+│ [Total Commits: 15]                  │ [Tasks Done: 4 / 5]  │ [Rate: 80%] │ [Sec: HMAC-256]    │
 ├──────────────────────────────────────┴──────────────────────┬─────────────────────────────────┤
-│ 🏆 KLASEMEN KONTRIBUSI ANGGOTA (REAL DATA)                  │ 💻 LIVE WEBHOOK AUDIT STREAM    │
-│ #1 denoyey (@denoyey) • 9 commits • 1 task (Lead)           │ // Menunggu sinyal push git...  │
-│    [+ Tambah Anggota]  [Hapus Dummy]                        │ [TASK_COMPLETED] 20:45:10       │
-│                                                             │ Author: @denoyey                │
-│                                                             │ Msg: "Fix bug [done #TASK-01]"  │
-├─────────────────────────────────────────────────────────────┤ Trello #TASK-01 shifted to Done │
-│ 📋 DAFTAR KARTU TUGAS                                       │                                 │
+│ 🏆 KLASEMEN KONTRIBUSI ANGGOTA (AVATAR & RATIO)             │ 💻 LIVE WEBHOOK AUDIT STREAM    │
+│ #1 👤 denoyey (@denoyey) • 15 commits • 3 task (Lead)       │ // Siap mendengarkan sinyal...  │
+│    [+ Tambah Anggota]  [Hapus Dummy]                        │ [PUSH_EVENT] @denoyey           │
+│                                                             │ "Redesign dashboard UI"         │
+├─────────────────────────────────────────────────────────────┤ Trello #TASK-03 shifted to Done │
+│ 📋 DAFTAR KARTU TUGAS (BORDER STATUS ACCENTS)               │ & Discord notified              │
 │ [Filter: ALL | In Progress | Done | To Do]   [+ Tambah Tugas]│                                │
 │ [#TASK-01] Buat Database User       [Done]                  │                                 │
 │ [#TASK-02] Integrasi Halaman Login  [Done]                  │                                 │
@@ -66,12 +68,17 @@ Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-genera
 └─────────────────────────────────────────────────────────────┴─────────────────────────────────┘
 ```
 
-### 3.1 Top Navigation Bar
+### 3.1 Top Navigation Bar & Hero Action
 * **Branding:** Logo inisial `[SP]` berbingkai dan label badge *Sistem Monitoring*.
-* **Action Controls:**
-  * Tombol **"Sync GitHub"** (menarik data kontributor & commit asli dari repositori GitHub).
-  * Tombol **"Sync Trello"** (dengan ikon loading spin saat proses fetch berlangsung).
-  * Tombol aksi cepat **"Test Commit"** (otomatis menggunakan nama developer nyata yang aktif).
+* **Hero Action "Test Commit":** Tombol kontras tinggi berwarna terang (`bg-white text-zinc-950 font-bold shadow-md`) sebagai titik interaksi utama (*Call to Action*) yang langsung mengajak evaluator atau pengguna awam menguji otomasi instan tanpa rasa bingung.
+* **Tautan Langsung Repositori:** Tag repositori dilengkapi ikon `ExternalLink` yang dapat diklik langsung membuka repositori GitHub tim.
+
+### 3.2 Visual Pipeline Automation Guide (Penjelas Alur Orang Awam)
+Panduan visual 3 langkah (*3-Step Interactive Pipeline*) yang diletakkan tepat di atas ringkasan metrik:
+1. **Tahap 1 (Git Commit):** Menjelaskan format tag tugas pada commit (`[done #TASK-XX]`).
+2. **Tahap 2 (Trello Sync):** Menjelaskan pergeseran kartu otomatis ke kolom *Done* beserta link commit.
+3. **Tahap 3 (Discord Broadcast):** Menjelaskan siaran notifikasi instan ke kanal tim.
+Komponen ini secara dramatis mempermudah pemahaman alur sistem bagi dosen, mahasiswa, dan evaluator non-teknis.
 
 ### 3.2 Connectivity & Dynamic Repository Strip
 Menampilkan target repositori asli secara dinamis (`denoyey/si-patir:main`) dan status kesehatan seluruh subsistem eksternal secara berdampingan:

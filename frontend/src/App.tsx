@@ -22,7 +22,42 @@ import {
   Plus,
   Trash2,
   X,
+  Sparkles,
+  ArrowRight,
+  Kanban,
+  MessageSquare,
+  ExternalLink,
 } from 'lucide-react';
+
+function AvatarWithFallback({ username, name }: { username: string; name: string }) {
+  const [error, setError] = useState(false);
+  const initials = name
+    ? name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : username.slice(0, 2).toUpperCase();
+
+  if (error || !username) {
+    return (
+      <div className="w-8 h-8 rounded-md bg-zinc-800 border border-zinc-700 flex items-center justify-center text-[11px] font-mono font-bold text-zinc-300 shrink-0 shadow-xs">
+        {initials}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={`https://github.com/${username}.png?size=64`}
+      alt={name}
+      onError={() => setError(true)}
+      className="w-8 h-8 rounded-md border border-zinc-700 object-cover shrink-0 bg-zinc-800 shadow-xs"
+      loading="lazy"
+    />
+  );
+}
 
 interface Member {
   id: number;
@@ -440,9 +475,16 @@ export function App() {
           <div className="flex items-center gap-2 text-zinc-400 truncate">
             <GitBranch className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
             <span className="hidden sm:inline text-zinc-500">Repository:</span>
-            <span className="text-zinc-200 bg-zinc-800/60 px-2 py-0.5 rounded-md border border-zinc-700/60 truncate text-[11px] font-semibold">
-              {status.repository || 'denoyey/si-patir'}:main
-            </span>
+            <a
+              href={`https://github.com/${status.repository || 'denoyey/si-patir'}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-zinc-200 hover:text-white bg-zinc-800/80 hover:bg-zinc-750 px-2 py-0.5 rounded-md border border-zinc-700/80 truncate text-[11px] font-semibold flex items-center gap-1.5 transition"
+              title="Buka repositori GitHub di tab baru"
+            >
+              <span>{status.repository || 'denoyey/si-patir'}:main</span>
+              <ExternalLink className="w-3 h-3 text-zinc-400" />
+            </a>
           </div>
 
           {/* Connection Status Badges */}
@@ -478,53 +520,155 @@ export function App() {
 
       {/* CORE CONTENT (Max-W 7XL Across Desktop) */}
       <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1 safe-bottom">
-        {/* SUMMARY METRICS CARDS (Pure Human Design, Strict Uniformity in Padding & Heights) */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div data-anim="stat-card" className="bg-[#11141e] border border-zinc-800 hover:border-zinc-750 transition duration-200 rounded-lg p-5 min-h-[124px] flex flex-col justify-between">
-            <div className="flex items-center justify-between text-zinc-400 text-xs">
-              <span className="font-medium">Total Commits</span>
-              <GitCommit className="w-4 h-4 text-zinc-500 shrink-0" />
+        {/* VISUAL PIPELINE AUTOMATION GUIDE (User & Layperson Friendly) */}
+        <section data-anim="header" className="rounded-lg bg-gradient-to-r from-[#131726] via-[#10131f] to-[#131726] border border-zinc-800/90 p-4 sm:p-5 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-zinc-800/80">
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-white">
+                  Alur Kerja Automasi 3-Sistem (Git ➔ Trello ➔ Discord)
+                </h3>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  Setiap commit di repositori otomatis memindahkan kartu tugas dan memberitahu tim via Discord.
+                </p>
+              </div>
             </div>
-            <div ref={totalCommitsRef} className="text-2xl font-bold font-mono text-white tracking-tight mt-1">{metrics.totalCommits}</div>
-            <div className="text-[11px] text-zinc-500 truncate">Tercatat di Git repositori</div>
+            <div className="flex items-center gap-1.5 self-start sm:self-center shrink-0">
+              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                Real-Time Automation Active
+              </span>
+            </div>
           </div>
 
-          <div data-anim="stat-card" className="bg-[#11141e] border border-zinc-800 hover:border-zinc-750 transition duration-200 rounded-lg p-5 min-h-[124px] flex flex-col justify-between">
-            <div className="flex items-center justify-between text-zinc-400 text-xs">
-              <span className="font-medium">Tugas Selesai</span>
-              <CheckSquare className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="grid grid-cols-1 md:grid-cols-7 items-center gap-2 pt-3.5">
+            {/* Step 1 */}
+            <div className="md:col-span-2 bg-[#121522] border border-zinc-800 rounded-md p-3.5 flex items-start gap-3 hover:border-zinc-700 transition">
+              <div className="p-2 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20 shrink-0 mt-0.5">
+                <GitCommit className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-mono font-bold bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-md">1. GIT COMMIT</span>
+                </div>
+                <h4 className="text-xs font-semibold text-white mt-1">Push Kode & Tag Tugas</h4>
+                <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
+                  Sertakan tag di pesan commit: <code className="text-purple-300 font-mono text-[10px] bg-purple-950/40 px-1 py-0.5 rounded-md">[done #TASK-02]</code>
+                </p>
+              </div>
             </div>
-            <div className="text-2xl font-bold font-mono text-emerald-400 tracking-tight mt-1 flex items-baseline gap-1">
+
+            {/* Arrow Divider 1 */}
+            <div className="hidden md:flex justify-center text-zinc-600">
+              <ArrowRight className="w-4 h-4" />
+            </div>
+
+            {/* Step 2 */}
+            <div className="md:col-span-2 bg-[#121522] border border-zinc-800 rounded-md p-3.5 flex items-start gap-3 hover:border-zinc-700 transition">
+              <div className="p-2 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20 shrink-0 mt-0.5">
+                <Kanban className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-mono font-bold bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-md">2. TRELLO SYNC</span>
+                </div>
+                <h4 className="text-xs font-semibold text-white mt-1">Kartu Pindah ke Done</h4>
+                <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
+                  Kartu otomatis digeser dari <span className="text-amber-300 font-medium">In Progress</span> ke <span className="text-emerald-300 font-medium">Done</span>.
+                </p>
+              </div>
+            </div>
+
+            {/* Arrow Divider 2 */}
+            <div className="hidden md:flex justify-center text-zinc-600">
+              <ArrowRight className="w-4 h-4" />
+            </div>
+
+            {/* Step 3 */}
+            <div className="md:col-span-2 bg-[#121522] border border-zinc-800 rounded-md p-3.5 flex items-start gap-3 hover:border-zinc-700 transition">
+              <div className="p-2 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0 mt-0.5">
+                <MessageSquare className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded-md">3. DISCORD NOTIF</span>
+                </div>
+                <h4 className="text-xs font-semibold text-white mt-1">Kirim Broadcast Tim</h4>
+                <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
+                  Kanal Discord tim menerima notifikasi kartu selesai dan ringkasan commit secara detik itu juga.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SUMMARY METRICS CARDS (Dimensional, Non-Flat, High Contrast) */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div data-anim="stat-card" className="bg-gradient-to-b from-[#131726] to-[#0e111a] border border-zinc-800 hover:border-zinc-700/80 transition duration-200 rounded-lg p-5 min-h-[132px] flex flex-col justify-between shadow-xs">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-medium text-zinc-400">Total Commits</span>
+              <div className="p-1.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-400 shrink-0">
+                <GitCommit className="w-4 h-4" />
+              </div>
+            </div>
+            <div ref={totalCommitsRef} className="text-3xl font-bold font-mono text-white tracking-tight mt-1">{metrics.totalCommits}</div>
+            <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 truncate">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0"></span>
+              <span>Tercatat di Git repositori</span>
+            </div>
+          </div>
+
+          <div data-anim="stat-card" className="bg-gradient-to-b from-[#131726] to-[#0e111a] border border-zinc-800 hover:border-zinc-700/80 transition duration-200 rounded-lg p-5 min-h-[132px] flex flex-col justify-between shadow-xs">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-medium text-zinc-400">Tugas Selesai</span>
+              <div className="p-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
+                <CheckSquare className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold font-mono text-emerald-400 tracking-tight mt-1 flex items-baseline gap-1.5">
               <span ref={totalDoneRef}>{metrics.totalDone}</span>
               <span className="text-zinc-500 text-sm font-normal">/ {tasks.length}</span>
             </div>
-            <div className="text-[11px] text-zinc-500 truncate">Status sinkron real-time</div>
+            <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 truncate">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+              <span>Status sinkron real-time Trello</span>
+            </div>
           </div>
 
-          <div data-anim="stat-card" className="bg-[#11141e] border border-zinc-800 hover:border-zinc-750 transition duration-200 rounded-lg p-5 min-h-[124px] flex flex-col justify-between">
-            <div className="flex items-center justify-between text-zinc-400 text-xs">
-              <span className="font-medium">Penyelesaian</span>
-              <Activity className="w-4 h-4 text-blue-400 shrink-0" />
+          <div data-anim="stat-card" className="bg-gradient-to-b from-[#131726] to-[#0e111a] border border-zinc-800 hover:border-zinc-700/80 transition duration-200 rounded-lg p-5 min-h-[132px] flex flex-col justify-between shadow-xs">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-medium text-zinc-400">Penyelesaian Sprint</span>
+              <div className="p-1.5 rounded-md bg-blue-500/10 border border-blue-500/20 text-blue-400 shrink-0">
+                <Activity className="w-4 h-4" />
+              </div>
             </div>
-            <div ref={completionRateRef} className="text-2xl font-bold font-mono text-white tracking-tight mt-1">{metrics.completionRate}%</div>
-            <div className="w-full bg-zinc-800/80 h-1.5 rounded-md overflow-hidden">
+            <div ref={completionRateRef} className="text-3xl font-bold font-mono text-white tracking-tight mt-1">{metrics.completionRate}%</div>
+            <div className="w-full bg-zinc-800/80 h-2 rounded-md overflow-hidden">
               <div
                 ref={progressBarRef}
-                className="bg-blue-500 h-full rounded-md transition-all duration-300"
+                className="bg-gradient-to-r from-blue-500 to-emerald-400 h-full rounded-md transition-all duration-300"
                 style={{ width: `${metrics.completionRate}%` }}
               ></div>
             </div>
           </div>
 
-          <div data-anim="stat-card" className="bg-[#11141e] border border-zinc-800 hover:border-zinc-750 transition duration-200 rounded-lg p-5 min-h-[124px] flex flex-col justify-between">
-            <div className="flex items-center justify-between text-zinc-400 text-xs">
-              <span className="font-medium">Proteksi Keamanan</span>
-              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div data-anim="stat-card" className="bg-gradient-to-b from-[#131726] to-[#0e111a] border border-zinc-800 hover:border-zinc-700/80 transition duration-200 rounded-lg p-5 min-h-[132px] flex flex-col justify-between shadow-xs">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-medium text-zinc-400">Proteksi Webhook</span>
+              <div className="p-1.5 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 shrink-0">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
             </div>
-            <div className="text-lg font-bold font-mono text-emerald-300 tracking-tight mt-1 truncate">
+            <div className="text-xl font-bold font-mono text-emerald-300 tracking-tight mt-0.5 truncate">
               HMAC SHA-256
             </div>
-            <div className="text-[11px] text-zinc-500 truncate">ReDoS & DoS Hardened</div>
+            <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 truncate">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0"></span>
+              <span>Anti-Timing Attack & DoS Guard</span>
+            </div>
           </div>
         </div>
 
@@ -533,13 +677,18 @@ export function App() {
           {/* LEFT 2 COLUMNS: Leaderboard & Task Management */}
           <div data-anim="content-grid" className="lg:col-span-2 space-y-5">
             {/* 1. KLASEMEN KONTRIBUSI ANGGOTA NYATA */}
-            <section className="bg-[#11141e] border border-zinc-800 rounded-lg overflow-hidden">
-              <div className="px-5 py-3.5 min-h-[52px] border-b border-zinc-800 bg-[#0d1017] flex items-center justify-between gap-2">
+            <section className="bg-[#0e121b] border border-zinc-800 rounded-lg overflow-hidden shadow-xs">
+              <div className="px-5 py-3.5 min-h-[52px] border-b border-zinc-800 bg-[#121623] flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <Trophy className="w-4 h-4 text-amber-400 shrink-0" />
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-200">
-                    Klasemen Kontribusi Anggota
-                  </h2>
+                  <div className="p-1 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    <Trophy className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-white">
+                      Klasemen Kontribusi Anggota
+                    </h2>
+                    <span className="text-[10px] text-zinc-400">{members.length} Developer Terdaftar</span>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -548,7 +697,7 @@ export function App() {
                       engine.animateButtonPress(e.currentTarget);
                       setShowAddMemberModal(true);
                     }}
-                    className="h-8 px-2.5 rounded-md bg-zinc-800 hover:bg-zinc-750 active:bg-zinc-700 active:scale-95 border border-zinc-700 text-xs font-medium text-zinc-200 flex items-center gap-1.5 transition cursor-pointer touch-manipulation"
+                    className="h-8.5 px-3 rounded-md bg-zinc-800 hover:bg-zinc-750 active:scale-95 border border-zinc-700 text-xs font-medium text-zinc-200 flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
                     title="Tambah anggota kelompok nyata"
                   >
                     <Plus className="w-3.5 h-3.5 text-emerald-400" />
@@ -560,7 +709,7 @@ export function App() {
                       engine.animateButtonPress(e.currentTarget);
                       handleClearDummy();
                     }}
-                    className="h-8 px-2.5 rounded-md bg-zinc-900 hover:bg-red-950/40 active:bg-red-900/60 active:scale-95 border border-zinc-800 hover:border-red-800/50 text-xs text-zinc-400 hover:text-red-300 transition cursor-pointer touch-manipulation"
+                    className="h-8.5 px-2.5 rounded-md bg-zinc-900 hover:bg-red-950/40 active:scale-95 border border-zinc-800 hover:border-red-800/50 text-xs text-zinc-400 hover:text-red-300 transition cursor-pointer touch-manipulation"
                     title="Hapus data dummy bawaan"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -570,14 +719,14 @@ export function App() {
 
               {/* Table with Safe Horizontal Scroll */}
               <div className="overflow-x-auto touch-scroll">
-                <table className="w-full text-left text-xs min-w-[480px] sm:min-w-full">
+                <table className="w-full text-left text-xs min-w-[500px] sm:min-w-full">
                   <thead>
-                    <tr className="border-b border-zinc-800 bg-[#0b0e14] text-zinc-400 font-mono text-[11px]">
-                      <th className="py-2.5 px-4 w-14 text-center">#</th>
-                      <th className="py-2.5 px-4">Developer</th>
-                      <th className="py-2.5 px-4 text-center">Commits</th>
-                      <th className="py-2.5 px-4 text-center">Tasks</th>
-                      <th className="py-2.5 px-4 text-right">Status Kerja</th>
+                    <tr className="border-b border-zinc-800 bg-[#0a0d14] text-zinc-400 font-mono text-[11px]">
+                      <th className="py-3 px-4 w-16 text-center">RANK</th>
+                      <th className="py-3 px-4">DEVELOPER</th>
+                      <th className="py-3 px-4 text-center">COMMITS</th>
+                      <th className="py-3 px-4 text-center">TASKS</th>
+                      <th className="py-3 px-4 text-right">STATUS KERJA</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-800/60">
@@ -586,51 +735,56 @@ export function App() {
                       const isActive = member.total_commits >= 5;
 
                       return (
-                        <tr key={member.id} className="hover:bg-zinc-800/30 transition">
+                        <tr key={member.id} className="hover:bg-zinc-800/25 transition">
                           <td className="py-3 px-4 text-center">
-                            <span className={`inline-flex items-center justify-center font-mono text-xs font-semibold px-2 py-0.5 rounded-md ${
+                            <span className={`inline-flex items-center justify-center font-mono text-xs font-bold px-2 py-0.5 rounded-md ${
                               index === 0
-                                ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-xs'
                                 : index === 1
-                                ? 'bg-zinc-750 text-zinc-300 border border-zinc-700'
+                                ? 'bg-zinc-700/40 text-zinc-200 border border-zinc-600/50 shadow-xs'
                                 : index === 2
-                                ? 'bg-amber-900/20 text-amber-500 border border-amber-800/30'
+                                ? 'bg-amber-900/30 text-amber-400 border border-amber-800/40 shadow-xs'
                                 : 'text-zinc-500'
                             }`}>
                               #{index + 1}
                             </span>
                           </td>
                           <td className="py-3 px-4">
-                            <div className="font-medium text-white flex items-center gap-1.5 flex-wrap">
-                              <span>{member.name}</span>
-                              {isTop && (
-                                <span className="text-[10px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded-md border border-amber-500/20 font-mono font-medium">
-                                  Lead
-                                </span>
-                              )}
-                            </div>
-                            <div className="text-[11px] font-mono text-zinc-400">
-                              @{member.github_username}
+                            <div className="flex items-center gap-3">
+                              <AvatarWithFallback username={member.github_username} name={member.name} />
+                              <div className="min-w-0">
+                                <div className="font-semibold text-white flex items-center gap-1.5 flex-wrap">
+                                  <span>{member.name}</span>
+                                  {isTop && (
+                                    <span className="text-[10px] bg-amber-500/15 text-amber-300 px-1.5 py-0.2 rounded-md border border-amber-500/30 font-mono font-medium">
+                                      Lead
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-[11px] font-mono text-zinc-400 flex items-center gap-1 mt-0.5">
+                                  <span>@{member.github_username}</span>
+                                </div>
+                              </div>
                             </div>
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-200 border border-zinc-700">
+                            <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-zinc-800/90 text-zinc-100 border border-zinc-700 shadow-xs">
                               {member.total_commits}
                             </span>
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-950/40 text-emerald-300 border border-emerald-800/50">
+                            <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-950/50 text-emerald-300 border border-emerald-800/60 shadow-xs">
                               {member.tasks_done}
                             </span>
                           </td>
                           <td className="py-3 px-4 text-right">
                             {isActive ? (
-                              <span className="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-md border border-emerald-500/20 text-xs font-medium">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                Aktif
+                              <span className="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20 text-xs font-medium">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Aktif Berkontribusi
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1.5 text-zinc-400 bg-zinc-800/60 px-2.5 py-0.5 rounded-md border border-zinc-700 text-xs">
+                              <span className="inline-flex items-center gap-1.5 text-zinc-400 bg-zinc-800/60 px-2.5 py-1 rounded-md border border-zinc-700 text-xs">
                                 Standby
                               </span>
                             )}
@@ -644,13 +798,18 @@ export function App() {
             </section>
 
             {/* 2. DAFTAR TUGAS PROYEK REALTIME */}
-            <section className="bg-[#11141e] border border-zinc-800 rounded-lg overflow-hidden">
-              <div className="px-5 py-3.5 min-h-[52px] border-b border-zinc-800 bg-[#0d1017] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <section className="bg-[#0e121b] border border-zinc-800 rounded-lg overflow-hidden shadow-xs">
+              <div className="px-5 py-3.5 min-h-[52px] border-b border-zinc-800 bg-[#121623] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <CheckSquare className="w-4 h-4 text-blue-400 shrink-0" />
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-200">
-                    Daftar Kartu Tugas
-                  </h2>
+                  <div className="p-1 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    <CheckSquare className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-white">
+                      Daftar Kartu Tugas
+                    </h2>
+                    <span className="text-[10px] text-zinc-400">{filteredTasks.length} dari {tasks.length} Tugas Ditampilkan</span>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
@@ -660,14 +819,14 @@ export function App() {
                       engine.animateButtonPress(e.currentTarget);
                       setShowAddTaskModal(true);
                     }}
-                    className="h-8 px-2.5 rounded-md bg-zinc-800 hover:bg-zinc-750 active:bg-zinc-700 active:scale-95 border border-zinc-700 text-xs font-medium text-zinc-200 flex items-center gap-1.5 transition cursor-pointer touch-manipulation"
+                    className="h-8.5 px-3 rounded-md bg-zinc-800 hover:bg-zinc-750 active:scale-95 border border-zinc-700 text-xs font-medium text-zinc-200 flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
                   >
                     <Plus className="w-3.5 h-3.5 text-blue-400" />
                     <span>Tambah Tugas</span>
                   </button>
 
                   {/* Filter Tabs */}
-                  <div className="flex items-center gap-0.5 bg-[#090b10] p-0.5 rounded-md border border-zinc-800 text-xs overflow-x-auto touch-scroll no-scrollbar">
+                  <div className="flex items-center gap-1 bg-[#090b10] p-1 rounded-md border border-zinc-800 text-xs overflow-x-auto touch-scroll no-scrollbar">
                     {(['ALL', 'In Progress', 'Done', 'To Do'] as const).map((tab) => (
                       <button
                         key={tab}
@@ -675,7 +834,7 @@ export function App() {
                           engine.animateButtonPress(e.currentTarget);
                           setStatusFilter(tab);
                         }}
-                        className={`px-2.5 py-1 rounded-md text-xs font-medium transition active:scale-95 cursor-pointer shrink-0 touch-manipulation ${
+                        className={`px-3 py-1 rounded-md text-xs font-medium transition active:scale-95 cursor-pointer shrink-0 touch-manipulation ${
                           statusFilter === tab
                             ? 'bg-zinc-800 text-white shadow-xs border border-zinc-700'
                             : 'text-zinc-400 hover:text-zinc-200'
@@ -689,15 +848,15 @@ export function App() {
               </div>
 
               {/* Search Bar */}
-              <div className="p-3.5 border-b border-zinc-800 bg-[#0b0e14]">
+              <div className="p-3.5 border-b border-zinc-800 bg-[#0a0d14]">
                 <div className="relative">
-                  <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-zinc-500" />
+                  <Search className="w-4 h-4 absolute left-3 top-2.5 text-zinc-500" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Cari kode tugas, judul, atau penanggung jawab..."
-                    className="w-full pl-8.5 pr-3 py-1.5 rounded-md bg-[#11141e] border border-zinc-800 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-hidden focus:border-zinc-600 transition"
+                    placeholder="Cari kode tugas (#TASK-XX), judul, atau penanggung jawab..."
+                    className="w-full h-9 pl-9 pr-3 rounded-md bg-[#121624] border border-zinc-800 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition shadow-inner"
                   />
                 </div>
               </div>
@@ -705,7 +864,7 @@ export function App() {
               {/* Task Items List */}
               <div className="divide-y divide-zinc-800/60">
                 {filteredTasks.length === 0 ? (
-                  <div className="p-8 text-center text-xs text-zinc-500">Belum ada tugas. Klik tombol "Tambah Tugas" untuk menambahkan.</div>
+                  <div className="p-8 text-center text-xs text-zinc-500">Belum ada tugas yang cocok. Klik tombol "Tambah Tugas" untuk menambahkan.</div>
                 ) : (
                   filteredTasks.map((task) => {
                     const isDone = task.status === 'Done';
@@ -714,34 +873,47 @@ export function App() {
                     return (
                       <div
                         key={task.id}
-                        className="px-5 py-3.5 hover:bg-zinc-800/25 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
+                        className={`p-4 hover:bg-zinc-800/20 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-l-3 ${
+                          isDone
+                            ? 'border-l-emerald-500'
+                            : isInProgress
+                            ? 'border-l-amber-500'
+                            : 'border-l-zinc-700'
+                        }`}
                       >
                         <div className="flex items-start gap-3 min-w-0">
                           <div className="mt-0.5 shrink-0">
                             {isDone ? (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                              <div className="p-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                                <CheckCircle2 className="w-4 h-4" />
+                              </div>
                             ) : isInProgress ? (
-                              <Clock className="w-4 h-4 text-amber-400" />
+                              <div className="p-1 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                                <Clock className="w-4 h-4" />
+                              </div>
                             ) : (
-                              <Layers className="w-4 h-4 text-zinc-600" />
+                              <div className="p-1 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-500">
+                                <Layers className="w-4 h-4" />
+                              </div>
                             )}
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-mono font-bold text-xs text-zinc-200 bg-zinc-800 px-2 py-0.5 rounded-md border border-zinc-700 shrink-0">
+                              <span className="font-mono font-bold text-xs text-zinc-200 bg-zinc-800 px-2 py-0.5 rounded-md border border-zinc-700 shadow-xs">
                                 [#{task.task_code}]
                               </span>
-                              <span className="text-xs font-medium text-white break-words">{task.title}</span>
+                              <span className="text-xs font-semibold text-white break-words">{task.title}</span>
                             </div>
-                            <div className="text-[11px] text-zinc-400 mt-1 truncate">
-                              Assignee: <span className="font-mono text-zinc-300">@{task.assignee}</span>
+                            <div className="flex items-center gap-1 text-[11px] text-zinc-400 mt-1.5">
+                              <span className="text-zinc-500">Assignee:</span>
+                              <span className="font-mono text-zinc-300 font-medium bg-zinc-800/80 px-1.5 py-0.2 rounded-md border border-zinc-700/60">@{task.assignee}</span>
                             </div>
                           </div>
                         </div>
 
                         <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
                           <span
-                            className={`text-xs font-mono px-2.5 py-0.5 rounded-md border ${
+                            className={`text-xs font-mono font-semibold px-2.5 py-1 rounded-md border ${
                               isDone
                                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                                 : isInProgress
@@ -774,46 +946,55 @@ export function App() {
 
           {/* RIGHT 1 COLUMN: LIVE WEBHOOK AUDIT STREAM */}
           <aside data-anim="content-grid" className="space-y-4">
-            <div className="bg-[#11141e] border border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[520px] sm:h-[600px] lg:h-[680px]">
-              <div className="px-5 py-3.5 min-h-[52px] border-b border-zinc-800 flex items-center justify-between bg-[#0d1017]">
+            <div className="bg-[#0e121b] border border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[560px] sm:h-[640px] lg:h-[720px] shadow-xs">
+              <div className="px-5 py-3.5 min-h-[52px] border-b border-zinc-800 flex items-center justify-between bg-[#121623]">
                 <div className="flex items-center gap-2">
-                  <Terminal className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-200">
-                    Live Webhook Stream
-                  </h3>
+                  <div className="p-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <Terminal className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-white">
+                      Live Webhook Stream
+                    </h3>
+                    <span className="text-[10px] text-zinc-400">Log Event Real-Time</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-400">
-                  <Radio className="w-3 h-3 text-emerald-400 animate-pulse shrink-0" />
+                <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">
+                  <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse shrink-0" />
                   <span>LISTENING</span>
                 </div>
               </div>
 
               {/* Streaming Output Body */}
-              <div className="flex-1 bg-[#090b10] p-4 font-mono text-xs overflow-y-auto touch-scroll space-y-3 divide-y divide-zinc-800/40">
-                <div className="text-zinc-500 text-[11px] pb-2">
-                  // Menunggu sinyal push git dari pengembang nyata...
+              <div className="flex-1 bg-[#090b10] p-4 font-mono text-xs overflow-y-auto touch-scroll space-y-3">
+                <div className="text-zinc-500 text-[11px] pb-1 border-b border-zinc-850">
+                  // Siap mendengarkan sinyal commit GitHub & webhook otomasi...
                 </div>
 
                 {logs.map((log, index) => (
                   <div
                     key={log.id}
                     ref={index === 0 ? topLogRef : undefined}
-                    className="pt-2.5 space-y-1 transition-colors duration-300 rounded-md p-1"
+                    className="p-3 rounded-md bg-[#111522] border border-zinc-800 hover:border-zinc-700/80 transition shadow-xs space-y-2"
                   >
-                    <div className="flex items-center justify-between text-[11px] text-zinc-500">
-                      <span className="text-blue-400 font-bold">[{log.event_type}]</span>
-                      <span>{log.created_at}</span>
+                    <div className="flex items-center justify-between text-[11px]">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono font-bold text-[10px] px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                          {log.event_type}
+                        </span>
+                        <span className="font-semibold text-zinc-300">@{log.author}</span>
+                      </div>
+                      <span className="text-zinc-500 text-[10px]">{log.created_at}</span>
                     </div>
-                    <div className="text-zinc-300 text-[11px]">
-                      Author: <span className="text-amber-300">@{log.author}</span>
+
+                    <div className="p-2 rounded-md bg-[#090b10] border border-zinc-800/80 text-zinc-200 text-xs italic break-words">
+                      "{log.commit_message}"
                     </div>
-                    <div className="text-zinc-400 text-[11px] break-words">
-                      Msg: <span className="text-zinc-200 italic">"{log.commit_message}"</span>
-                    </div>
+
                     {log.task_code && (
-                      <div className="text-emerald-400 text-[10px] flex items-center gap-1 pt-1">
-                        <CheckCircle2 className="w-3 h-3 shrink-0" />
-                        Trello card #{log.task_code} shifted to Done & Discord notified
+                      <div className="flex items-center gap-1.5 text-emerald-400 text-[10px] bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20 font-medium">
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                        <span>Trello card #{log.task_code} digeser ke Done & Discord ternotifikasi</span>
                       </div>
                     )}
                   </div>
@@ -821,11 +1002,12 @@ export function App() {
               </div>
 
               {/* Instructions Panel */}
-              <div className="p-3.5 bg-[#0d1017] border-t border-zinc-800 text-xs space-y-1.5">
-                <div className="font-semibold text-zinc-300 flex items-center gap-1 text-xs">
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-400 shrink-0" /> Contoh Commit Nyata di Terminal:
+              <div className="p-3.5 bg-[#121623] border-t border-zinc-800 text-xs space-y-2">
+                <div className="font-semibold text-zinc-200 flex items-center gap-1.5 text-xs">
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span>Uji Coba Commit Nyata di Terminal:</span>
                 </div>
-                <div className="bg-[#11141e] p-2 rounded-md border border-zinc-800 font-mono text-[10px] text-emerald-300 select-all break-all">
+                <div className="bg-[#090b10] p-2.5 rounded-md border border-zinc-800 font-mono text-[11px] text-emerald-300 select-all break-all shadow-inner">
                   git commit -m "Selesaikan fitur [done #{tasks[0]?.task_code || 'TASK-01'}]"
                 </div>
               </div>
