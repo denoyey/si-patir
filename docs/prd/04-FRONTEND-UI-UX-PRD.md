@@ -9,13 +9,17 @@
 
 Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-generated slop*). Prinsip antarmuka kami adalah:
 
-1. **Nol Gradasi Klise & Zero Decorative Clutter**: Tidak menggunakan gradasi ungu-ke-merah-muda sintetis maupun footer dekoratif tanpa fungsi praktis.
-2. **Standar Border Radius Ketat (`rounded-md` & `rounded-lg`)**: Seluruh elemen antarmuka secara disiplin hanya menggunakan radius sudut berstandar industri: terkecil `rounded-md` (untuk tombol, badge, input) dan terbesar `rounded-lg` (untuk kartu kontainer). Dilarang memakai `rounded-xl`, `rounded-2xl`, atau `rounded-full` pada kartu.
-3. **Lebar Kanvas Maksimal (`max-w-7xl`)**: Memberikan bentang pandang desktop yang luas, proporsional, dan nyaman tanpa pemborosan margin samping.
-4. **Kepadatan Informasi Tinggi (*High Information Density*)**: Memaksimalkan efisiensi ruang tanpa memboroskan layar dengan padding kosong raksasa. Mencontoh platform developer papan atas seperti **Linear**, **GitHub Actions**, dan **Sentry**.
-3. **Presisi Tipografi Teknis**:
-   * Kode tugas, hash git commit, timestamp, dan alamat IP menggunakan tipografi **Monospace** yang tajam dan mudah dipindai secara visual.
-4. **Kontras & Kejelasan Status**: Indikator status menggunakan badge pill yang tenang (*subtle badge*) dengan titik pulsa hijau untuk menandakan koneksi aktif.
+1. **Nol Emoji Spam & Zero Decorative Clutter**: Menghapus seluruh ikon dekoratif repetitif dan spam emoji (seperti medali `🥇`, `🥈`, `🥉`, dan api `🔥`). Seluruh indikator digantikan oleh tipografi peringkat bersih (`#1`, `#2`, `#3`, `#{rank}`) dan badge status kerja alami (`● Aktif` / `Standby`).
+2. **Ikonografi Fungsional Tunggal (Lucide Icons Only)**: Ikon hanya digunakan dari pustaka `lucide-react` untuk tujuan fungsional nyata (navigasi, indikator tipe tugas, status audit stream). Tidak ada ikon dekoratif ganda atau elemen visual tanpa makna.
+3. **Standar Border Radius Ketat (`rounded-md` & `rounded-lg`)**: Seluruh elemen antarmuka secara disiplin hanya menggunakan radius sudut berstandar industri: terkecil `rounded-md` (untuk tombol, badge, input) dan terbesar `rounded-lg` (untuk kartu kontainer). Dilarang memakai `rounded-xl`, `rounded-2xl`, atau `rounded-full` pada kartu.
+4. **Lebar Kanvas Maksimal (`max-w-7xl`)**: Memberikan bentang pandang desktop yang luas, proporsional, dan nyaman tanpa pemborosan margin samping (`max-w-7xl mx-auto`).
+5. **Keselarasan Ritme Visual (*Uniform Spacing, Width & Height Rhythm*)**:
+   - Seluruh 4 kartu metrik memiliki padding seragam `p-5` dan tinggi seragam `min-h-[124px]`.
+   - Header panel Klasemen dan Live Stream memiliki tinggi identik `min-h-[52px]` dan padding `px-5 py-3.5` sehingga sejajar secara horizontal di desktop.
+   - Tombol aksi memiliki tinggi baku: `h-8.5` (navbar), `h-8` (tabel/panel), dan `h-9` (modal dan form input).
+6. **Tipografi Geometris Humanis (Poppins & JetBrains Mono)**:
+   - Font primer antarmuka menggunakan **Poppins** (bobot 300, 400, 500, 600, 700) via `@fontsource/poppins` untuk keterbacaan modern, ramah pengguna, dan estetika engineering dashboard berstandar Silicon Valley.
+   - Kode tugas, hash git commit, timestamp, dan alamat IP menggunakan tipografi **Monospace** yang tajam dan presisi.
 
 ---
 
@@ -23,8 +27,11 @@ Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-genera
 
 | Token Name | Hex Code / Tailwind Class | Penggunaan | Karakteristik |
 | :--- | :--- | :--- | :--- |
+| **Primary Typography** | `Poppins, -apple-system, sans-serif` | Tipografi umum seluruh teks | Geometris, bersih, humanis |
+| **Mono Typography** | `JetBrains Mono, Fira Code, monospace` | Kode commit, task code, status log | Presisi teknis, tabular |
 | **Surface Dark** | `#090b10` | Latar belakang kanvas utama | Hitam industrial pekat, anti-glare |
-| **Surface Card** | `#11141d` | Latar kartu metrik, tabel, konsol log | Elevasi rendah, kontras presisi |
+| **Surface Card** | `#11141e` | Latar kartu metrik, tabel, konsol log | Elevasi rendah, kontras presisi |
+| **Surface Header** | `#0d1017` | Latar bilah navigasi dan header panel | Pembeda section yang subtle |
 | **Border Subdued** | `#27272a` (`border-zinc-800`) | Garis tepi 1px di seluruh kartu & section | Rapi, jelas, konsisten |
 | **Border Radius Small**| `rounded-md` (6px) | Tombol, input teks, filter tabs, badge kode | Radius terkecil berstandar industri |
 | **Border Radius Large**| `rounded-lg` (8px) | Kartu metrik, kontainer tabel, konsol log | Radius terbesar berstandar industri |
@@ -46,12 +53,12 @@ Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-genera
 │ [Total Commits: 9]                   │ [Tasks Done: 4 / 5]  │ [Rate: 80%] │ [Sec: HMAC-256]    │
 ├──────────────────────────────────────┴──────────────────────┬─────────────────────────────────┤
 │ 🏆 KLASEMEN KONTRIBUSI ANGGOTA (REAL DATA)                  │ 💻 LIVE WEBHOOK AUDIT STREAM    │
-│ 🥇 denoyey (@denoyey) • 9 commits • 1 task (Lead)           │ // Menunggu sinyal push git...  │
-│    [+ Tambah Anggota Tim]                                   │ [TASK_COMPLETED] 20:45:10       │
+│ #1 denoyey (@denoyey) • 9 commits • 1 task (Lead)           │ // Menunggu sinyal push git...  │
+│    [+ Tambah Anggota]  [Hapus Dummy]                        │ [TASK_COMPLETED] 20:45:10       │
 │                                                             │ Author: @denoyey                │
 │                                                             │ Msg: "Fix bug [done #TASK-01]"  │
 ├─────────────────────────────────────────────────────────────┤ Trello #TASK-01 shifted to Done │
-│ 📋 DAFTAR KARTU TUGAS (REAL-TIME SYNC)                      │                                 │
+│ 📋 DAFTAR KARTU TUGAS                                       │                                 │
 │ [Filter: ALL | In Progress | Done | To Do]   [+ Tambah Tugas]│                                │
 │ [#TASK-01] Buat Database User       [Done]                  │                                 │
 │ [#TASK-02] Integrasi Halaman Login  [Done]                  │                                 │
@@ -123,14 +130,16 @@ Antarmuka SI-PATIR diuji dan dioptimalkan secara ketat untuk seluruh spektrum pe
 | **iPhone Mini & iPhone SE** | `320px - 375px` (iPhone SE 1st/2nd/3rd gen, Mini) | Zero horizontal overflow, search bar fleksibel, badge status compact. | Pencegahan auto-zoom form Safari via `font-size: 16px` equivalent. |
 
 ### Spesifikasi Khusus Dukungan iPhone / iOS:
-1. **Viewport Meta & Notch Protection**:
+1. **PWA Mobile-Web-App Standards Compliance**:
+   Mengatasi peringatan peramban modern (*`<meta name="apple-mobile-web-app-capable" content="yes"> is deprecated`*) dengan menyematkan tag standar HTML5 peramban modern `<meta name="mobile-web-app-capable" content="yes" />` berdampingan dengan fallback warisan iOS `<meta name="apple-mobile-web-app-capable" content="yes" />` serta status bar style `black-translucent` untuk tampilan fullscreen PWA yang konsisten.
+2. **Viewport Meta & Notch Protection**:
    Menggunakan `viewport-fit=cover` pada meta tag peramban dan variabel CSS `env(safe-area-inset-top)` / `env(safe-area-inset-bottom)` agar elemen header tidak tertabrak oleh Dynamic Island atau sensor notch iPhone.
-2. **Anti-Accidental Zoom**:
-   Menonaktifkan auto-zoom yang mengganggu saat mengetik di Safari iOS dengan konfigurasi meta viewport `maximum-scale=1.0, user-scalable=no`.
-3. **Smooth Momentum Touch Scrolling**:
+3. **Anti-Accidental Zoom**:
+   Menonaktifkan auto-zoom yang mengganggu saat mengetik di Safari iOS dengan konfigurasi meta viewport `maximum-scale=5.0` dan form input berukuran `16px` (`text-base sm:text-xs`).
+4. **Smooth Momentum Touch Scrolling**:
    Tabel klasemen dan daftar filter dilengkapi kelas utilitas `.touch-scroll` dengan `-webkit-overflow-scrolling: touch; overscroll-behavior: contain;` sehingga pengguna iPhone dapat menggeser tabel data secara alami dan mulus.
-4. **Touch Target Size**:
-   Semua tombol aksi memiliki tinggi minimum `h-9` (36px–44px) dengan padding sentuh luas untuk menghindari salah tekan (*fat-finger prevention*).
+5. **Touch Target Size**:
+   Semua tombol aksi memiliki tinggi minimum `h-8.5` hingga `h-9` (34px–44px) dengan padding sentuh luas untuk menghindari salah tekan (*fat-finger prevention*).
 
 ---
 

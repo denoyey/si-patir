@@ -367,7 +367,7 @@ export function App() {
 
       {/* TOP NAVBAR (Clean, Human Engineering Design, Max-W 7XL) */}
       <header data-anim="header" className="border-b border-zinc-800 bg-[#0d1017] sticky top-0 z-40 safe-top">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-15 flex items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-3">
           {/* Brand Logo & Name */}
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-8 h-8 rounded-md bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-200 font-mono font-bold text-xs shrink-0">
@@ -376,7 +376,7 @@ export function App() {
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-sm tracking-tight text-white">SI-PATIR</span>
-                <span className="text-[11px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-800 text-zinc-400 border border-zinc-700 shrink-0">
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-400 border border-zinc-700 shrink-0">
                   Sistem Monitoring
                 </span>
               </div>
@@ -384,7 +384,7 @@ export function App() {
           </div>
 
           {/* Action Buttons (Always Visible & Tactile Touch Optimized) */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             {/* Sync Real GitHub Contributors */}
             <button
               onClick={(e) => {
@@ -393,7 +393,7 @@ export function App() {
               }}
               disabled={isSyncingGitHub}
               aria-label="Sinkronisasi GitHub"
-              className="h-8.5 sm:h-8 px-2.5 sm:px-3 rounded-md bg-zinc-800 hover:bg-zinc-750 active:bg-zinc-700 active:scale-95 border border-zinc-700 text-xs font-medium text-zinc-200 flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation"
+              className="h-8.5 px-3 rounded-md bg-zinc-800 hover:bg-zinc-750 active:bg-zinc-700 active:scale-95 border border-zinc-700 text-xs font-medium text-zinc-200 flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation"
               title="Tarik data kontributor & commit nyata dari repositori GitHub"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isSyncingGitHub ? 'animate-spin text-emerald-400' : ''}`} />
@@ -408,7 +408,7 @@ export function App() {
               }}
               disabled={isSyncingTrello}
               aria-label="Sinkronisasi Trello"
-              className="h-8.5 sm:h-8 px-2.5 sm:px-3 rounded-md bg-zinc-800 hover:bg-zinc-750 active:bg-zinc-700 active:scale-95 border border-zinc-700 text-xs font-medium text-zinc-200 flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation"
+              className="h-8.5 px-3 rounded-md bg-zinc-800 hover:bg-zinc-750 active:bg-zinc-700 active:scale-95 border border-zinc-700 text-xs font-medium text-zinc-200 flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation"
             >
               <CheckSquare className="w-3.5 h-3.5 text-blue-400" />
               <span className="hidden xs:inline sm:inline">Sync Trello</span>
@@ -422,7 +422,7 @@ export function App() {
               }}
               disabled={isSimulating}
               aria-label="Simulasi Push Commit"
-              className="h-8.5 sm:h-8 px-3 sm:px-3.5 rounded-md bg-zinc-100 hover:bg-white active:bg-zinc-200 active:scale-95 text-zinc-950 border border-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer shadow-xs touch-manipulation"
+              className="h-8.5 px-3.5 rounded-md bg-zinc-100 hover:bg-white active:bg-zinc-200 active:scale-95 text-zinc-950 border border-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer shadow-xs touch-manipulation"
               title="Kirim payload commit webhook untuk pengujian instan"
             >
               <Zap className="w-3.5 h-3.5 fill-zinc-950 text-zinc-950 shrink-0" />
@@ -434,7 +434,7 @@ export function App() {
       </header>
 
       {/* REPOSITORY & SYSTEM CONNECTIVITY BAR (Max-W 7XL) */}
-      <section data-anim="header" className="border-b border-zinc-800/80 bg-[#0b0e14] py-2 px-4 sm:px-6 lg:px-8 text-xs font-mono">
+      <section data-anim="header" className="border-b border-zinc-800/80 bg-[#0b0e14] py-2.5 px-4 sm:px-6 lg:px-8 text-xs font-mono">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           {/* Real Target Repo Info */}
           <div className="flex items-center gap-2 text-zinc-400 truncate">
@@ -478,77 +478,77 @@ export function App() {
 
       {/* CORE CONTENT (Max-W 7XL Across Desktop) */}
       <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1 safe-bottom">
-        {/* SUMMARY METRICS CARDS */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div data-anim="stat-card" className="bg-[#11141d] border border-zinc-800 hover:border-zinc-700 transition duration-200 rounded-lg p-4">
+        {/* SUMMARY METRICS CARDS (Pure Human Design, Strict Uniformity in Padding & Heights) */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div data-anim="stat-card" className="bg-[#11141e] border border-zinc-800 hover:border-zinc-750 transition duration-200 rounded-lg p-5 min-h-[124px] flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 text-xs">
               <span className="font-medium">Total Commits</span>
               <GitCommit className="w-4 h-4 text-zinc-500 shrink-0" />
             </div>
-            <div ref={totalCommitsRef} className="text-2xl font-bold font-mono text-white mt-1.5">{metrics.totalCommits}</div>
-            <div className="text-[11px] text-zinc-500 mt-1 truncate">Tercatat di Git repositori</div>
+            <div ref={totalCommitsRef} className="text-2xl font-bold font-mono text-white tracking-tight mt-1">{metrics.totalCommits}</div>
+            <div className="text-[11px] text-zinc-500 truncate">Tercatat di Git repositori</div>
           </div>
 
-          <div data-anim="stat-card" className="bg-[#11141d] border border-zinc-800 hover:border-zinc-700 transition duration-200 rounded-lg p-4">
+          <div data-anim="stat-card" className="bg-[#11141e] border border-zinc-800 hover:border-zinc-750 transition duration-200 rounded-lg p-5 min-h-[124px] flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 text-xs">
               <span className="font-medium">Tugas Selesai</span>
-              <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0" />
+              <CheckSquare className="w-4 h-4 text-emerald-400 shrink-0" />
             </div>
-            <div className="text-2xl font-bold font-mono text-emerald-400 mt-1.5 flex items-baseline gap-1">
+            <div className="text-2xl font-bold font-mono text-emerald-400 tracking-tight mt-1 flex items-baseline gap-1">
               <span ref={totalDoneRef}>{metrics.totalDone}</span>
               <span className="text-zinc-500 text-sm font-normal">/ {tasks.length}</span>
             </div>
-            <div className="text-[11px] text-zinc-500 mt-1 truncate">Status sinkron real-time</div>
+            <div className="text-[11px] text-zinc-500 truncate">Status sinkron real-time</div>
           </div>
 
-          <div data-anim="stat-card" className="bg-[#11141d] border border-zinc-800 hover:border-zinc-700 transition duration-200 rounded-lg p-4">
+          <div data-anim="stat-card" className="bg-[#11141e] border border-zinc-800 hover:border-zinc-750 transition duration-200 rounded-lg p-5 min-h-[124px] flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 text-xs">
               <span className="font-medium">Penyelesaian</span>
-              <Activity className="w-4 h-4 text-blue-500 shrink-0" />
+              <Activity className="w-4 h-4 text-blue-400 shrink-0" />
             </div>
-            <div ref={completionRateRef} className="text-2xl font-bold font-mono text-white mt-1.5">{metrics.completionRate}%</div>
-            <div className="w-full bg-zinc-800 h-1.5 rounded-md mt-2 overflow-hidden">
+            <div ref={completionRateRef} className="text-2xl font-bold font-mono text-white tracking-tight mt-1">{metrics.completionRate}%</div>
+            <div className="w-full bg-zinc-800/80 h-1.5 rounded-md overflow-hidden">
               <div
                 ref={progressBarRef}
-                className="bg-blue-500 h-full rounded-md"
+                className="bg-blue-500 h-full rounded-md transition-all duration-300"
                 style={{ width: `${metrics.completionRate}%` }}
               ></div>
             </div>
           </div>
 
-          <div data-anim="stat-card" className="bg-[#11141d] border border-zinc-800 hover:border-zinc-700 transition duration-200 rounded-lg p-4">
+          <div data-anim="stat-card" className="bg-[#11141e] border border-zinc-800 hover:border-zinc-750 transition duration-200 rounded-lg p-5 min-h-[124px] flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 text-xs">
               <span className="font-medium">Proteksi Keamanan</span>
               <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
             </div>
-            <div className="text-sm font-semibold font-mono text-emerald-300 mt-2 truncate">
+            <div className="text-lg font-bold font-mono text-emerald-300 tracking-tight mt-1 truncate">
               HMAC SHA-256
             </div>
-            <div className="text-[11px] text-zinc-500 mt-1 truncate">ReDoS & DoS Hardened</div>
+            <div className="text-[11px] text-zinc-500 truncate">ReDoS & DoS Hardened</div>
           </div>
         </div>
 
         {/* WORKSPACE LAYOUT (2 Columns on Desktop, Stacked on Mobile) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* LEFT 2 COLUMNS: Leaderboard & Task Management */}
-          <div data-anim="content-grid" className="lg:col-span-2 space-y-6">
+          <div data-anim="content-grid" className="lg:col-span-2 space-y-5">
             {/* 1. KLASEMEN KONTRIBUSI ANGGOTA NYATA */}
-            <section className="bg-[#11141d] border border-zinc-800 rounded-lg overflow-hidden">
-              <div className="px-5 py-3.5 border-b border-zinc-800 flex items-center justify-between gap-2">
+            <section className="bg-[#11141e] border border-zinc-800 rounded-lg overflow-hidden">
+              <div className="px-5 py-3.5 min-h-[52px] border-b border-zinc-800 bg-[#0d1017] flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <Trophy className="w-4 h-4 text-amber-400 shrink-0" />
                   <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-200">
-                    Klasemen Kontribusi Anggota (Real Developers)
+                    Klasemen Kontribusi Anggota
                   </h2>
                 </div>
 
-                <div className="flex items-center gap-1.5 sm:gap-2">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={(e) => {
                       engine.animateButtonPress(e.currentTarget);
                       setShowAddMemberModal(true);
                     }}
-                    className="h-8 px-2.5 rounded-md bg-zinc-800 hover:bg-zinc-750 active:bg-zinc-700 active:scale-95 border border-zinc-700 text-[11px] font-medium text-zinc-200 flex items-center gap-1.5 transition cursor-pointer touch-manipulation"
+                    className="h-8 px-2.5 rounded-md bg-zinc-800 hover:bg-zinc-750 active:bg-zinc-700 active:scale-95 border border-zinc-700 text-xs font-medium text-zinc-200 flex items-center gap-1.5 transition cursor-pointer touch-manipulation"
                     title="Tambah anggota kelompok nyata"
                   >
                     <Plus className="w-3.5 h-3.5 text-emerald-400" />
@@ -560,7 +560,7 @@ export function App() {
                       engine.animateButtonPress(e.currentTarget);
                       handleClearDummy();
                     }}
-                    className="h-8 px-2.5 rounded-md bg-zinc-900 hover:bg-red-950/40 active:bg-red-900/60 active:scale-95 border border-zinc-800 hover:border-red-800/50 text-[11px] text-zinc-400 hover:text-red-300 transition cursor-pointer touch-manipulation"
+                    className="h-8 px-2.5 rounded-md bg-zinc-900 hover:bg-red-950/40 active:bg-red-900/60 active:scale-95 border border-zinc-800 hover:border-red-800/50 text-xs text-zinc-400 hover:text-red-300 transition cursor-pointer touch-manipulation"
                     title="Hapus data dummy bawaan"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -572,8 +572,8 @@ export function App() {
               <div className="overflow-x-auto touch-scroll">
                 <table className="w-full text-left text-xs min-w-[480px] sm:min-w-full">
                   <thead>
-                    <tr className="border-b border-zinc-800 bg-[#0d1017] text-zinc-400 font-mono text-[11px]">
-                      <th className="py-2.5 px-4 w-12 text-center">#</th>
+                    <tr className="border-b border-zinc-800 bg-[#0b0e14] text-zinc-400 font-mono text-[11px]">
+                      <th className="py-2.5 px-4 w-14 text-center">#</th>
                       <th className="py-2.5 px-4">Developer</th>
                       <th className="py-2.5 px-4 text-center">Commits</th>
                       <th className="py-2.5 px-4 text-center">Tasks</th>
@@ -587,14 +587,24 @@ export function App() {
 
                       return (
                         <tr key={member.id} className="hover:bg-zinc-800/30 transition">
-                          <td className="py-3 px-4 text-center font-mono font-bold text-zinc-400">
-                            {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                          <td className="py-3 px-4 text-center">
+                            <span className={`inline-flex items-center justify-center font-mono text-xs font-semibold px-2 py-0.5 rounded-md ${
+                              index === 0
+                                ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                                : index === 1
+                                ? 'bg-zinc-750 text-zinc-300 border border-zinc-700'
+                                : index === 2
+                                ? 'bg-amber-900/20 text-amber-500 border border-amber-800/30'
+                                : 'text-zinc-500'
+                            }`}>
+                              #{index + 1}
+                            </span>
                           </td>
                           <td className="py-3 px-4">
                             <div className="font-medium text-white flex items-center gap-1.5 flex-wrap">
                               <span>{member.name}</span>
                               {isTop && (
-                                <span className="text-[10px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded-md border border-amber-500/20 font-mono">
+                                <span className="text-[10px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded-md border border-amber-500/20 font-mono font-medium">
                                   Lead
                                 </span>
                               )}
@@ -613,15 +623,15 @@ export function App() {
                               {member.tasks_done}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-right font-mono text-[11px]">
+                          <td className="py-3 px-4 text-right">
                             {isActive ? (
-                              <span className="inline-flex items-center gap-1 text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                              <span className="inline-flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-md border border-emerald-500/20 text-xs font-medium">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                Aktif 🔥
+                                Aktif
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 text-zinc-400 bg-zinc-800/50 px-2 py-0.5 rounded-md border border-zinc-700">
-                                Siap Berkontribusi
+                              <span className="inline-flex items-center gap-1.5 text-zinc-400 bg-zinc-800/60 px-2.5 py-0.5 rounded-md border border-zinc-700 text-xs">
+                                Standby
                               </span>
                             )}
                           </td>
@@ -634,12 +644,12 @@ export function App() {
             </section>
 
             {/* 2. DAFTAR TUGAS PROYEK REALTIME */}
-            <section className="bg-[#11141d] border border-zinc-800 rounded-lg overflow-hidden">
-              <div className="px-5 py-3.5 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <section className="bg-[#11141e] border border-zinc-800 rounded-lg overflow-hidden">
+              <div className="px-5 py-3.5 min-h-[52px] border-b border-zinc-800 bg-[#0d1017] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <CheckSquare className="w-4 h-4 text-blue-400 shrink-0" />
                   <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-200">
-                    Daftar Kartu Tugas Nyata
+                    Daftar Kartu Tugas
                   </h2>
                 </div>
 
@@ -650,14 +660,14 @@ export function App() {
                       engine.animateButtonPress(e.currentTarget);
                       setShowAddTaskModal(true);
                     }}
-                    className="h-8 px-2.5 rounded-md bg-zinc-800 hover:bg-zinc-750 active:bg-zinc-700 active:scale-95 border border-zinc-700 text-[11px] font-medium text-zinc-200 flex items-center gap-1.5 transition cursor-pointer touch-manipulation"
+                    className="h-8 px-2.5 rounded-md bg-zinc-800 hover:bg-zinc-750 active:bg-zinc-700 active:scale-95 border border-zinc-700 text-xs font-medium text-zinc-200 flex items-center gap-1.5 transition cursor-pointer touch-manipulation"
                   >
                     <Plus className="w-3.5 h-3.5 text-blue-400" />
                     <span>Tambah Tugas</span>
                   </button>
 
                   {/* Filter Tabs */}
-                  <div className="flex items-center gap-1 bg-[#090b10] p-1 rounded-md border border-zinc-800 text-xs overflow-x-auto touch-scroll no-scrollbar">
+                  <div className="flex items-center gap-0.5 bg-[#090b10] p-0.5 rounded-md border border-zinc-800 text-xs overflow-x-auto touch-scroll no-scrollbar">
                     {(['ALL', 'In Progress', 'Done', 'To Do'] as const).map((tab) => (
                       <button
                         key={tab}
@@ -665,7 +675,7 @@ export function App() {
                           engine.animateButtonPress(e.currentTarget);
                           setStatusFilter(tab);
                         }}
-                        className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition active:scale-95 cursor-pointer shrink-0 touch-manipulation ${
+                        className={`px-2.5 py-1 rounded-md text-xs font-medium transition active:scale-95 cursor-pointer shrink-0 touch-manipulation ${
                           statusFilter === tab
                             ? 'bg-zinc-800 text-white shadow-xs border border-zinc-700'
                             : 'text-zinc-400 hover:text-zinc-200'
@@ -679,15 +689,15 @@ export function App() {
               </div>
 
               {/* Search Bar */}
-              <div className="p-3 border-b border-zinc-800 bg-[#0d1017]">
+              <div className="p-3.5 border-b border-zinc-800 bg-[#0b0e14]">
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-zinc-500" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Cari kode tugas, judul, atau assignee..."
-                    className="w-full pl-8 pr-3 py-1.5 rounded-md bg-[#11141d] border border-zinc-800 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-hidden focus:border-zinc-600 transition"
+                    placeholder="Cari kode tugas, judul, atau penanggung jawab..."
+                    className="w-full pl-8.5 pr-3 py-1.5 rounded-md bg-[#11141e] border border-zinc-800 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-hidden focus:border-zinc-600 transition"
                   />
                 </div>
               </div>
@@ -704,7 +714,7 @@ export function App() {
                     return (
                       <div
                         key={task.id}
-                        className="px-5 py-3.5 hover:bg-zinc-800/25 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 group"
+                        className="px-5 py-3.5 hover:bg-zinc-800/25 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
                       >
                         <div className="flex items-start gap-3 min-w-0">
                           <div className="mt-0.5 shrink-0">
@@ -718,7 +728,7 @@ export function App() {
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-mono font-bold text-xs text-zinc-200 bg-zinc-800 px-1.5 py-0.5 rounded-md border border-zinc-700 shrink-0">
+                              <span className="font-mono font-bold text-xs text-zinc-200 bg-zinc-800 px-2 py-0.5 rounded-md border border-zinc-700 shrink-0">
                                 [#{task.task_code}]
                               </span>
                               <span className="text-xs font-medium text-white break-words">{task.title}</span>
@@ -731,7 +741,7 @@ export function App() {
 
                         <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
                           <span
-                            className={`text-[11px] font-mono px-2.5 py-0.5 rounded-md border ${
+                            className={`text-xs font-mono px-2.5 py-0.5 rounded-md border ${
                               isDone
                                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                                 : isInProgress
@@ -764,15 +774,15 @@ export function App() {
 
           {/* RIGHT 1 COLUMN: LIVE WEBHOOK AUDIT STREAM */}
           <aside data-anim="content-grid" className="space-y-4">
-            <div className="bg-[#11141d] border border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[480px] sm:h-[560px] lg:h-[640px]">
-              <div className="px-4 py-3 border-b border-zinc-800 flex items-center justify-between bg-[#0d1017]">
+            <div className="bg-[#11141e] border border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[520px] sm:h-[600px] lg:h-[680px]">
+              <div className="px-5 py-3.5 min-h-[52px] border-b border-zinc-800 flex items-center justify-between bg-[#0d1017]">
                 <div className="flex items-center gap-2">
                   <Terminal className="w-4 h-4 text-emerald-400 shrink-0" />
                   <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-200">
                     Live Webhook Stream
                   </h3>
                 </div>
-                <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-400">
+                <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-400">
                   <Radio className="w-3 h-3 text-emerald-400 animate-pulse shrink-0" />
                   <span>LISTENING</span>
                 </div>
@@ -811,11 +821,11 @@ export function App() {
               </div>
 
               {/* Instructions Panel */}
-              <div className="p-3 bg-[#0d1017] border-t border-zinc-800 text-[11px] space-y-1.5">
-                <div className="font-semibold text-zinc-300 flex items-center gap-1 text-[11px]">
+              <div className="p-3.5 bg-[#0d1017] border-t border-zinc-800 text-xs space-y-1.5">
+                <div className="font-semibold text-zinc-300 flex items-center gap-1 text-xs">
                   <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-400 shrink-0" /> Contoh Commit Nyata di Terminal:
                 </div>
-                <div className="bg-[#11141d] p-2 rounded-md border border-zinc-800 font-mono text-[10px] text-emerald-300 select-all break-all">
+                <div className="bg-[#11141e] p-2 rounded-md border border-zinc-800 font-mono text-[10px] text-emerald-300 select-all break-all">
                   git commit -m "Selesaikan fitur [done #{tasks[0]?.task_code || 'TASK-01'}]"
                 </div>
               </div>
@@ -832,7 +842,7 @@ export function App() {
         >
           <div
             ref={modalTaskRef}
-            className="bg-[#11141d] border border-zinc-800 rounded-lg p-4 sm:p-5 w-full max-w-md shadow-2xl"
+            className="bg-[#11141e] border border-zinc-800 rounded-lg p-5 w-full max-w-md shadow-2xl"
           >
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <h3 className="text-sm font-semibold text-white">Tambah Kartu Tugas Nyata</h3>
@@ -852,7 +862,7 @@ export function App() {
                   placeholder="TASK-01"
                   value={newTaskCode}
                   onChange={(e) => setNewTaskCode(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
+                  className="w-full h-9 px-3 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
                 />
               </div>
               <div>
@@ -863,7 +873,7 @@ export function App() {
                   placeholder="Contoh: Perancangan Arsitektur Database"
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
+                  className="w-full h-9 px-3 bg-zinc-900 border border-zinc-800 rounded-md text-white text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
                 />
               </div>
               <div>
@@ -873,7 +883,7 @@ export function App() {
                   placeholder="denoyey"
                   value={newTaskAssignee}
                   onChange={(e) => setNewTaskAssignee(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
+                  className="w-full h-9 px-3 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
                 />
               </div>
               <div>
@@ -881,7 +891,7 @@ export function App() {
                 <select
                   value={newTaskStatus}
                   onChange={(e: any) => setNewTaskStatus(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
+                  className="w-full h-9 px-3 bg-zinc-900 border border-zinc-800 rounded-md text-white text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
                 >
                   <option value="In Progress">In Progress</option>
                   <option value="To Do">To Do</option>
@@ -892,13 +902,13 @@ export function App() {
                 <button
                   type="button"
                   onClick={() => setShowAddTaskModal(false)}
-                  className="px-3 py-2 sm:py-1.5 rounded-md bg-zinc-800 text-zinc-300 hover:bg-zinc-700 active:bg-zinc-600 active:scale-95 transition cursor-pointer touch-manipulation text-xs"
+                  className="h-9 px-3.5 rounded-md bg-zinc-800 text-zinc-300 hover:bg-zinc-750 active:scale-95 transition cursor-pointer touch-manipulation text-xs font-medium"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 sm:py-1.5 rounded-md bg-emerald-600 text-white font-semibold hover:bg-emerald-500 active:bg-emerald-700 active:scale-95 transition cursor-pointer touch-manipulation text-xs"
+                  className="h-9 px-4 rounded-md bg-emerald-600 text-white font-semibold hover:bg-emerald-500 active:bg-emerald-700 active:scale-95 transition cursor-pointer touch-manipulation text-xs"
                 >
                   Simpan Tugas
                 </button>
@@ -916,7 +926,7 @@ export function App() {
         >
           <div
             ref={modalMemberRef}
-            className="bg-[#11141d] border border-zinc-800 rounded-lg p-4 sm:p-5 w-full max-w-md shadow-2xl"
+            className="bg-[#11141e] border border-zinc-800 rounded-lg p-5 w-full max-w-md shadow-2xl"
           >
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <h3 className="text-sm font-semibold text-white">Tambah Anggota Kelompok Nyata</h3>
@@ -936,7 +946,7 @@ export function App() {
                   placeholder="Contoh: Dennis Pratama"
                   value={newMemberName}
                   onChange={(e) => setNewMemberName(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
+                  className="w-full h-9 px-3 bg-zinc-900 border border-zinc-800 rounded-md text-white text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
                 />
               </div>
               <div>
@@ -947,20 +957,20 @@ export function App() {
                   placeholder="denoyey"
                   value={newMemberUsername}
                   onChange={(e) => setNewMemberUsername(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
+                  className="w-full h-9 px-3 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowAddMemberModal(false)}
-                  className="px-3 py-2 sm:py-1.5 rounded-md bg-zinc-800 text-zinc-300 hover:bg-zinc-700 active:bg-zinc-600 active:scale-95 transition cursor-pointer touch-manipulation text-xs"
+                  className="h-9 px-3.5 rounded-md bg-zinc-800 text-zinc-300 hover:bg-zinc-750 active:scale-95 transition cursor-pointer touch-manipulation text-xs font-medium"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 sm:py-1.5 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-500 active:bg-blue-700 active:scale-95 transition cursor-pointer touch-manipulation text-xs"
+                  className="h-9 px-4 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-500 active:bg-blue-700 active:scale-95 transition cursor-pointer touch-manipulation text-xs"
                 >
                   Daftarkan Anggota
                 </button>
