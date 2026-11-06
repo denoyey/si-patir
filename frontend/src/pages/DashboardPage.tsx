@@ -29,6 +29,7 @@ import {
   MessageSquare,
   ExternalLink,
   ChevronLeft,
+  ChevronDown,
   Copy,
   Send,
   HelpCircle,
@@ -190,6 +191,10 @@ export function DashboardPage() {
   const [showTerminalGuide, setShowTerminalGuide] = useState(false);
   const terminalInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Sync Dropdown State
+  const [isSyncMenuOpen, setIsSyncMenuOpen] = useState(false);
+  const syncMenuRef = useRef<HTMLDivElement | null>(null);
+
   // Fetch initial system state
   const refreshData = async () => {
     try {
@@ -302,6 +307,31 @@ export function DashboardPage() {
       engine.animateToastEntrance(toastRef.current);
     }
   }, [activeToast, engine]);
+
+  // Sync Dropdown Click-Outside & Keyboard Escape Handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (syncMenuRef.current && !syncMenuRef.current.contains(event.target as Node)) {
+        setIsSyncMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsSyncMenuOpen(false);
+      }
+    };
+
+    if (isSyncMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isSyncMenuOpen]);
 
   // Sync real contributors from GitHub repository
   const handleSyncGitHub = async () => {
@@ -572,39 +602,124 @@ export function DashboardPage() {
           </div>
 
           {/* Action Buttons & Theme Switcher */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-            {/* Theme Switcher (System / Light / Dark) */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Theme Switcher Dropdown */}
             <ThemeSwitcher />
 
-            {/* Sync Real GitHub Contributors */}
-            <button
-              onClick={(e) => {
-                engine.animateButtonPress(e.currentTarget);
-                handleSyncGitHub();
-              }}
-              disabled={isSyncingGitHub}
-              aria-label="Sinkronisasi GitHub"
-              className="h-8 sm:h-8.5 px-2 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation shadow-xs shrink-0"
-              title="Tarik data kontributor & commit nyata dari repositori GitHub"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${isSyncingGitHub ? 'animate-spin text-emerald-500' : 'text-zinc-500 dark:text-zinc-400'}`} />
-              <span className="hidden md:inline">Sync GitHub</span>
-            </button>
+            {/* Unified Sync Dropdown Menu */}
+            <div ref={syncMenuRef} className="relative shrink-0">
+              <button
+                type="button"
+                onClick={(e) => {
+                  engine.animateButtonPress(e.currentTarget);
+                  setIsSyncMenuOpen((prev) => !prev);
+                }}
+                aria-haspopup="menu"
+                aria-expanded={isSyncMenuOpen}
+                aria-label="Menu Sinkronisasi Data"
+                className="h-8 sm:h-8.5 px-2 sm:px-2.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs shrink-0"
+                title="Pilihan sinkronisasi GitHub & Trello"
+              >
+                <RefreshCw
+                  className={`w-3.5 h-3.5 ${
+                    isSyncingGitHub || isSyncingTrello
+                      ? 'animate-spin text-emerald-500'
+                      : 'text-zinc-500 dark:text-zinc-400'
+                  }`}
+                />
+                <span className="hidden sm:inline text-xs font-medium">Sync</span>
+                <ChevronDown
+                  className={`w-3 h-3 text-zinc-400 dark:text-zinc-500 transition-transform duration-150 ${
+                    isSyncMenuOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
 
-            {/* Sync Trello */}
-            <button
-              onClick={(e) => {
-                engine.animateButtonPress(e.currentTarget);
-                handleSyncTrello();
-              }}
-              disabled={isSyncingTrello}
-              aria-label="Sinkronisasi Trello"
-              className="h-8 sm:h-8.5 px-2 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation shadow-xs shrink-0"
-              title="Sinkronisasi status Trello"
-            >
-              <CheckSquare className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
-              <span className="hidden md:inline">Sync Trello</span>
-            </button>
+              {isSyncMenuOpen && (
+                <div
+                  role="menu"
+                  aria-label="Pilihan sinkronisasi data"
+                  className="absolute right-0 mt-1.5 w-60 sm:w-64 rounded-md bg-white dark:bg-[#12151f] border border-zinc-200 dark:border-zinc-800 shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100"
+                >
+                  <div className="px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-mono">
+                    Sinkronisasi Data
+                  </div>
+
+                  {/* Sync GitHub */}
+                  <button
+                    type="button"
+                    role="menuitem"
+                    disabled={isSyncingGitHub}
+                    onClick={() => {
+                      setIsSyncMenuOpen(false);
+                      handleSyncGitHub();
+                    }}
+                    className="w-full p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left flex items-start gap-2.5 transition cursor-pointer disabled:opacity-50"
+                  >
+                    <div className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0 mt-0.5">
+                      <RefreshCw className={`w-3.5 h-3.5 ${isSyncingGitHub ? 'animate-spin' : ''}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-zinc-900 dark:text-white flex items-center justify-between">
+                        <span>Sync GitHub</span>
+                        {isSyncingGitHub && <span className="text-[10px] font-normal text-emerald-500">Memproses...</span>}
+                      </div>
+                      <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5">
+                        Tarik kontributor & commit nyata dari repositori
+                      </p>
+                    </div>
+                  </button>
+
+                  {/* Sync Trello */}
+                  <button
+                    type="button"
+                    role="menuitem"
+                    disabled={isSyncingTrello}
+                    onClick={() => {
+                      setIsSyncMenuOpen(false);
+                      handleSyncTrello();
+                    }}
+                    className="w-full p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left flex items-start gap-2.5 transition cursor-pointer disabled:opacity-50"
+                  >
+                    <div className="p-1.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0 mt-0.5">
+                      <CheckSquare className={`w-3.5 h-3.5 ${isSyncingTrello ? 'animate-spin' : ''}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-zinc-900 dark:text-white flex items-center justify-between">
+                        <span>Sync Trello</span>
+                        {isSyncingTrello && <span className="text-[10px] font-normal text-blue-500">Memproses...</span>}
+                      </div>
+                      <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5">
+                        Perbarui kartu tugas & status dari papan Trello
+                      </p>
+                    </div>
+                  </button>
+
+                  <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-1" />
+
+                  {/* Clear Dummy Data */}
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setIsSyncMenuOpen(false);
+                      handleClearDummy();
+                    }}
+                    className="w-full p-2 rounded-md hover:bg-rose-500/10 text-left flex items-start gap-2.5 transition cursor-pointer text-rose-600 dark:text-rose-400"
+                  >
+                    <div className="p-1.5 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0 mt-0.5">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold">Bersihkan Data Dummy</div>
+                      <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5">
+                        Hapus data pengujian & sisakan data nyata
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* Test Real Commit */}
             <button
@@ -614,7 +729,7 @@ export function DashboardPage() {
               }}
               disabled={isSimulating}
               aria-label="Simulasi Push Commit"
-              className="h-8 sm:h-8.5 px-2 sm:px-3.5 rounded-md bg-zinc-950 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 active:scale-95 text-white dark:text-zinc-950 border border-zinc-900 dark:border-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer shadow-sm touch-manipulation shrink-0"
+              className="h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-md bg-zinc-950 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 active:scale-95 text-white dark:text-zinc-950 border border-zinc-900 dark:border-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer shadow-xs touch-manipulation shrink-0"
               title="Kirim payload commit webhook untuk pengujian instan"
             >
               <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-400 dark:fill-amber-500 dark:text-amber-500 shrink-0" />
@@ -1074,10 +1189,14 @@ export function DashboardPage() {
                 <div className="relative">
                   <Search className="w-4 h-4 absolute left-3 top-2.5 text-zinc-400 dark:text-zinc-500" />
                   <input
+                    id="task-search-input"
+                    name="task_search_query"
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Cari tugas, kode (#TASK), atau assignee..."
+                    autoComplete="off"
+                    aria-label="Cari kode tugas, judul, atau assignee"
                     className="w-full h-9 pl-9 pr-3 rounded-md bg-white dark:bg-[#121624] border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition shadow-inner"
                   />
                 </div>
@@ -1350,10 +1469,14 @@ export function DashboardPage() {
                     <span className="text-emerald-500 font-bold select-none text-xs shrink-0">$</span>
                     <input
                       ref={terminalInputRef}
+                      id="terminal-command-input"
+                      name="terminal_command"
                       type="text"
                       value={terminalInput}
                       onChange={(e) => setTerminalInput(e.target.value)}
                       placeholder='Ketik perintah misal: git commit -m "Fitur selesai [done #TASK-01]"'
+                      autoComplete="off"
+                      aria-label="Perintah git commit"
                       className="flex-1 bg-transparent border-none text-emerald-300 font-mono text-xs focus:outline-hidden placeholder-zinc-600 truncate focus:truncate-none"
                     />
                     <button
@@ -1413,31 +1536,37 @@ export function DashboardPage() {
             </div>
             <form onSubmit={handleCreateTask} className="space-y-3.5 mt-4 text-xs">
               <div>
-                <label className="block text-zinc-600 dark:text-zinc-400 mb-1">
+                <label htmlFor="new-task-code" className="block text-zinc-600 dark:text-zinc-400 mb-1">
                   Kode Tugas (contoh: TASK-01, FEAT-AUTH)
                 </label>
                 <input
+                  id="new-task-code"
+                  name="new_task_code"
                   type="text"
                   required
                   placeholder="TASK-01"
                   value={newTaskCode}
                   onChange={(e) => setNewTaskCode(e.target.value)}
+                  autoComplete="off"
                   className="w-full h-9 px-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-md text-zinc-900 dark:text-white font-mono text-base sm:text-xs focus:outline-hidden focus:border-blue-500 transition"
                 />
               </div>
               <div>
-                <label className="block text-zinc-600 dark:text-zinc-400 mb-1">Judul Tugas</label>
+                <label htmlFor="new-task-title" className="block text-zinc-600 dark:text-zinc-400 mb-1">Judul Tugas</label>
                 <input
+                  id="new-task-title"
+                  name="new_task_title"
                   type="text"
                   required
                   placeholder="Contoh: Perancangan Arsitektur Database"
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
+                  autoComplete="off"
                   className="w-full h-9 px-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-md text-zinc-900 dark:text-white text-base sm:text-xs focus:outline-hidden focus:border-blue-500 transition"
                 />
               </div>
               <div>
-                <label className="block text-zinc-600 dark:text-zinc-400 mb-1">Assignee (Username GitHub Tim)</label>
+                <label htmlFor="new-task-assignee" className="block text-zinc-600 dark:text-zinc-400 mb-1">Assignee (Username GitHub Tim)</label>
                 <div className="flex items-center gap-1.5 mb-2 flex-wrap">
                   {members.map((m) => (
                     <button
@@ -1455,16 +1584,21 @@ export function DashboardPage() {
                   ))}
                 </div>
                 <input
+                  id="new-task-assignee"
+                  name="new_task_assignee"
                   type="text"
                   placeholder="denoyey"
                   value={newTaskAssignee}
                   onChange={(e) => setNewTaskAssignee(e.target.value)}
+                  autoComplete="username"
                   className="w-full h-9 px-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-md text-zinc-900 dark:text-white font-mono text-base sm:text-xs focus:outline-hidden focus:border-blue-500 transition"
                 />
               </div>
               <div>
-                <label className="block text-zinc-600 dark:text-zinc-400 mb-1">Status Awal</label>
+                <label htmlFor="new-task-status" className="block text-zinc-600 dark:text-zinc-400 mb-1">Status Awal</label>
                 <select
+                  id="new-task-status"
+                  name="new_task_status"
                   value={newTaskStatus}
                   onChange={(e: any) => setNewTaskStatus(e.target.value)}
                   className="w-full h-9 px-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-md text-zinc-900 dark:text-white text-base sm:text-xs focus:outline-hidden focus:border-blue-500 transition"
@@ -1516,24 +1650,30 @@ export function DashboardPage() {
             </div>
             <form onSubmit={handleCreateMember} className="space-y-3.5 mt-4 text-xs">
               <div>
-                <label className="block text-zinc-600 dark:text-zinc-400 mb-1">Nama Lengkap</label>
+                <label htmlFor="new-member-name" className="block text-zinc-600 dark:text-zinc-400 mb-1">Nama Lengkap</label>
                 <input
+                  id="new-member-name"
+                  name="member_name"
                   type="text"
                   required
                   placeholder="Contoh: Dennis Pratama"
                   value={newMemberName}
                   onChange={(e) => setNewMemberName(e.target.value)}
+                  autoComplete="name"
                   className="w-full h-9 px-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-md text-zinc-900 dark:text-white text-base sm:text-xs focus:outline-hidden focus:border-blue-500 transition"
                 />
               </div>
               <div>
-                <label className="block text-zinc-600 dark:text-zinc-400 mb-1">Username GitHub (tanpa @)</label>
+                <label htmlFor="new-member-username" className="block text-zinc-600 dark:text-zinc-400 mb-1">Username GitHub (tanpa @)</label>
                 <input
+                  id="new-member-username"
+                  name="member_github_username"
                   type="text"
                   required
                   placeholder="denoyey"
                   value={newMemberUsername}
                   onChange={(e) => setNewMemberUsername(e.target.value)}
+                  autoComplete="username"
                   className="w-full h-9 px-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-800 rounded-md text-zinc-900 dark:text-white font-mono text-base sm:text-xs focus:outline-hidden focus:border-blue-500 transition"
                 />
               </div>
