@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 export class EnvironmentConfig {
   private static instance: EnvironmentConfig;
@@ -21,7 +22,10 @@ export class EnvironmentConfig {
   public readonly corsOrigins: string[];
 
   private constructor() {
-    dotenv.config();
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const backendEnvPath = path.resolve(currentDir, '../../.env');
+    dotenv.config({ path: backendEnvPath });
+    dotenv.config(); // fallback to process.cwd()
 
     this.port = this.parseInteger(process.env.PORT, 5000);
     this.nodeEnv = process.env.NODE_ENV || 'development';

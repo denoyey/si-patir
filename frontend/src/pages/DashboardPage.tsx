@@ -19,7 +19,6 @@ import {
   Activity,
   Layers,
   ShieldCheck,
-  Radio,
   Plus,
   Trash2,
   X,
@@ -828,40 +827,37 @@ export function DashboardPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-7 items-center gap-2 pt-3.5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-3.5">
             {/* Step 1 */}
-            <div className="md:col-span-2 bg-slate-50 dark:bg-[#121522] border border-zinc-200 dark:border-zinc-800 rounded-md p-3.5 flex items-start gap-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition">
+            <div className="bg-slate-50 dark:bg-[#121522] border border-zinc-200 dark:border-zinc-800 rounded-md p-3.5 flex items-start gap-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition">
               <div className="p-2 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shrink-0 mt-0.5">
                 <GitCommit className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center justify-between gap-1.5">
                   <span className="text-[10px] font-mono font-bold bg-purple-500/15 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded-md">
                     1. GIT COMMIT
                   </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-600 hidden md:inline shrink-0" />
                 </div>
-                <h4 className="text-xs font-semibold text-zinc-950 dark:text-white mt-1">Push Kode & Tag Tugas</h4>
+                <h4 className="text-xs font-semibold text-zinc-950 dark:text-white mt-1">Push Kode &amp; Tag Tugas</h4>
                 <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5 leading-relaxed">
                   Sertakan tag di pesan commit: <code className="text-purple-700 dark:text-purple-300 font-mono text-[10px] bg-purple-100 dark:bg-purple-950/40 px-1 py-0.5 rounded-md">[done #TASK-02]</code>
                 </p>
               </div>
             </div>
 
-            {/* Arrow Divider 1 */}
-            <div className="hidden md:flex justify-center text-zinc-400 dark:text-zinc-600">
-              <ArrowRight className="w-4 h-4" />
-            </div>
-
             {/* Step 2 */}
-            <div className="md:col-span-2 bg-slate-50 dark:bg-[#121522] border border-zinc-200 dark:border-zinc-800 rounded-md p-3.5 flex items-start gap-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition">
+            <div className="bg-slate-50 dark:bg-[#121522] border border-zinc-200 dark:border-zinc-800 rounded-md p-3.5 flex items-start gap-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition">
               <div className="p-2 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0 mt-0.5">
                 <Kanban className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center justify-between gap-1.5">
                   <span className="text-[10px] font-mono font-bold bg-blue-500/15 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded-md">
                     2. TRELLO SYNC
                   </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-600 hidden md:inline shrink-0" />
                 </div>
                 <h4 className="text-xs font-semibold text-zinc-950 dark:text-white mt-1">Kartu Pindah ke Done</h4>
                 <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5 leading-relaxed">
@@ -870,13 +866,8 @@ export function DashboardPage() {
               </div>
             </div>
 
-            {/* Arrow Divider 2 */}
-            <div className="hidden md:flex justify-center text-zinc-400 dark:text-zinc-600">
-              <ArrowRight className="w-4 h-4" />
-            </div>
-
             {/* Step 3 */}
-            <div className="md:col-span-2 bg-slate-50 dark:bg-[#121522] border border-zinc-200 dark:border-zinc-800 rounded-md p-3.5 flex items-start gap-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition">
+            <div className="bg-slate-50 dark:bg-[#121522] border border-zinc-200 dark:border-zinc-800 rounded-md p-3.5 flex items-start gap-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition">
               <div className="p-2 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0 mt-0.5">
                 <MessageSquare className="w-4 h-4" />
               </div>
@@ -1297,21 +1288,16 @@ export function DashboardPage() {
               data-anim="content-grid"
               className="bg-white dark:bg-[#0e121b] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[580px] sm:h-[680px] lg:h-[calc(100vh-5.5rem)] lg:max-h-[850px] lg:min-h-[580px] shadow-xs transition-all"
             >
-              <div className="px-5 py-3.5 min-h-[52px] border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-[#121623]">
+              <div className="px-4 py-3 min-h-[46px] border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-[#121623]">
                 <div className="flex items-center gap-2">
-                  <div className="p-1 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                    <Terminal className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-950 dark:text-white">
-                      Live Webhook Stream
-                    </h3>
-                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">Log Event Real-Time</span>
-                  </div>
+                  <Terminal className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <h3 className="text-xs font-semibold text-zinc-900 dark:text-white">
+                    Live Webhook Stream
+                  </h3>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20 font-medium">
-                  <Radio className="w-3.5 h-3.5 text-emerald-500 animate-pulse shrink-0" />
-                  <span>LISTENING</span>
+                <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-600 dark:text-emerald-400">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  <span>Live</span>
                 </div>
               </div>
 
@@ -1509,7 +1495,7 @@ export function DashboardPage() {
       <footer className="border-t border-zinc-200 dark:border-zinc-800 py-6 px-4 sm:px-6 lg:px-8 text-center text-xs text-zinc-500 dark:text-zinc-400 bg-white dark:bg-[#0b0e14] shrink-0">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 font-mono text-[11px]">
           <div>
-            SI-PATIR v2.0.0 • DevOps Real-Time Monitoring
+            SI-PATIR v2.0.0 • Monitoring Tugas Real-Time
           </div>
           <div className="text-zinc-400 dark:text-zinc-500">
             Deni • Rafli • Fatir • Fajri
