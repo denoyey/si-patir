@@ -1027,13 +1027,16 @@ export function DashboardPage() {
                       <th className="py-2.5 sm:py-3 px-1.5 sm:px-4">DEVELOPER</th>
                       <th className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">COMMITS</th>
                       <th className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">TASKS</th>
-                      <th className="hidden md:table-cell py-2.5 sm:py-3 px-4 text-right">STATUS KERJA</th>
+                      <th className="hidden md:table-cell py-2.5 sm:py-3 px-4 text-right" title="Aktif jika memiliki minimal 1 commit atau 1 tugas selesai">
+                        STATUS KERJA
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800/60">
                     {members.map((member, index) => {
                       const isTop = index === 0;
-                      const isActive = member.total_commits >= 5;
+                      // Developer dinyatakan aktif jika telah melakukan minimal 1 commit atau menyelesaikan tugas
+                      const isActive = member.total_commits > 0 || member.tasks_done > 0;
 
                       return (
                         <tr key={member.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/25 transition">
@@ -1091,12 +1094,18 @@ export function DashboardPage() {
                           </td>
                           <td className="hidden md:table-cell py-2.5 sm:py-3 px-4 text-right">
                             {isActive ? (
-                              <span className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-200 dark:border-emerald-500/20 text-xs font-medium">
+                              <span
+                                className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-200 dark:border-emerald-500/20 text-xs font-medium"
+                                title="Developer aktif: telah melakukan commit atau menyelesaikan tugas"
+                              >
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Aktif Berkontribusi
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/60 px-2.5 py-1 rounded-md border border-zinc-300 dark:border-zinc-700 text-xs">
+                              <span
+                                className="inline-flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/60 px-2.5 py-1 rounded-md border border-zinc-300 dark:border-zinc-700 text-xs"
+                                title="Standby: belum ada commit atau penyelesaian tugas"
+                              >
                                 Standby
                               </span>
                             )}
