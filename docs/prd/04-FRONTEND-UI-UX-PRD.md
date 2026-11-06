@@ -132,3 +132,21 @@ Antarmuka SI-PATIR diuji dan dioptimalkan secara ketat untuk seluruh spektrum pe
 4. **Touch Target Size**:
    Semua tombol aksi memiliki tinggi minimum `h-9` (36px–44px) dengan padding sentuh luas untuk menghindari salah tekan (*fat-finger prevention*).
 
+---
+
+## 6. Arsitektur Animasi OOP GSAP (Modern Interactive Engine)
+
+Untuk menghadirkan pengalaman visual web modern berstandar enterprise yang "hidup" dan interaktif tanpa jatuh ke dalam perangkap efek berlebihan (*AI-slop*), SI-PATIR mengimplementasikan sistem animasi berbasis **Object-Oriented Programming (OOP)** menggunakan **GSAP (GreenSock Animation Platform)**:
+
+### 6.1 Struktur Modul Animasi
+* **`interfaces/IAnimationStrategy.ts`**: Kontrak antarmuka yang mendefinisikan operasi animasi standar (`animateDashboardEntrance`, `animateStatCounter`, `animateProgressBar`, `animateLogArrival`, `animateModalEntrance`, `animateToastEntrance`).
+* **`services/GsapAnimationEngine.ts`**: Kelas Singleton konkret yang mengimplementasikan `IAnimationStrategy`, membungkus pemanggilan GSAP secara aman, dan menyediakan konfigurasi *easing* teknis presisi (`power2.out`, `power3.out`, `back.out(1.4)`).
+* **`hooks/useGsapScope.ts`**: React Hook khusus yang memanfaatkan `gsap.context()` untuk memastikan seluruh timeline animasi dibersihkan secara otomatis (*memory-leak proof*) saat komponen di-unmount.
+
+### 6.2 Pola Perilaku Animasi
+1. **Staggered Layout Entrance**: Saat dashboard dimuat, header, kartu ringkasan metrik, dan grid konsol audit muncul secara bertahap (*staggered*) dengan translasi vertikal halus.
+2. **Smooth Numeric Counters**: Nilai Total Commits, Tugas Selesai, dan Persentase Penyelesaian menggunakan interpolasi numerik GSAP yang bertransisi secara mulus saat data diperbarui.
+3. **Reactive Log Arrival Highlight**: Setiap ada komit baru yang diterima melalui WebSocket, baris log paling atas di Live Stream disorot dengan kilatan hijau lembut dan pergeseran horizontal (*slide-in*).
+4. **Interactive Modal & Toast**: Dialog pop-up dan banner notifikasi menggunakan kurva pegas (*spring entrance*) yang responsif terhadap interaksi pengguna.
+
+

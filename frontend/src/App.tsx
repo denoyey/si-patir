@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo, type FormEvent } from 'react';
+import { useState, useEffect, useMemo, useRef, type FormEvent } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
+import { useGsapScope } from './animations/hooks/useGsapScope';
 import {
   GitBranch,
   GitCommit,
@@ -60,6 +61,20 @@ interface SystemStatus {
 }
 
 export function App() {
+  const { containerRef, engine } = useGsapScope();
+
+  // GSAP Animation Element References
+  const totalCommitsRef = useRef<HTMLDivElement | null>(null);
+  const totalDoneRef = useRef<HTMLDivElement | null>(null);
+  const completionRateRef = useRef<HTMLDivElement | null>(null);
+  const progressBarRef = useRef<HTMLDivElement | null>(null);
+  const toastRef = useRef<HTMLElement | null>(null);
+  const topLogRef = useRef<HTMLDivElement | null>(null);
+  const modalTaskRef = useRef<HTMLDivElement | null>(null);
+  const modalTaskBackdropRef = useRef<HTMLDivElement | null>(null);
+  const modalMemberRef = useRef<HTMLDivElement | null>(null);
+  const modalMemberBackdropRef = useRef<HTMLDivElement | null>(null);
+
   const [members, setMembers] = useState<Member[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [logs, setLogs] = useState<ActivityLog[]>([]);
@@ -132,12 +147,19 @@ export function App() {
       }
       setTimeout(() => setActiveToast(null), 5000);
       refreshData();
+
+      // Highlight new log item with GSAP
+      setTimeout(() => {
+        if (topLogRef.current) {
+          engine.animateLogArrival(topLogRef.current);
+        }
+      }, 120);
     });
 
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [engine]);
 
   // Filter tasks based on search & status
   const filteredTasks = useMemo(() => {
@@ -159,6 +181,42 @@ export function App() {
     const completionRate = tasks.length > 0 ? Math.round((totalDone / tasks.length) * 100) : 0;
     return { totalCommits, totalDone, completionRate };
   }, [members, tasks]);
+
+  // Reactive GSAP Animations for Dynamic Metric Changes
+  useEffect(() => {
+    if (totalCommitsRef.current) {
+      engine.animateStatCounter(totalCommitsRef.current, metrics.totalCommits);
+    }
+    if (totalDoneRef.current) {
+      engine.animateStatCounter(totalDoneRef.current, metrics.totalDone);
+    }
+    if (completionRateRef.current) {
+      engine.animateStatCounter(completionRateRef.current, metrics.completionRate, '%');
+    }
+    if (progressBarRef.current) {
+      engine.animateProgressBar(progressBarRef.current, metrics.completionRate);
+    }
+  }, [metrics, engine]);
+
+  // GSAP Modal Entrance Effects
+  useEffect(() => {
+    if (showAddTaskModal && modalTaskRef.current && modalTaskBackdropRef.current) {
+      engine.animateModalEntrance(modalTaskRef.current, modalTaskBackdropRef.current);
+    }
+  }, [showAddTaskModal, engine]);
+
+  useEffect(() => {
+    if (showAddMemberModal && modalMemberRef.current && modalMemberBackdropRef.current) {
+      engine.animateModalEntrance(modalMemberRef.current, modalMemberBackdropRef.current);
+    }
+  }, [showAddMemberModal, engine]);
+
+  // GSAP Toast Entrance Effect
+  useEffect(() => {
+    if (activeToast && toastRef.current) {
+      engine.animateToastEntrance(toastRef.current);
+    }
+  }, [activeToast, engine]);
 
   // Sync real contributors from GitHub repository
   const handleSyncGitHub = async () => {
@@ -289,12 +347,13 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#090b10] text-zinc-200 font-sans selection:bg-zinc-800 selection:text-white flex flex-col antialiased">
+    <div ref={containerRef} className="min-h-screen bg-[#090b10] text-zinc-200 font-sans selection:bg-zinc-800 selection:text-white flex flex-col antialiased">
       {/* Top Floating Notification Toast */}
       {activeToast && (
         <aside
+          ref={toastRef}
           aria-live="polite"
-          className="fixed top-3 sm:top-5 left-3 right-3 sm:left-auto sm:right-6 z-50 bg-[#12151f] border border-emerald-500/40 text-zinc-200 px-4 py-3 rounded-lg shadow-xl flex items-start gap-3 backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200 sm:max-w-md"
+          className="fixed top-3 sm:top-5 left-3 right-3 sm:left-auto sm:right-6 z-50 bg-[#12151f] border border-emerald-500/40 text-zinc-200 px-4 py-3 rounded-lg shadow-xl flex items-start gap-3 backdrop-blur-md sm:max-w-md"
         >
           <div className="p-1 bg-emerald-500/10 rounded-md border border-emerald-500/20 text-emerald-400 shrink-0 mt-0.5">
             <CheckCircle2 className="w-4 h-4" />
@@ -307,7 +366,7 @@ export function App() {
       )}
 
       {/* TOP NAVBAR (Clean, Human Engineering Design, Max-W 7XL) */}
-      <header className="border-b border-zinc-800 bg-[#0d1017] sticky top-0 z-40 safe-top">
+      <header data-anim="header" className="border-b border-zinc-800 bg-[#0d1017] sticky top-0 z-40 safe-top">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-15 flex items-center justify-between gap-3">
           {/* Brand Logo & Name */}
           <div className="flex items-center gap-3 min-w-0">
@@ -328,7 +387,10 @@ export function App() {
           <div className="flex items-center gap-2 shrink-0">
             {/* Sync Real GitHub Contributors */}
             <button
-              onClick={handleSyncGitHub}
+              onClick={(e) => {
+                engine.animateButtonPress(e.currentTarget);
+                handleSyncGitHub();
+              }}
               disabled={isSyncingGitHub}
               aria-label="Sinkronisasi GitHub"
               className="h-8 px-3 rounded-md bg-zinc-800 hover:bg-zinc-750 border border-zinc-700 text-xs font-medium text-zinc-300 hover:text-white flex items-center gap-1.5 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer touch-manipulation"
@@ -340,7 +402,10 @@ export function App() {
 
             {/* Sync Trello */}
             <button
-              onClick={handleSyncTrello}
+              onClick={(e) => {
+                engine.animateButtonPress(e.currentTarget);
+                handleSyncTrello();
+              }}
               disabled={isSyncingTrello}
               aria-label="Sinkronisasi Trello"
               className="h-8 px-3 rounded-md bg-zinc-800 hover:bg-zinc-750 border border-zinc-700 text-xs font-medium text-zinc-300 hover:text-white flex items-center gap-1.5 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer touch-manipulation"
@@ -351,7 +416,10 @@ export function App() {
 
             {/* Test Real Commit */}
             <button
-              onClick={handleSimulateCommit}
+              onClick={(e) => {
+                engine.animateButtonPress(e.currentTarget);
+                handleSimulateCommit();
+              }}
               disabled={isSimulating}
               aria-label="Simulasi Push Commit"
               className="h-8 px-3.5 rounded-md bg-zinc-100 hover:bg-white text-zinc-950 border border-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-xs touch-manipulation"
@@ -366,7 +434,7 @@ export function App() {
       </header>
 
       {/* REPOSITORY & SYSTEM CONNECTIVITY BAR (Max-W 7XL) */}
-      <section className="border-b border-zinc-800/80 bg-[#0b0e14] py-2 px-4 sm:px-6 lg:px-8 text-xs font-mono">
+      <section data-anim="header" className="border-b border-zinc-800/80 bg-[#0b0e14] py-2 px-4 sm:px-6 lg:px-8 text-xs font-mono">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           {/* Real Target Repo Info */}
           <div className="flex items-center gap-2 text-zinc-400 truncate">
@@ -412,41 +480,43 @@ export function App() {
       <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1 safe-bottom">
         {/* SUMMARY METRICS CARDS */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-[#11141d] border border-zinc-800 rounded-lg p-4">
+          <div data-anim="stat-card" className="bg-[#11141d] border border-zinc-800 hover:border-zinc-700 transition duration-200 rounded-lg p-4">
             <div className="flex items-center justify-between text-zinc-400 text-xs">
               <span className="font-medium">Total Commits</span>
               <GitCommit className="w-4 h-4 text-zinc-500 shrink-0" />
             </div>
-            <div className="text-2xl font-bold font-mono text-white mt-1.5">{metrics.totalCommits}</div>
+            <div ref={totalCommitsRef} className="text-2xl font-bold font-mono text-white mt-1.5">{metrics.totalCommits}</div>
             <div className="text-[11px] text-zinc-500 mt-1 truncate">Tercatat di Git repositori</div>
           </div>
 
-          <div className="bg-[#11141d] border border-zinc-800 rounded-lg p-4">
+          <div data-anim="stat-card" className="bg-[#11141d] border border-zinc-800 hover:border-zinc-700 transition duration-200 rounded-lg p-4">
             <div className="flex items-center justify-between text-zinc-400 text-xs">
               <span className="font-medium">Tugas Selesai</span>
               <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0" />
             </div>
-            <div className="text-2xl font-bold font-mono text-emerald-400 mt-1.5">
-              {metrics.totalDone} <span className="text-zinc-500 text-sm font-normal">/ {tasks.length}</span>
+            <div className="text-2xl font-bold font-mono text-emerald-400 mt-1.5 flex items-baseline gap-1">
+              <span ref={totalDoneRef}>{metrics.totalDone}</span>
+              <span className="text-zinc-500 text-sm font-normal">/ {tasks.length}</span>
             </div>
             <div className="text-[11px] text-zinc-500 mt-1 truncate">Status sinkron real-time</div>
           </div>
 
-          <div className="bg-[#11141d] border border-zinc-800 rounded-lg p-4">
+          <div data-anim="stat-card" className="bg-[#11141d] border border-zinc-800 hover:border-zinc-700 transition duration-200 rounded-lg p-4">
             <div className="flex items-center justify-between text-zinc-400 text-xs">
               <span className="font-medium">Penyelesaian</span>
               <Activity className="w-4 h-4 text-blue-500 shrink-0" />
             </div>
-            <div className="text-2xl font-bold font-mono text-white mt-1.5">{metrics.completionRate}%</div>
+            <div ref={completionRateRef} className="text-2xl font-bold font-mono text-white mt-1.5">{metrics.completionRate}%</div>
             <div className="w-full bg-zinc-800 h-1.5 rounded-md mt-2 overflow-hidden">
               <div
-                className="bg-blue-500 h-full rounded-md transition-all duration-500"
+                ref={progressBarRef}
+                className="bg-blue-500 h-full rounded-md"
                 style={{ width: `${metrics.completionRate}%` }}
               ></div>
             </div>
           </div>
 
-          <div className="bg-[#11141d] border border-zinc-800 rounded-lg p-4">
+          <div data-anim="stat-card" className="bg-[#11141d] border border-zinc-800 hover:border-zinc-700 transition duration-200 rounded-lg p-4">
             <div className="flex items-center justify-between text-zinc-400 text-xs">
               <span className="font-medium">Proteksi Keamanan</span>
               <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -461,7 +531,7 @@ export function App() {
         {/* WORKSPACE LAYOUT (2 Columns on Desktop, Stacked on Mobile) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* LEFT 2 COLUMNS: Leaderboard & Task Management */}
-          <div className="lg:col-span-2 space-y-6">
+          <div data-anim="content-grid" className="lg:col-span-2 space-y-6">
             {/* 1. KLASEMEN KONTRIBUSI ANGGOTA NYATA */}
             <section className="bg-[#11141d] border border-zinc-800 rounded-lg overflow-hidden">
               <div className="px-5 py-3.5 border-b border-zinc-800 flex items-center justify-between gap-2">
@@ -676,7 +746,7 @@ export function App() {
           </div>
 
           {/* RIGHT 1 COLUMN: LIVE WEBHOOK AUDIT STREAM */}
-          <aside className="space-y-4">
+          <aside data-anim="content-grid" className="space-y-4">
             <div className="bg-[#11141d] border border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[480px] sm:h-[560px] lg:h-[640px]">
               <div className="px-4 py-3 border-b border-zinc-800 flex items-center justify-between bg-[#0d1017]">
                 <div className="flex items-center gap-2">
@@ -697,8 +767,12 @@ export function App() {
                   // Menunggu sinyal push git dari pengembang nyata...
                 </div>
 
-                {logs.map((log) => (
-                  <div key={log.id} className="pt-2.5 space-y-1">
+                {logs.map((log, index) => (
+                  <div
+                    key={log.id}
+                    ref={index === 0 ? topLogRef : undefined}
+                    className="pt-2.5 space-y-1 transition-colors duration-300 rounded-md p-1"
+                  >
                     <div className="flex items-center justify-between text-[11px] text-zinc-500">
                       <span className="text-blue-400 font-bold">[{log.event_type}]</span>
                       <span>{log.created_at}</span>
@@ -735,8 +809,14 @@ export function App() {
 
       {/* MODAL TAMBAH TUGAS NYATA */}
       {showAddTaskModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#11141d] border border-zinc-800 rounded-lg p-5 max-w-md w-full shadow-2xl">
+        <div
+          ref={modalTaskBackdropRef}
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4"
+        >
+          <div
+            ref={modalTaskRef}
+            className="bg-[#11141d] border border-zinc-800 rounded-lg p-5 max-w-md w-full shadow-2xl"
+          >
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <h3 className="text-sm font-semibold text-white">Tambah Kartu Tugas Nyata</h3>
               <button onClick={() => setShowAddTaskModal(false)} className="text-zinc-400 hover:text-white">
@@ -810,8 +890,14 @@ export function App() {
 
       {/* MODAL TAMBAH ANGGOTA KELOMPOK NYATA */}
       {showAddMemberModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#11141d] border border-zinc-800 rounded-lg p-5 max-w-md w-full shadow-2xl">
+        <div
+          ref={modalMemberBackdropRef}
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4"
+        >
+          <div
+            ref={modalMemberRef}
+            className="bg-[#11141d] border border-zinc-800 rounded-lg p-5 max-w-md w-full shadow-2xl"
+          >
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <h3 className="text-sm font-semibold text-white">Tambah Anggota Kelompok Nyata</h3>
               <button onClick={() => setShowAddMemberModal(false)} className="text-zinc-400 hover:text-white">
