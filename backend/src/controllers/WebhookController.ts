@@ -153,15 +153,8 @@ export class WebhookController {
       await this.logRepo.record('TASK_COMPLETED', author, commitMsg, taskCode, 'SUCCESS');
 
       await this.trelloService.moveCardToDone(taskCode, commitMsg, simulatedCommitUrl);
-      await this.discordService.sendTaskCompletion({
-        developer: author,
-        taskCode,
-        taskTitle,
-        commitMsg,
-        commitUrl: simulatedCommitUrl,
-        oldStatus,
-        newStatus: 'Done',
-      });
+      // PENTING: Sesuai instruksi user, data tes / simulasi TIDAK BOLEH dikirimkan ke Discord webhook.
+      // Notifikasi Discord hanya dikirimkan pada webhook nyata GitHub (handleGitHubWebhook).
 
       this.io.emit('activity_update', {
         type: 'TASK_COMPLETED',

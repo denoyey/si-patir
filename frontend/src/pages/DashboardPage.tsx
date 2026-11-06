@@ -8,27 +8,22 @@ import {
   GitBranch,
   GitCommit,
   CheckCircle2,
-  Clock,
   RefreshCw,
   Terminal,
   Trophy,
   CheckSquare,
-  Zap,
   Database,
   Search,
   Activity,
-  Layers,
   ShieldCheck,
   Plus,
   Trash2,
   X,
-  Sparkles,
   ExternalLink,
   ChevronLeft,
+  ChevronRight,
   ChevronDown,
   Copy,
-  Send,
-  HelpCircle,
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { useNavbarVisibility } from '../services/scroll/hooks/useNavbarVisibility';
@@ -148,8 +143,11 @@ export function DashboardPage() {
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'In Progress' | 'Done' | 'To Do'>('ALL');
   const [isSyncingTrello, setIsSyncingTrello] = useState(false);
   const [isSyncingGitHub, setIsSyncingGitHub] = useState(false);
-  const [isSimulating, setIsSimulating] = useState(false);
   const [activeToast, setActiveToast] = useState<{ title: string; desc: string } | null>(null);
+
+  // Filament v5 Data Table Pagination State
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [perPage, setPerPage] = useState<number>(5);
 
   // Modals state for team management
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
@@ -164,38 +162,9 @@ export function DashboardPage() {
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberUsername, setNewMemberUsername] = useState('');
 
-  // Interactive Terminal Simulator State
-  const [terminalInput, setTerminalInput] = useState<string>(
-    'git commit -m "Selesaikan fitur [done #TASK-01]"'
-  );
-  const [terminalLogs, setTerminalLogs] = useState<
-    { id: string; type: 'cmd' | 'output' | 'info'; text: string; time: string }[]
-  >(() => [
-    {
-      id: 'init-1',
-      type: 'info',
-      text: 'SI-PATIR Interactive Terminal Simulator v2.0 Ready.',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
-    },
-    {
-      id: 'init-2',
-      type: 'info',
-      text: 'Ketik perintah git commit di bawah & tekan Enter, atau klik tugas di "Pilih Cepat".',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
-    },
-  ]);
-  const [isExecutingTerminal, setIsExecutingTerminal] = useState(false);
-  const [showTerminalGuide, setShowTerminalGuide] = useState(false);
-  const terminalInputRef = useRef<HTMLInputElement | null>(null);
-
   // Sync Dropdown State
   const [isSyncMenuOpen, setIsSyncMenuOpen] = useState(false);
   const syncMenuRef = useRef<HTMLDivElement | null>(null);
-
-  // Active Developer Simulator & Test State
-  const [selectedTestDev, setSelectedTestDev] = useState<string>('');
-  const [isTestDropdownOpen, setIsTestDropdownOpen] = useState(false);
-  const testDropdownRef = useRef<HTMLDivElement | null>(null);
 
   // Reusable custom confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -280,6 +249,16 @@ export function DashboardPage() {
     });
   }, [tasks, searchQuery, statusFilter]);
 
+  // Paginated tasks slice for Filament v5 Table
+  const totalResults = filteredTasks.length;
+  const totalPages = Math.max(1, Math.ceil(totalResults / perPage));
+  const activePage = Math.min(currentPage, totalPages);
+  const startIndex = totalResults === 0 ? 0 : (activePage - 1) * perPage;
+  const endIndex = Math.min(startIndex + perPage, totalResults);
+  const paginatedTasks = useMemo(() => {
+    return filteredTasks.slice(startIndex, startIndex + perPage);
+  }, [filteredTasks, startIndex, perPage]);
+
   // Aggregate Metrics
   const metrics = useMemo(() => {
     const totalCommits = members.reduce((acc, m) => acc + m.total_commits, 0);
@@ -287,50 +266,6 @@ export function DashboardPage() {
     const completionRate = tasks.length > 0 ? Math.round((totalDone / tasks.length) * 100) : 0;
     return { totalCommits, totalDone, completionRate };
   }, [members, tasks]);
-
-  // Menentukan default developer penguji aktif:
-  // Utamakan yang dipilih pengguna -> jika belum dipilih, utamakan yang masih Standby (0 commit) agar langsung terlihat hasilnya -> lalu assignee task belum selesai -> default members[0]
-  const currentTestDev = useMemo(() => {
-    if (selectedTestDev) return selectedTestDev;
-    const standbyMember = members.find((m) => m.total_commits === 0);
-    if (standbyMember) return standbyMember.github_username;
-    const targetTask = tasks.find((t) => t.status !== 'Done');
-    if (targetTask?.assignee) return targetTask.assignee.replace(/^@/, '');
-    return members[0]?.github_username || 'denoyey';
-  }, [selectedTestDev, members, tasks]);
-
-  // Syarat resolusi author commit secara cerdas:
-  const resolveCommitAuthor = (commandText: string, preferredDev?: string): string => {
-    // 1. Cek apakah pengguna menulis flag --author="username" atau --author=username di terminal
-    const authorFlag = commandText.match(/--author=["']?([a-zA-Z0-9_-]+)/i);
-    if (authorFlag && authorFlag[1]) {
-      return authorFlag[1];
-    }
-
-    // 2. Cek apakah pengguna menulis -c user.name="username"
-    const gitConfigFlag = commandText.match(/user\.name=["']?([a-zA-Z0-9_-]+)/i);
-    if (gitConfigFlag && gitConfigFlag[1]) {
-      return gitConfigFlag[1];
-    }
-
-    // 3. Cek tag tugas [done #TASK-XX] atau #TASK-XX dan cocokkan dengan assignee di daftar tugas
-    const taskMatch = commandText.match(/#(TASK-[0-9A-Za-z_-]+)/i);
-    if (taskMatch && taskMatch[1]) {
-      const code = taskMatch[1].toUpperCase();
-      const matchedTask = tasks.find((t) => t.task_code.toUpperCase() === code);
-      if (matchedTask && matchedTask.assignee) {
-        return matchedTask.assignee.replace(/^@/, '');
-      }
-    }
-
-    // 4. Gunakan developer yang dipilih pengguna di UI jika ada
-    if (preferredDev) {
-      return preferredDev;
-    }
-
-    // 5. Fallback ke currentTestDev
-    return currentTestDev;
-  };
 
   // Reactive GSAP Animations for Dynamic Metric Changes
   useEffect(() => {
@@ -392,31 +327,6 @@ export function DashboardPage() {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isSyncMenuOpen]);
-
-  // Test Dropdown Click-Outside & Keyboard Escape Handler
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (testDropdownRef.current && !testDropdownRef.current.contains(event.target as Node)) {
-        setIsTestDropdownOpen(false);
-      }
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsTestDropdownOpen(false);
-      }
-    };
-
-    if (isTestDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('keydown', handleKeyDown);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isTestDropdownOpen]);
 
   // Sync real contributors from GitHub repository
   const handleSyncGitHub = async () => {
@@ -559,137 +469,6 @@ export function DashboardPage() {
         desc: err.response?.data?.error || 'Gagal menambahkan anggota ke database.',
       });
       setTimeout(() => setActiveToast(null), 4000);
-    }
-  };
-
-  // Instant demo commit with specified or resolved developer
-  const handleSimulateCommit = async (customAuthor?: string) => {
-    setIsSimulating(true);
-
-    const authorToUse =
-      customAuthor ||
-      selectedTestDev ||
-      currentTestDev ||
-      members[0]?.github_username ||
-      'denoyey';
-
-    // Perbarui penguji terpilih agar seluruh tampilan (navbar & terminal) sinkron
-    if (customAuthor) {
-      setSelectedTestDev(customAuthor);
-    }
-
-    // Cari tugas milik author bersangkutan yang belum selesai, atau fallback ke tugas pending lainnya
-    const authorTask =
-      tasks.find(
-        (t) =>
-          t.assignee?.replace(/^@/, '').toLowerCase() === authorToUse.toLowerCase() &&
-          t.status !== 'Done'
-      ) ||
-      tasks.find((t) => t.status !== 'Done') ||
-      tasks[0];
-
-    const targetCode = authorTask ? authorTask.task_code : 'TASK-01';
-
-    try {
-      await axios.post('/api/simulate-commit', {
-        developer: authorToUse,
-        message: `Selesaikan implementasi tugas [done #${targetCode}]`,
-      });
-      await refreshData();
-      setActiveToast({
-        title: 'Test Commit Berhasil',
-        desc: `Commit berhasil dicatat atas nama @${authorToUse} [done #${targetCode}].`,
-      });
-      setTimeout(() => setActiveToast(null), 4000);
-    } catch (err: any) {
-      console.error('Simulate commit error:', err);
-    } finally {
-      setIsSimulating(false);
-    }
-  };
-
-  // Execute terminal command directly from browser terminal input
-  const handleExecuteTerminal = async (e?: FormEvent) => {
-    if (e) e.preventDefault();
-    const raw = terminalInput.trim();
-    if (!raw || isExecutingTerminal) return;
-
-    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-
-    // Handle clear screen
-    if (raw.toLowerCase() === 'clear' || raw.toLowerCase() === 'cls') {
-      setTerminalLogs([]);
-      return;
-    }
-
-    // Handle help command
-    if (raw.toLowerCase() === 'help') {
-      setTerminalLogs((prev) => [
-        ...prev,
-        { id: Math.random().toString(), type: 'cmd', text: `$ ${raw}`, time },
-        { id: Math.random().toString(), type: 'info', text: 'Perintah didukung: git commit -m "<pesan> [done #TASK-XX]", git commit --author="username" -m "...", clear, help', time },
-      ]);
-      return;
-    }
-
-    // Parse commit message
-    let commitMessage = raw;
-    const match = raw.match(/git\s+commit\s+.*?(-m\s+["'](.+?)["'])/i);
-    if (match && match[2]) {
-      commitMessage = match[2];
-    } else {
-      const simpleMatch = raw.match(/-m\s+["'](.+?)["']/i);
-      if (simpleMatch && simpleMatch[1]) {
-        commitMessage = simpleMatch[1];
-      } else if (raw.toLowerCase().includes('commit')) {
-        commitMessage = raw.replace(/^git\s+commit\s*/i, '').replace(/^["']|["']$/g, '');
-      }
-    }
-
-    setIsExecutingTerminal(true);
-    // Tentukan pelaku commit cerdas (berdasarkan flag --author, tag taskCode, atau penguji yang dipilih)
-    const activeDev = resolveCommitAuthor(raw, selectedTestDev);
-
-    setTerminalLogs((prev) => [
-      ...prev,
-      { id: Math.random().toString(), type: 'cmd', text: `@${activeDev} $ ${raw}`, time },
-    ]);
-
-    try {
-      await axios.post('/api/simulate-commit', {
-        developer: activeDev,
-        message: commitMessage,
-      });
-
-      const shortHash = Math.random().toString(36).substring(2, 9);
-      setTerminalLogs((prev) => [
-        ...prev,
-        {
-          id: Math.random().toString(),
-          type: 'output',
-          text: `[main ${shortHash}] ${commitMessage}\n Author: ${activeDev} <${activeDev}@users.noreply.github.com>\n 1 file changed, 1 insertion(+)\n✓ Webhook diproses! Papan Trello & Discord tersinkronisasi.`,
-          time,
-        },
-      ]);
-
-      await refreshData();
-      setActiveToast({
-        title: 'Commit Berhasil Dijalankan',
-        desc: `@${activeDev}: "${commitMessage.slice(0, 40)}..." berhasil diproses oleh webhook.`,
-      });
-      setTimeout(() => setActiveToast(null), 4000);
-    } catch (err: any) {
-      setTerminalLogs((prev) => [
-        ...prev,
-        {
-          id: Math.random().toString(),
-          type: 'output',
-          text: `Error: ${err.response?.data?.error || err.message || 'Gagal mengeksekusi commit'}`,
-          time,
-        },
-      ]);
-    } finally {
-      setIsExecutingTerminal(false);
     }
   };
 
@@ -870,95 +649,6 @@ export function DashboardPage() {
                       </p>
                     </div>
                   </button>
-                </div>
-              )}
-            </div>
-
-            {/* Test Real Commit with Developer Selector */}
-            <div ref={testDropdownRef} className="relative shrink-0 flex items-center">
-              <button
-                type="button"
-                onClick={(e) => {
-                  engine.animateButtonPress(e.currentTarget);
-                  handleSimulateCommit();
-                }}
-                disabled={isSimulating}
-                aria-label="Simulasi Push Commit"
-                className="h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-l-md bg-zinc-950 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 active:scale-95 text-white dark:text-zinc-950 border border-zinc-900 dark:border-zinc-300 border-r-zinc-800 dark:border-r-zinc-200 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer shadow-xs touch-manipulation shrink-0"
-                title={`Kirim commit webhook atas nama @${currentTestDev}`}
-              >
-                <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-400 dark:fill-amber-500 dark:text-amber-500 shrink-0" />
-                <span className="hidden sm:inline">Test Commit</span>
-                <span className="sm:hidden text-xs">Test</span>
-                <span className="font-mono text-[11px] text-amber-300 dark:text-zinc-700">
-                  [@{currentTestDev}]
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={(e) => {
-                  engine.animateButtonPress(e.currentTarget);
-                  setIsTestDropdownOpen((prev) => !prev);
-                }}
-                disabled={isSimulating}
-                aria-label="Pilih developer untuk test commit"
-                className="h-8 sm:h-8.5 px-1.5 rounded-r-md bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 border-y border-r border-zinc-900 dark:border-zinc-300 text-white dark:text-zinc-950 text-xs flex items-center justify-center transition cursor-pointer touch-manipulation active:scale-95"
-                title="Pilih developer penguji"
-              >
-                <ChevronDown
-                  className={`w-3 h-3 transition-transform duration-150 ${
-                    isTestDropdownOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-
-              {/* Dropdown Menu to Pick Developer */}
-              {isTestDropdownOpen && (
-                <div
-                  role="menu"
-                  className="absolute right-0 top-full mt-1.5 w-60 rounded-md bg-white dark:bg-[#12151f] border border-zinc-200 dark:border-zinc-800 shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100 font-sans"
-                >
-                  <div className="px-2 py-1 text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-                    Pilih Developer Penguji
-                  </div>
-                  {members.map((m) => {
-                    const isSelected = currentTestDev === m.github_username;
-                    const isStandby = m.total_commits === 0;
-                    return (
-                      <button
-                        key={m.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedTestDev(m.github_username);
-                          setIsTestDropdownOpen(false);
-                          handleSimulateCommit(m.github_username);
-                        }}
-                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs text-left transition cursor-pointer ${
-                          isSelected
-                            ? 'bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-300 font-semibold'
-                            : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
-                        }`}
-                      >
-                        <div className="flex items-center gap-1.5 truncate">
-                          <span className="font-medium truncate">{m.name}</span>
-                          <span className="font-mono text-[10px] text-zinc-500 dark:text-zinc-400 truncate">
-                            @{m.github_username}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          {isStandby && (
-                            <span className="text-[9px] px-1 py-0.2 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                              Standby
-                            </span>
-                          )}
-                          <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
-                            {m.total_commits}c
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
                 </div>
               )}
             </div>
@@ -1218,16 +908,6 @@ export function DashboardPage() {
                                     <span>@{member.github_username}</span>
                                     <ExternalLink className="w-2.5 h-2.5 opacity-50 group-hover/gh:opacity-100 transition shrink-0" />
                                   </a>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleSimulateCommit(member.github_username)}
-                                    disabled={isSimulating}
-                                    className="md:hidden px-1.5 py-0.2 rounded text-[10px] font-mono bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 active:scale-95 transition cursor-pointer flex items-center gap-0.5"
-                                    title={`Tes commit @${member.github_username}`}
-                                  >
-                                    <Zap className="w-2.5 h-2.5 fill-amber-500" />
-                                    <span>Tes</span>
-                                  </button>
                                 </div>
                               </div>
                             </div>
@@ -1260,20 +940,6 @@ export function DashboardPage() {
                                   Standby
                                 </span>
                               )}
-
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  engine.animateButtonPress(e.currentTarget);
-                                  handleSimulateCommit(member.github_username);
-                                }}
-                                disabled={isSimulating}
-                                className="px-2 py-1 rounded-md bg-zinc-100 hover:bg-amber-500/15 dark:bg-zinc-800 dark:hover:bg-amber-500/20 text-zinc-700 hover:text-amber-700 dark:text-zinc-300 dark:hover:text-amber-300 border border-zinc-300 dark:border-zinc-700 hover:border-amber-400 dark:hover:border-amber-500/40 text-[10.5px] font-mono transition cursor-pointer active:scale-95 inline-flex items-center gap-1 shadow-2xs"
-                                title={`Kirim 1 commit webhook atas nama @${member.github_username}`}
-                              >
-                                <Zap className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
-                                <span>Tes</span>
-                              </button>
                             </div>
                           </td>
                         </tr>
@@ -1284,186 +950,292 @@ export function DashboardPage() {
               </div>
             </section>
 
-            {/* 2. DAFTAR TUGAS PROYEK REALTIME */}
+            {/* 2. DAFTAR TUGAS PROYEK - FILAMENT V5 DATA TABLE */}
             <section className="bg-white dark:bg-[#0e121b] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden shadow-xs">
-              <div className="px-3.5 sm:px-5 py-3 sm:py-3.5 min-h-[52px] border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#121623] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
-                <div className="flex items-center justify-between w-full sm:w-auto gap-2">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0">
-                      <CheckSquare className="w-4 h-4" />
-                    </div>
-                    <div>
+              {/* Table Top Toolbar */}
+              <div className="p-3.5 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-[#121623] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0">
+                    <CheckSquare className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
                       <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-950 dark:text-white">
                         Daftar Kartu Tugas
                       </h2>
-                      <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
-                        {filteredTasks.length} dari {tasks.length} Tugas Ditampilkan
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-200/80 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700">
+                        {totalResults} tugas
                       </span>
                     </div>
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                      Sinkronisasi otomatis dengan papan Trello &amp; GitHub
+                    </p>
                   </div>
-
-                  {/* Button Add Real Task (Mobile Top Right) */}
-                  <button
-                    onClick={(e) => {
-                      engine.animateButtonPress(e.currentTarget);
-                      setShowAddTaskModal(true);
-                    }}
-                    className="sm:hidden h-8 px-2.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1 transition cursor-pointer touch-manipulation shadow-xs shrink-0"
-                  >
-                    <Plus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                    <span>Tugas</span>
-                  </button>
                 </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  {/* Button Add Real Task (Desktop) */}
+                <div className="flex items-center gap-2 self-start sm:self-center">
                   <button
+                    type="button"
                     onClick={(e) => {
                       engine.animateButtonPress(e.currentTarget);
                       setShowAddTaskModal(true);
                     }}
-                    className="hidden sm:flex h-8.5 px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs shrink-0"
+                    className="h-8.5 px-3 rounded-md bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white active:scale-95 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
+                    title="Tambah kartu tugas baru"
                   >
-                    <Plus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                    <Plus className="w-3.5 h-3.5" />
                     <span>Tambah Tugas</span>
                   </button>
-
-                  {/* Filter Tabs - Full-width 4-column grid on mobile, flex on sm+ */}
-                  <div className="w-full sm:w-auto grid grid-cols-4 sm:flex items-center gap-1 bg-zinc-100 dark:bg-[#090b10] p-1 rounded-md border border-zinc-300 dark:border-zinc-800 text-xs">
-                    {(['ALL', 'In Progress', 'Done', 'To Do'] as const).map((tab) => (
-                      <button
-                        key={tab}
-                        onClick={(e) => {
-                          engine.animateButtonPress(e.currentTarget);
-                          setStatusFilter(tab);
-                        }}
-                        className={`px-1.5 sm:px-3 py-1 rounded-md text-[11px] sm:text-xs font-medium transition active:scale-95 cursor-pointer text-center touch-manipulation truncate ${
-                          statusFilter === tab
-                            ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs border border-zinc-300 dark:border-zinc-700'
-                            : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
-                        }`}
-                      >
-                        {tab}
-                      </button>
-                    ))}
-                  </div>
                 </div>
               </div>
 
-              {/* Search Bar */}
-              <div className="p-3.5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-[#0a0d14]">
-                <div className="relative">
-                  <Search className="w-4 h-4 absolute left-3 top-2.5 text-zinc-400 dark:text-zinc-500" />
+              {/* Table Controls: Search & Segmented Status Filters */}
+              <div className="p-3.5 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0a0d14] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                {/* Search Bar */}
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 absolute left-3 top-2.5 text-zinc-400 dark:text-zinc-500 pointer-events-none" />
                   <input
                     id="task-search-input"
                     name="task_search_query"
                     type="text"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Cari tugas, kode (#TASK), atau assignee..."
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    placeholder="Cari kode tugas (#TASK), judul, atau assignee..."
                     autoComplete="off"
                     aria-label="Cari kode tugas, judul, atau assignee"
-                    className="w-full h-9 pl-9 pr-3 rounded-md bg-white dark:bg-[#121624] border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition shadow-inner"
+                    className="w-full h-9 pl-9 pr-8 rounded-md bg-zinc-50 dark:bg-[#121624] border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition shadow-inner"
                   />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setCurrentPage(1);
+                      }}
+                      className="absolute right-2.5 top-2.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer"
+                      title="Hapus pencarian"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Status Filter Tabs (Filament style pills) */}
+                <div className="grid grid-cols-4 sm:flex items-center gap-1 bg-zinc-100 dark:bg-[#121623] p-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-xs shrink-0">
+                  {(['ALL', 'In Progress', 'Done', 'To Do'] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      type="button"
+                      onClick={(e) => {
+                        engine.animateButtonPress(e.currentTarget);
+                        setStatusFilter(tab);
+                        setCurrentPage(1);
+                      }}
+                      className={`px-2.5 py-1 rounded-md text-[11px] sm:text-xs font-medium transition active:scale-95 cursor-pointer text-center truncate ${
+                        statusFilter === tab
+                          ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs border border-zinc-300 dark:border-zinc-700 font-semibold'
+                          : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                      }`}
+                    >
+                      {tab === 'ALL' ? 'Semua' : tab}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Task Items List */}
-              <div className="divide-y divide-zinc-200 dark:divide-zinc-800/60">
-                {filteredTasks.length === 0 ? (
-                  <div className="p-8 text-center text-xs text-zinc-500">
-                    Belum ada tugas yang cocok. Klik tombol "Tambah Tugas" untuk menambahkan.
-                  </div>
-                ) : (
-                  filteredTasks.map((task) => {
-                    const isDone = task.status === 'Done';
-                    const isInProgress = task.status === 'In Progress';
+              {/* Table Data View */}
+              <div className="overflow-x-auto touch-scroll" data-lenis-prevent>
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-[#0a0d14] text-zinc-500 dark:text-zinc-400 font-mono text-[11px]">
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 w-28">KODE TUGAS</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 min-w-[200px]">JUDUL TUGAS</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 min-w-[140px]">ASSIGNEE</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-center w-32">STATUS</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right w-16">AKSI</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800/60">
+                    {paginatedTasks.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-12 text-center text-xs text-zinc-500 dark:text-zinc-400">
+                          <div className="flex flex-col items-center justify-center gap-2">
+                            <CheckSquare className="w-8 h-8 text-zinc-300 dark:text-zinc-600" />
+                            <p className="font-medium text-zinc-700 dark:text-zinc-300">
+                              Tidak ada kartu tugas ditemukan.
+                            </p>
+                            <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
+                              {searchQuery || statusFilter !== 'ALL'
+                                ? 'Coba ubah kata kunci pencarian atau filter status.'
+                                : 'Klik tombol "Tambah Tugas" untuk membuat tugas baru.'}
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      paginatedTasks.map((task) => {
+                        const isDone = task.status === 'Done';
+                        const isInProgress = task.status === 'In Progress';
 
-                    return (
-                      <div
-                        key={task.id}
-                        className={`p-3.5 sm:p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/20 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 border-l-3 ${
-                          isDone
-                            ? 'border-l-emerald-500'
-                            : isInProgress
-                            ? 'border-l-amber-500'
-                            : 'border-l-zinc-400 dark:border-l-zinc-700'
+                        return (
+                          <tr
+                            key={task.id}
+                            className="hover:bg-zinc-50 dark:hover:bg-zinc-800/25 transition group"
+                          >
+                            <td className="py-3 px-3 sm:px-4 whitespace-nowrap">
+                              <span className="font-mono font-bold text-xs text-zinc-900 dark:text-zinc-200 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-1 rounded-md border border-zinc-300 dark:border-zinc-700 shadow-2xs">
+                                #{task.task_code}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3 sm:px-4">
+                              <div className="font-medium text-zinc-950 dark:text-white leading-snug">
+                                {task.title}
+                              </div>
+                            </td>
+                            <td className="py-3 px-3 sm:px-4 whitespace-nowrap">
+                              <div className="flex items-center gap-2">
+                                <AvatarWithFallback username={task.assignee} name={task.assignee} />
+                                <span className="font-mono text-[11px] text-zinc-600 dark:text-zinc-400">
+                                  @{task.assignee}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="py-3 px-3 sm:px-4 text-center whitespace-nowrap">
+                              <span
+                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border ${
+                                  isDone
+                                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+                                    : isInProgress
+                                    ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/20'
+                                    : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700'
+                                }`}
+                              >
+                                <span
+                                  className={`w-1.5 h-1.5 rounded-full ${
+                                    isDone
+                                      ? 'bg-emerald-500 animate-pulse'
+                                      : isInProgress
+                                      ? 'bg-amber-500'
+                                      : 'bg-zinc-400'
+                                  }`}
+                                />
+                                {task.status}
+                              </span>
+                            </td>
+                            <td className="py-3 px-3 sm:px-4 text-right whitespace-nowrap">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  engine.animateButtonPress(e.currentTarget);
+                                  handleDeleteTask(task.id);
+                                }}
+                                className="p-1.5 rounded-md text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 active:scale-95 transition cursor-pointer"
+                                title={`Hapus tugas #${task.task_code}`}
+                                aria-label={`Hapus tugas ${task.task_code}`}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Filament v5 Pagination Footer */}
+              <div className="border-t border-zinc-200 dark:border-zinc-800 px-3.5 sm:px-5 py-3 bg-zinc-50/80 dark:bg-[#121623] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                {/* Result count ("Show result") */}
+                <div className="text-zinc-600 dark:text-zinc-400 text-[11px] sm:text-xs text-center sm:text-left">
+                  {totalResults === 0 ? (
+                    <span>Menampilkan 0 tugas</span>
+                  ) : (
+                    <span>
+                      Menampilkan <span className="font-semibold text-zinc-900 dark:text-white">{startIndex + 1}</span> sampai{' '}
+                      <span className="font-semibold text-zinc-900 dark:text-white">{endIndex}</span> dari{' '}
+                      <span className="font-semibold text-zinc-900 dark:text-white">{totalResults}</span> tugas
+                    </span>
+                  )}
+                </div>
+
+                {/* Per Page & Page Navigation Controls */}
+                <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2.5">
+                  {/* Per Page Dropdown ("Page view") */}
+                  <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400">
+                    <label htmlFor="tasks-per-page" className="sr-only">Tugas per halaman</label>
+                    <select
+                      id="tasks-per-page"
+                      name="tasks_per_page"
+                      value={perPage}
+                      onChange={(e) => {
+                        setPerPage(Number(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                      className="h-8 px-2 rounded-md bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-medium focus:outline-hidden focus:border-blue-500 transition cursor-pointer shadow-2xs"
+                    >
+                      <option value={5}>5 per hal</option>
+                      <option value={10}>10 per hal</option>
+                      <option value={25}>25 per hal</option>
+                    </select>
+                  </div>
+
+                  {/* Page Navigation Buttons */}
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      disabled={activePage <= 1}
+                      onClick={() => setCurrentPage(Math.max(1, activePage - 1))}
+                      className="h-8 px-2.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium flex items-center gap-1 transition active:scale-95 shadow-2xs cursor-pointer"
+                      aria-label="Halaman sebelumnya"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Sebelumnya</span>
+                    </button>
+
+                    {/* Page Numbers */}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                      <button
+                        key={pageNum}
+                        type="button"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`h-8 w-8 rounded-md text-xs font-semibold flex items-center justify-center transition active:scale-95 cursor-pointer ${
+                          activePage === pageNum
+                            ? 'bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 border border-zinc-900 dark:border-zinc-200 shadow-xs'
+                            : 'bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700'
                         }`}
                       >
-                        <div className="flex items-start gap-2.5 sm:gap-3 min-w-0">
-                          <div className="mt-0.5 shrink-0">
-                            {isDone ? (
-                              <div className="p-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
-                                <CheckCircle2 className="w-4 h-4" />
-                              </div>
-                            ) : isInProgress ? (
-                              <div className="p-1 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
-                                <Clock className="w-4 h-4" />
-                              </div>
-                            ) : (
-                              <div className="p-1 rounded-md bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-500">
-                                <Layers className="w-4 h-4" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-mono font-bold text-xs text-zinc-900 dark:text-zinc-200 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md border border-zinc-300 dark:border-zinc-700 shadow-xs">
-                                [#{task.task_code}]
-                              </span>
-                              <span className="text-xs font-semibold text-zinc-950 dark:text-white break-words">
-                                {task.title}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1 text-[11px] text-zinc-500 dark:text-zinc-400 mt-1.5">
-                              <span>Assignee:</span>
-                              <span className="font-mono text-zinc-800 dark:text-zinc-300 font-medium bg-zinc-100 dark:bg-zinc-800/80 px-1.5 py-0.2 rounded-md border border-zinc-200 dark:border-zinc-700/60">
-                                @{task.assignee}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                        {pageNum}
+                      </button>
+                    ))}
 
-                        <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-zinc-100 dark:border-zinc-800/60 shrink-0">
-                          <span
-                            className={`text-xs font-mono font-semibold px-2.5 py-1 rounded-md border ${
-                              isDone
-                                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                                : isInProgress
-                                ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/20'
-                                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700'
-                            }`}
-                          >
-                            {task.status}
-                          </span>
-                          {/* Permanent visible delete button for touch & mobile */}
-                          <button
-                            onClick={(e) => {
-                              engine.animateButtonPress(e.currentTarget);
-                              handleDeleteTask(task.id);
-                            }}
-                            className="p-1.5 rounded-md text-zinc-400 hover:text-red-500 active:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 active:scale-95 transition cursor-pointer shrink-0 touch-manipulation"
-                            title="Hapus tugas"
-                            aria-label={`Hapus tugas ${task.task_code}`}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
+                    <button
+                      type="button"
+                      disabled={activePage >= totalPages}
+                      onClick={() => setCurrentPage(Math.min(totalPages, activePage + 1))}
+                      className="h-8 px-2.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium flex items-center gap-1 transition active:scale-95 shadow-2xs cursor-pointer"
+                      aria-label="Halaman selanjutnya"
+                    >
+                      <span className="hidden sm:inline">Selanjutnya</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </section>
           </div>
 
-          {/* RIGHT 1 COLUMN: LIVE WEBHOOK AUDIT STREAM & STICKY TERMINAL */}
+          {/* RIGHT 1 COLUMN: LIVE WEBHOOK AUDIT STREAM & DEVELOPER COMMIT GUIDE */}
           <aside className="space-y-4 lg:sticky lg:top-[4.5rem] lg:self-start z-20">
             <div
               data-anim="content-grid"
-              className="bg-white dark:bg-[#0e121b] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[580px] sm:h-[680px] lg:h-[calc(100vh-5.5rem)] lg:max-h-[850px] lg:min-h-[580px] shadow-xs transition-all"
+              className="bg-white dark:bg-[#0e121b] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[580px] sm:h-[660px] lg:h-[calc(100vh-5.5rem)] lg:max-h-[850px] lg:min-h-[580px] shadow-xs"
             >
-              <div className="px-4 py-3 min-h-[46px] border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-[#121623]">
+              {/* Header */}
+              <div className="px-4 py-3 min-h-[46px] border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-[#121623] shrink-0">
                 <div className="flex items-center gap-2">
                   <Terminal className="w-4 h-4 text-emerald-500 shrink-0" />
                   <h3 className="text-xs font-semibold text-zinc-900 dark:text-white">
@@ -1472,15 +1244,15 @@ export function DashboardPage() {
                 </div>
                 <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-600 dark:text-emerald-400">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                  <span>Live</span>
+                  <span>Listening</span>
                 </div>
               </div>
 
-              {/* Streaming Output Body (Clean without phrase & Isolated Native Scroll) */}
+              {/* Streaming Output Body (Properly isolated scrollable list with min-h-0) */}
               <div
                 ref={streamContainerRef}
                 data-lenis-prevent
-                className="flex-1 bg-zinc-100/70 dark:bg-[#090b10] p-4 font-mono text-xs overflow-y-auto touch-scroll space-y-3"
+                className="flex-1 min-h-0 bg-zinc-100/70 dark:bg-[#090b10] p-4 font-mono text-xs overflow-y-auto touch-scroll space-y-3"
               >
                 {logs.length === 0 ? (
                   <div className="text-center py-12 text-zinc-400 dark:text-zinc-600 text-[11px]">
@@ -1520,177 +1292,69 @@ export function DashboardPage() {
                 )}
               </div>
 
-              {/* INTERACTIVE TERMINAL SIMULATOR & CLI GUIDE */}
-              <div className="p-3 sm:p-3.5 bg-zinc-50 dark:bg-[#121623] border-t border-zinc-200 dark:border-zinc-800 text-xs space-y-2.5 shrink-0">
-                {/* Header with Title, Guide Toggle & Copy */}
-                <div className="flex items-center justify-between gap-1.5 font-semibold text-zinc-800 dark:text-zinc-200 text-xs">
-                  <div className="flex items-center gap-1.5 min-w-0">
+              {/* Developer Git Commit Quick Reference Guide */}
+              <div className="p-3.5 sm:p-4 bg-zinc-50 dark:bg-[#121623] border-t border-zinc-200 dark:border-zinc-800 text-xs space-y-2.5 shrink-0">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 font-semibold text-zinc-900 dark:text-white text-xs">
                     <Terminal className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span className="truncate">Terminal Simulator Interaktif:</span>
+                    <span>Panduan Commit Git Tim:</span>
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => setShowTerminalGuide(!showTerminalGuide)}
-                      className="px-2 py-0.5 rounded-md text-[11px] font-mono text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition active:scale-95 flex items-center gap-1 cursor-pointer"
-                      title="Buka panduan cara penggunaan terminal"
-                    >
-                      <HelpCircle className="w-3 h-3 text-blue-500" />
-                      <span>{showTerminalGuide ? 'Tutup Panduan' : 'Panduan'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(terminalInput);
-                        setActiveToast({
-                          title: 'Perintah Berhasil Disalin',
-                          desc: 'Tempel (paste) dan jalankan pada terminal repo Git Anda.',
-                        });
-                        setTimeout(() => setActiveToast(null), 4000);
-                      }}
-                      className="px-2 py-0.5 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-950 dark:hover:text-white transition active:scale-95 cursor-pointer touch-manipulation text-[11px] font-mono flex items-center gap-1 shrink-0"
-                      title="Salin perintah untuk dijalankan di terminal laptop asli"
-                      aria-label="Salin perintah commit"
-                    >
-                      <Copy className="w-3 h-3" />
-                      <span>Salin</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Collapsible Guidance Box */}
-                {showTerminalGuide && (
-                  <div className="p-2.5 rounded-md bg-blue-500/10 border border-blue-500/20 text-[11px] text-zinc-700 dark:text-zinc-300 space-y-1">
-                    <div className="font-semibold text-blue-700 dark:text-blue-300 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" />
-                      <span>Panduan Uji Coba Integrasi (2 Cara):</span>
-                    </div>
-                    <ul className="space-y-0.5 text-zinc-600 dark:text-zinc-400 text-[10.5px] list-disc list-inside">
-                      <li>
-                        <b>Cara 1 (Ketik Langsung di Sini):</b> Anda bisa mengetik langsung di terminal prompt <code>$</code> di bawah dan tekan <b>Enter</b> atau tombol <b>Kirim ↵</b>.
-                      </li>
-                      <li>
-                        <b>Cara 2 (Terminal Laptop Asli):</b> Klik <b>Salin</b>, buka terminal laptop Anda (Git Bash/PowerShell), lalu jalankan perintahnya.
-                      </li>
-                    </ul>
-                  </div>
-                )}
-
-                {/* Developer Author Selection Chips */}
-                <div className="flex items-center gap-1.5 flex-wrap text-[11px] pb-1 border-b border-zinc-200/60 dark:border-zinc-800/60">
-                  <span className="text-zinc-500 dark:text-zinc-400 text-[10px] shrink-0 font-medium">Penguji (Author):</span>
-                  {members.map((m) => {
-                    const isSelected = currentTestDev === m.github_username;
-                    return (
-                      <button
-                        key={m.github_username}
-                        type="button"
-                        onClick={() => {
-                          setSelectedTestDev(m.github_username);
-                        }}
-                        className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono transition cursor-pointer active:scale-95 flex items-center gap-1 border ${
-                          isSelected
-                            ? 'bg-blue-600 text-white border-blue-600 font-bold shadow-xs'
-                            : 'bg-zinc-200/80 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border-zinc-300 dark:border-zinc-700'
-                        }`}
-                        title={`Atur pelaku commit sebagai @${m.github_username} (${m.name})`}
-                      >
-                        <span>@{m.github_username}</span>
-                        <span className="text-[9px] opacity-75">({m.total_commits}c)</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Quick Task Selection Chips */}
-                <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
-                  <span className="text-zinc-500 dark:text-zinc-400 text-[10px] shrink-0">Pilih Cepat:</span>
-                  {tasks.slice(0, 4).map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => {
-                        setTerminalInput(`git commit -m "Selesaikan ${t.title.slice(0, 24)} [done #${t.task_code}]"`);
-                        if (t.assignee) {
-                          setSelectedTestDev(t.assignee.replace(/^@/, ''));
-                        }
-                        terminalInputRef.current?.focus();
-                      }}
-                      className="px-1.5 py-0.5 rounded-md bg-zinc-200/80 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-mono text-[10px] border border-zinc-300 dark:border-zinc-700 transition cursor-pointer active:scale-95"
-                      title={`Klik untuk mengisi commit tugas #${t.task_code} (assignee: @${t.assignee || 'tim'})`}
-                    >
-                      #{t.task_code}
-                    </button>
-                  ))}
                   <button
                     type="button"
                     onClick={() => {
-                      setTerminalInput('git commit -m "Perbaikan bug antarmuka dashboard"');
-                      terminalInputRef.current?.focus();
+                      navigator.clipboard.writeText('git commit -m "Selesaikan fitur [done #TASK-01]" && git push origin main');
+                      setActiveToast({
+                        title: 'Perintah Berhasil Disalin',
+                        desc: 'Tempel perintah ini di terminal laptop Git Anda.',
+                      });
+                      setTimeout(() => setActiveToast(null), 3500);
                     }}
-                    className="px-1.5 py-0.5 rounded-md bg-zinc-200/80 hover:bg-zinc-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 font-mono text-[10px] border border-zinc-300 dark:border-zinc-700 transition cursor-pointer active:scale-95"
-                    title="Commit umum tanpa tag tugas"
+                    className="px-2 py-0.5 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 text-[11px] font-mono flex items-center gap-1 transition active:scale-95 cursor-pointer shadow-2xs shrink-0"
+                    title="Salin contoh sintaks commit"
                   >
-                    Umum
+                    <Copy className="w-3 h-3" />
+                    <span>Salin</span>
                   </button>
                 </div>
 
-                {/* Interactive Terminal Window */}
-                <div className="bg-[#07090e] border border-zinc-800 rounded-md p-2.5 space-y-2 font-mono text-xs shadow-inner">
-                  {/* Terminal Log Output History */}
-                  <div className="space-y-1.5 max-h-24 overflow-y-auto touch-scroll text-[11px] leading-relaxed no-scrollbar border-b border-zinc-800/80 pb-2">
-                    {terminalLogs.map((log) => (
-                      <div key={log.id}>
-                        {log.type === 'cmd' ? (
-                          <div className="text-emerald-400 font-bold flex items-center justify-between gap-1">
-                            <span>{log.text}</span>
-                            <span className="text-zinc-600 text-[9px] font-normal">{log.time}</span>
-                          </div>
-                        ) : log.type === 'info' ? (
-                          <div className="text-zinc-500 italic text-[10px]">{log.text}</div>
-                        ) : (
-                          <div className="text-zinc-300 whitespace-pre-line bg-zinc-900/60 p-1.5 rounded-md border border-zinc-800/50 text-[10.5px]">
-                            {log.text}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                {/* Real Git Command Codebox */}
+                <div className="p-2.5 rounded-md bg-[#07090e] border border-zinc-800 text-emerald-400 font-mono text-[11px] leading-relaxed overflow-x-auto shadow-inner">
+                  <code>git commit -m "fitur [done #TASK-01]" &amp;&amp; git push</code>
+                </div>
 
-                  {/* Interactive Terminal Prompt & Input Form */}
-                  <form onSubmit={handleExecuteTerminal} className="flex items-center gap-1.5 pt-0.5">
-                    <span className="text-emerald-500 font-bold select-none text-xs shrink-0 flex items-center gap-1">
-                      <span className="text-emerald-400/90 font-mono text-[10px]">@{currentTestDev}</span>
-                      <span>$</span>
+                {/* Quick Task Tag Copy Chips */}
+                {tasks.length > 0 && (
+                  <div className="space-y-1">
+                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
+                      Salin Perintah Berdasarkan Tugas:
                     </span>
-                    <input
-                      ref={terminalInputRef}
-                      id="terminal-command-input"
-                      name="terminal_command"
-                      type="text"
-                      value={terminalInput}
-                      onChange={(e) => setTerminalInput(e.target.value)}
-                      placeholder='git commit -m "Selesaikan fitur [done #TASK-01]"'
-                      autoComplete="off"
-                      aria-label="Perintah git commit"
-                      className="flex-1 bg-transparent border-none text-emerald-300 font-mono text-xs focus:outline-hidden placeholder-zinc-600 truncate focus:truncate-none"
-                    />
-                    <button
-                      type="submit"
-                      disabled={isExecutingTerminal || !terminalInput.trim()}
-                      className="px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-mono text-[11px] font-semibold transition disabled:opacity-40 flex items-center gap-1 cursor-pointer shrink-0 shadow-xs"
-                      title="Eksekusi perintah commit di terminal simulator"
-                    >
-                      {isExecutingTerminal ? (
-                        <RefreshCw className="w-3 h-3 animate-spin" />
-                      ) : (
-                        <>
-                          <span>Kirim</span>
-                          <Send className="w-2.5 h-2.5" />
-                        </>
-                      )}
-                    </button>
-                  </form>
+                    <div className="flex flex-wrap gap-1">
+                      {tasks.slice(0, 5).map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => {
+                            const cmd = `git commit -m "Selesaikan ${t.title.slice(0, 24)} [done #${t.task_code}]" && git push origin main`;
+                            navigator.clipboard.writeText(cmd);
+                            setActiveToast({
+                              title: `Perintah #${t.task_code} Disalin`,
+                              desc: `Perintah commit untuk kartu #${t.task_code} telah disalin ke clipboard.`,
+                            });
+                            setTimeout(() => setActiveToast(null), 3000);
+                          }}
+                          className="px-1.5 py-0.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 font-mono text-[10px] transition cursor-pointer active:scale-95 shadow-2xs"
+                          title={`Salin perintah commit untuk #${t.task_code}`}
+                        >
+                          #{t.task_code}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="text-[10px] text-zinc-500 dark:text-zinc-400 border-t border-zinc-200 dark:border-zinc-800/80 pt-2 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                  <span>Push dari terminal Git asli otomatis memindahkan kartu Trello &amp; notif Discord.</span>
                 </div>
               </div>
             </div>
