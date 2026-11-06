@@ -16,6 +16,8 @@ import {
   Users,
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
+import { ExpandableDescription } from '../components/ExpandableDescription';
+import { useNavbarVisibility } from '../services/scroll/hooks/useNavbarVisibility';
 
 const TEAM_MEMBERS = [
   {
@@ -63,10 +65,18 @@ const TEAM_MEMBERS = [
 const CURRENT_YEAR = new Date().getFullYear();
 
 export function LandingPage() {
+  const isNavbarVisible = useNavbarVisibility({ threshold: 60 });
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#090b10] text-zinc-900 dark:text-zinc-100 font-sans selection:bg-zinc-800 selection:text-white transition-colors duration-150">
-      {/* TOP NAVIGATION BAR */}
-      <header className="border-b border-zinc-200 dark:border-zinc-800/80 bg-white/80 dark:bg-[#0d1017]/80 backdrop-blur-md sticky top-0 z-40 pt-[env(safe-area-inset-top,0px)]">
+      {/* TOP NAVIGATION BAR - SMART AUTO-HIDE ON SCROLL DOWN, REVEAL ON SCROLL UP */}
+      <header
+        className={`border-b border-zinc-200 dark:border-zinc-800/80 bg-white/80 dark:bg-[#0d1017]/80 backdrop-blur-md sticky top-0 z-40 pt-[env(safe-area-inset-top,0px)] transition-transform duration-300 ease-in-out will-change-transform ${
+          isNavbarVisible
+            ? 'translate-y-0 shadow-xs pointer-events-auto'
+            : '-translate-y-full shadow-none pointer-events-none'
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-[3.75rem] py-2 sm:py-0 flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
@@ -424,10 +434,11 @@ export function LandingPage() {
                     </div>
                   </div>
 
-                  {/* Description */}
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                    {member.description}
-                  </p>
+                  {/* Description with Expand/Collapse ("Lebih banyak" / "Lebih sedikit") */}
+                  <ExpandableDescription
+                    text={member.description}
+                    previewLength={68}
+                  />
                 </div>
 
                 {/* Technical Skills Pills */}

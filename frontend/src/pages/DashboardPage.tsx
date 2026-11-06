@@ -31,6 +31,7 @@ import {
   ChevronLeft,
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
+import { useNavbarVisibility } from '../services/scroll/hooks/useNavbarVisibility';
 
 function AvatarWithFallback({ username, name }: { username: string; name: string }) {
   const [error, setError] = useState(false);
@@ -100,6 +101,7 @@ interface SystemStatus {
 
 export function DashboardPage() {
   const { containerRef, engine } = useGsapScope();
+  const isNavbarVisible = useNavbarVisibility({ threshold: 60 });
 
   // GSAP Animation Element References
   const totalCommitsRef = useRef<HTMLDivElement | null>(null);
@@ -410,10 +412,14 @@ export function DashboardPage() {
         </aside>
       )}
 
-      {/* TOP NAVBAR - RESPONSIVE & IPHONE NOTCH SAFE */}
+      {/* TOP NAVBAR - RESPONSIVE & IPHONE NOTCH SAFE & SMART SCROLL AUTO-HIDE */}
       <header
         data-anim="header"
-        className="border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-[#0d1017]/90 backdrop-blur-md sticky top-0 z-40 pt-[env(safe-area-inset-top,0px)]"
+        className={`border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-[#0d1017]/90 backdrop-blur-md sticky top-0 z-40 pt-[env(safe-area-inset-top,0px)] transition-transform duration-300 ease-in-out will-change-transform ${
+          isNavbarVisible
+            ? 'translate-y-0 shadow-xs pointer-events-auto'
+            : '-translate-y-full shadow-none pointer-events-none'
+        }`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-[3.5rem] py-1.5 sm:py-0 flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand Logo & Back to Landing */}

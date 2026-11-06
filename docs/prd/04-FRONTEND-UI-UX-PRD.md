@@ -275,6 +275,30 @@ Untuk mencegah Lenis membajak (*scroll hijacking*) elemen bersarang di dalam hal
 2. **Atribut Eksplisit `data-lenis-prevent`**:
    Disematkan pada kontainer tabel klasemen, konsol log Live Webhook Stream, dan modal form penambahan tugas/anggota untuk menjamin isolasi scroll native di semua perangkat sentuh maupun desktop.
 
+---
+
+## 13. Smart Auto-Hiding Navbar & Expandable Description UX
+
+### 13.1 Smart Auto-Hiding Sticky Navbar (`useNavbarVisibility`)
+Sistem bilah navigasi atas (Navbar) dirancang adaptif terhadap arah scroll pengguna di semua perangkat (*cross-device*):
+* **Scroll ke Bawah (Scroll Down)**: Navbar bergeser ke atas secara halus (`-translate-y-full`) keluar dari layar begitu pengguna melewati ambang batas scroll (`threshold = 60px`), memaksimalkan ruang baca konten dan dashboard.
+* **Scroll ke Atas (Scroll Up)**: Navbar langsung meluncur turun kembali ke posisi atas (`translate-y-0`) saat pengguna menarik halaman ke atas, memberikan akses instan ke tombol kontrol dan tema.
+* **Posisi Puncak Halaman**: Navbar selalu berada di posisi normal saat pengguna berada di area atas halaman (`scrollY <= 60px`).
+* **Akselerasi Perangkat Keras**: Menggunakan transform GPU native `transition-transform duration-300 ease-in-out will-change-transform` yang bebas reflow dan kompatibel dengan GSAP `clearProps: 'transform'`.
+
+### 13.2 Expandable Description Component (`ExpandableDescription`)
+Komponen interaktif untuk deskripsi panjang kartu anggota tim:
+* **Pemotongan Bersih Berbasis Kata (*Word-Boundary Truncation*)**: Teks dipotong secara rapi tanpa memotong kata di tengah, diakhiri dengan ellipsis `...`.
+* **Kontrol Interaktif "Lebih banyak" / "Lebih sedikit"**: Tombol bertaut ikon chevron (`ChevronDown` / `ChevronUp`) yang memungkinkan pengguna melihat ringkasan singkat atau membaca rincian lengkap tugas anggota secara responsif di semua perangkat.
+
+---
+
+## 14. Dukungan Responsif Lintas Perangkat & Standar iOS
+
+1. **Dukungan Penuh iPhone & Notch Safe-Area**: Menggunakan utilitas `pt-[env(safe-area-inset-top,0px)]` dan `safe-bottom` untuk Dynamic Island dan iPhone X s/d 16 Pro Max.
+2. **Breakpoint Layar Ultra-Kompak (`--breakpoint-xs: 23.5rem`)**: Mengakomodasi resolusi sempit seperti iPhone SE dan mini (320px–375px) tanpa terpotongnya teks tombol atau badge status.
+3. **Pemberian Buffer Area Footer**: Mencegah tombol melayang *Back to Top* bertabrakan atau menutupi tautan footer dengan padding `pb-24 sm:pb-8`.
+
 
 
 
