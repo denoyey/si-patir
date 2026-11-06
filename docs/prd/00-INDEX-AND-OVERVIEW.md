@@ -1,14 +1,14 @@
 # PRD 00: Master Index & Executive Product Overview
 > **Project Name:** SI-PATIR (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repositori*)  
-> **Classification:** DevOps Lite Integration & Team Activity Monitoring  
-> **Target Audience:** Engineering Leads, Academic Evaluators, DevOps Developers, Collaborative Student Teams  
+> **Classification:** Sistem Integrasi Pemantau Aktivitas & Repositori Tim  
+> **Target Audience:** Engineering Leads, Academic Evaluators, Software Engineers, Collaborative Student Teams  
 > **Document Status:** `APPROVED` | **Version:** `2.0.0`
 
 ---
 
 ## 1. Executive Summary & Vision
 
-**SI-PATIR** adalah platform kontrol dan pemantau aktivitas tugas tim berbasis integrasi *DevOps Lite*. Sistem ini menghubungkan tiga ekosistem perangkat lunak eksternal yang heterogen (**GitHub**, **Trello**, dan **Discord**) ke dalam satu aplikasi dashboard monitoring berbasis **WebSocket Real-time** dan basis data **MySQL**.
+**SI-PATIR** adalah platform kontrol dan pemantau aktivitas tugas tim berbasis integrasi multi-sistem terpadu. Sistem ini menghubungkan tiga ekosistem perangkat lunak eksternal yang heterogen (**GitHub**, **Trello**, dan **Discord**) ke dalam satu aplikasi dashboard monitoring berbasis **WebSocket Real-time** dan basis data **MySQL**.
 
 ### The Core Problem:
 Dalam kolaborasi rekayasa perangkat lunak tim/kelompok, terdapat friksi koordinasi:

@@ -1,0 +1,23 @@
+{
+  "name": "SI-PATIR - Sistem Integrasi Pemantau Aktivitas Tugas & Repositori",
+  "short_name": "SI-PATIR",
+  "description": "Platform pemantau real-time aktivitas commit GitHub, pergerakan kartu tugas Trello, dan notifikasi Discord Webhook.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090b10",
+  "theme_color": "#090b10",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

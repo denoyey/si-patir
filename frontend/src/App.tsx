@@ -377,14 +377,14 @@ export function App() {
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-sm tracking-tight text-white">SI-PATIR</span>
                 <span className="text-[11px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-800 text-zinc-400 border border-zinc-700 shrink-0">
-                  DevOps Control
+                  Sistem Monitoring
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Action Buttons (Always Visible & Tactile Touch Optimized) */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Sync Real GitHub Contributors */}
             <button
               onClick={(e) => {
@@ -393,11 +393,11 @@ export function App() {
               }}
               disabled={isSyncingGitHub}
               aria-label="Sinkronisasi GitHub"
-              className="h-8 px-3 rounded-md bg-zinc-800 hover:bg-zinc-750 border border-zinc-700 text-xs font-medium text-zinc-300 hover:text-white flex items-center gap-1.5 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer touch-manipulation"
+              className="h-8.5 sm:h-8 px-2.5 sm:px-3 rounded-md bg-zinc-800 hover:bg-zinc-750 active:bg-zinc-700 active:scale-95 border border-zinc-700 text-xs font-medium text-zinc-200 flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation"
               title="Tarik data kontributor & commit nyata dari repositori GitHub"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isSyncingGitHub ? 'animate-spin text-emerald-400' : ''}`} />
-              <span className="hidden sm:inline">Sync GitHub</span>
+              <span className="hidden xs:inline sm:inline">Sync GitHub</span>
             </button>
 
             {/* Sync Trello */}
@@ -408,10 +408,10 @@ export function App() {
               }}
               disabled={isSyncingTrello}
               aria-label="Sinkronisasi Trello"
-              className="h-8 px-3 rounded-md bg-zinc-800 hover:bg-zinc-750 border border-zinc-700 text-xs font-medium text-zinc-300 hover:text-white flex items-center gap-1.5 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer touch-manipulation"
+              className="h-8.5 sm:h-8 px-2.5 sm:px-3 rounded-md bg-zinc-800 hover:bg-zinc-750 active:bg-zinc-700 active:scale-95 border border-zinc-700 text-xs font-medium text-zinc-200 flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation"
             >
               <CheckSquare className="w-3.5 h-3.5 text-blue-400" />
-              <span className="hidden sm:inline">Sync Trello</span>
+              <span className="hidden xs:inline sm:inline">Sync Trello</span>
             </button>
 
             {/* Test Real Commit */}
@@ -422,12 +422,12 @@ export function App() {
               }}
               disabled={isSimulating}
               aria-label="Simulasi Push Commit"
-              className="h-8 px-3.5 rounded-md bg-zinc-100 hover:bg-white text-zinc-950 border border-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-xs touch-manipulation"
+              className="h-8.5 sm:h-8 px-3 sm:px-3.5 rounded-md bg-zinc-100 hover:bg-white active:bg-zinc-200 active:scale-95 text-zinc-950 border border-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer shadow-xs touch-manipulation"
               title="Kirim payload commit webhook untuk pengujian instan"
             >
-              <Zap className="w-3.5 h-3.5 fill-zinc-950 text-zinc-950" />
+              <Zap className="w-3.5 h-3.5 fill-zinc-950 text-zinc-950 shrink-0" />
               <span>Test Commit</span>
-              <span className="hidden sm:inline font-mono text-[11px] text-zinc-700">[@{members[0]?.github_username || 'denoyey'}]</span>
+              <span className="hidden md:inline font-mono text-[11px] text-zinc-700">[@{members[0]?.github_username || 'denoyey'}]</span>
             </button>
           </div>
         </div>
@@ -542,22 +542,28 @@ export function App() {
                   </h2>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <button
-                    onClick={() => setShowAddMemberModal(true)}
-                    className="h-7 px-2.5 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-[11px] font-medium text-zinc-200 flex items-center gap-1 transition cursor-pointer"
+                    onClick={(e) => {
+                      engine.animateButtonPress(e.currentTarget);
+                      setShowAddMemberModal(true);
+                    }}
+                    className="h-8 px-2.5 rounded-md bg-zinc-800 hover:bg-zinc-750 active:bg-zinc-700 active:scale-95 border border-zinc-700 text-[11px] font-medium text-zinc-200 flex items-center gap-1.5 transition cursor-pointer touch-manipulation"
                     title="Tambah anggota kelompok nyata"
                   >
-                    <Plus className="w-3 h-3 text-emerald-400" />
+                    <Plus className="w-3.5 h-3.5 text-emerald-400" />
                     <span>Tambah Anggota</span>
                   </button>
 
                   <button
-                    onClick={handleClearDummy}
-                    className="h-7 px-2 rounded-md bg-zinc-900 hover:bg-red-950/40 border border-zinc-800 hover:border-red-800/50 text-[11px] text-zinc-400 hover:text-red-300 transition cursor-pointer"
+                    onClick={(e) => {
+                      engine.animateButtonPress(e.currentTarget);
+                      handleClearDummy();
+                    }}
+                    className="h-8 px-2.5 rounded-md bg-zinc-900 hover:bg-red-950/40 active:bg-red-900/60 active:scale-95 border border-zinc-800 hover:border-red-800/50 text-[11px] text-zinc-400 hover:text-red-300 transition cursor-pointer touch-manipulation"
                     title="Hapus data dummy bawaan"
                   >
-                    <Trash2 className="w-3 h-3" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -640,10 +646,13 @@ export function App() {
                 <div className="flex items-center gap-2 flex-wrap">
                   {/* Button Add Real Task */}
                   <button
-                    onClick={() => setShowAddTaskModal(true)}
-                    className="h-7 px-2.5 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-[11px] font-medium text-zinc-200 flex items-center gap-1 transition cursor-pointer"
+                    onClick={(e) => {
+                      engine.animateButtonPress(e.currentTarget);
+                      setShowAddTaskModal(true);
+                    }}
+                    className="h-8 px-2.5 rounded-md bg-zinc-800 hover:bg-zinc-750 active:bg-zinc-700 active:scale-95 border border-zinc-700 text-[11px] font-medium text-zinc-200 flex items-center gap-1.5 transition cursor-pointer touch-manipulation"
                   >
-                    <Plus className="w-3 h-3 text-blue-400" />
+                    <Plus className="w-3.5 h-3.5 text-blue-400" />
                     <span>Tambah Tugas</span>
                   </button>
 
@@ -652,10 +661,13 @@ export function App() {
                     {(['ALL', 'In Progress', 'Done', 'To Do'] as const).map((tab) => (
                       <button
                         key={tab}
-                        onClick={() => setStatusFilter(tab)}
-                        className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition cursor-pointer shrink-0 touch-manipulation ${
+                        onClick={(e) => {
+                          engine.animateButtonPress(e.currentTarget);
+                          setStatusFilter(tab);
+                        }}
+                        className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition active:scale-95 cursor-pointer shrink-0 touch-manipulation ${
                           statusFilter === tab
-                            ? 'bg-zinc-800 text-white shadow-xs'
+                            ? 'bg-zinc-800 text-white shadow-xs border border-zinc-700'
                             : 'text-zinc-400 hover:text-zinc-200'
                         }`}
                       >
@@ -729,10 +741,15 @@ export function App() {
                           >
                             {task.status}
                           </span>
+                          {/* Permanent visible delete button for touch & mobile */}
                           <button
-                            onClick={() => handleDeleteTask(task.id)}
-                            className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-red-400 transition cursor-pointer"
+                            onClick={(e) => {
+                              engine.animateButtonPress(e.currentTarget);
+                              handleDeleteTask(task.id);
+                            }}
+                            className="p-1.5 rounded-md text-zinc-400 hover:text-red-400 active:text-red-300 hover:bg-red-500/10 active:scale-95 transition cursor-pointer shrink-0 touch-manipulation"
                             title="Hapus tugas"
+                            aria-label={`Hapus tugas ${task.task_code}`}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -811,15 +828,18 @@ export function App() {
       {showAddTaskModal && (
         <div
           ref={modalTaskBackdropRef}
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
         >
           <div
             ref={modalTaskRef}
-            className="bg-[#11141d] border border-zinc-800 rounded-lg p-5 max-w-md w-full shadow-2xl"
+            className="bg-[#11141d] border border-zinc-800 rounded-lg p-4 sm:p-5 w-full max-w-md shadow-2xl"
           >
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <h3 className="text-sm font-semibold text-white">Tambah Kartu Tugas Nyata</h3>
-              <button onClick={() => setShowAddTaskModal(false)} className="text-zinc-400 hover:text-white">
+              <button
+                onClick={() => setShowAddTaskModal(false)}
+                className="p-1 text-zinc-400 hover:text-white active:scale-95 transition cursor-pointer touch-manipulation"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -832,7 +852,7 @@ export function App() {
                   placeholder="TASK-01"
                   value={newTaskCode}
                   onChange={(e) => setNewTaskCode(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono"
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
                 />
               </div>
               <div>
@@ -843,7 +863,7 @@ export function App() {
                   placeholder="Contoh: Perancangan Arsitektur Database"
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white"
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
                 />
               </div>
               <div>
@@ -853,7 +873,7 @@ export function App() {
                   placeholder="denoyey"
                   value={newTaskAssignee}
                   onChange={(e) => setNewTaskAssignee(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono"
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
                 />
               </div>
               <div>
@@ -861,7 +881,7 @@ export function App() {
                 <select
                   value={newTaskStatus}
                   onChange={(e: any) => setNewTaskStatus(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white"
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
                 >
                   <option value="In Progress">In Progress</option>
                   <option value="To Do">To Do</option>
@@ -872,13 +892,13 @@ export function App() {
                 <button
                   type="button"
                   onClick={() => setShowAddTaskModal(false)}
-                  className="px-3 py-1.5 rounded-md bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                  className="px-3 py-2 sm:py-1.5 rounded-md bg-zinc-800 text-zinc-300 hover:bg-zinc-700 active:bg-zinc-600 active:scale-95 transition cursor-pointer touch-manipulation text-xs"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-md bg-emerald-600 text-white font-semibold hover:bg-emerald-500"
+                  className="px-4 py-2 sm:py-1.5 rounded-md bg-emerald-600 text-white font-semibold hover:bg-emerald-500 active:bg-emerald-700 active:scale-95 transition cursor-pointer touch-manipulation text-xs"
                 >
                   Simpan Tugas
                 </button>
@@ -892,15 +912,18 @@ export function App() {
       {showAddMemberModal && (
         <div
           ref={modalMemberBackdropRef}
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
         >
           <div
             ref={modalMemberRef}
-            className="bg-[#11141d] border border-zinc-800 rounded-lg p-5 max-w-md w-full shadow-2xl"
+            className="bg-[#11141d] border border-zinc-800 rounded-lg p-4 sm:p-5 w-full max-w-md shadow-2xl"
           >
             <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
               <h3 className="text-sm font-semibold text-white">Tambah Anggota Kelompok Nyata</h3>
-              <button onClick={() => setShowAddMemberModal(false)} className="text-zinc-400 hover:text-white">
+              <button
+                onClick={() => setShowAddMemberModal(false)}
+                className="p-1 text-zinc-400 hover:text-white active:scale-95 transition cursor-pointer touch-manipulation"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -913,7 +936,7 @@ export function App() {
                   placeholder="Contoh: Dennis Pratama"
                   value={newMemberName}
                   onChange={(e) => setNewMemberName(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white"
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
                 />
               </div>
               <div>
@@ -924,20 +947,20 @@ export function App() {
                   placeholder="denoyey"
                   value={newMemberUsername}
                   onChange={(e) => setNewMemberUsername(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono"
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono text-base sm:text-xs focus:outline-hidden focus:border-zinc-600 transition"
                 />
               </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowAddMemberModal(false)}
-                  className="px-3 py-1.5 rounded-md bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                  className="px-3 py-2 sm:py-1.5 rounded-md bg-zinc-800 text-zinc-300 hover:bg-zinc-700 active:bg-zinc-600 active:scale-95 transition cursor-pointer touch-manipulation text-xs"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-500"
+                  className="px-4 py-2 sm:py-1.5 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-500 active:bg-blue-700 active:scale-95 transition cursor-pointer touch-manipulation text-xs"
                 >
                   Daftarkan Anggota
                 </button>

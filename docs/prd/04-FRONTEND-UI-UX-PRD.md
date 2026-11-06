@@ -39,7 +39,7 @@ Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-genera
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────────────────┐
-│ [SP] SI-PATIR  DevOps Control              [Sync GitHub]  [Sync Trello]  [⚡ Test Commit]     │
+│ [SP] SI-PATIR  Sistem Monitoring              [Sync GitHub]  [Sync Trello]  [⚡ Test Commit]     │
 ├───────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Target Repo: denoyey/si-patir:main   │ GitHub: Ready 🟢 │ Trello: Synced 🟢 │ Discord: Active 🟢│
 ├──────────────────────────────────────┬────────────────────────────────────────────────────────┤
@@ -60,7 +60,7 @@ Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-genera
 ```
 
 ### 3.1 Top Navigation Bar
-* **Branding:** Logo inisial `[SP]` berbingkai dan label versi *DevOps Control*.
+* **Branding:** Logo inisial `[SP]` berbingkai dan label badge *Sistem Monitoring*.
 * **Action Controls:**
   * Tombol **"Sync GitHub"** (menarik data kontributor & commit asli dari repositori GitHub).
   * Tombol **"Sync Trello"** (dengan ikon loading spin saat proses fetch berlangsung).
@@ -148,5 +148,36 @@ Untuk menghadirkan pengalaman visual web modern berstandar enterprise yang "hidu
 2. **Smooth Numeric Counters**: Nilai Total Commits, Tugas Selesai, dan Persentase Penyelesaian menggunakan interpolasi numerik GSAP yang bertransisi secara mulus saat data diperbarui.
 3. **Reactive Log Arrival Highlight**: Setiap ada komit baru yang diterima melalui WebSocket, baris log paling atas di Live Stream disorot dengan kilatan hijau lembut dan pergeseran horizontal (*slide-in*).
 4. **Interactive Modal & Toast**: Dialog pop-up dan banner notifikasi menggunakan kurva pegas (*spring entrance*) yang responsif terhadap interaksi pengguna.
+
+---
+
+## 7. Optimasi SEO & Google Search Console 100%
+
+SI-PATIR dilengkapi metadata dan konfigurasi peramban berstandar Search Engine Optimization (SEO) modern dan siap diindeks 100% oleh Google Search Console:
+
+1. **Structured Data (Schema.org JSON-LD)**:
+   Menggunakan tipe `WebApplication` terverifikasi dengan data pembuat (`author`), lisensi, fitur inti, dan metadata peramban.
+2. **Open Graph & Twitter Cards**:
+   Protokol kartu sosial lengkap (`og:title`, `og:description`, `og:image`, `og:url`, `og:locale`, `twitter:card`) untuk tampilan tautan kaya saat dibagikan di WhatsApp, Discord, Telegram, LinkedIn, dan X.
+3. **Google Site Verification**:
+   Disematkan tag `<meta name="google-site-verification" content="..." />` untuk verifikasi instan pemilikan situs di Google Search Console.
+4. **Sitemap & Crawl Control**:
+   - `robots.txt`: Membuka akses perayapan (*crawlable*) untuk seluruh Googlebot dan perayap web lainnya.
+   - `sitemap.xml`: XML sitemap resmi dengan deklarasi prioritas dan frekuensi perubahan berkala.
+   - `site.webmanifest`: Berkas manifes PWA untuk instalasi dan indexing peramban modern.
+
+---
+
+## 8. Prinsip Aksesibilitas Touch Mobile (Anti-Hover Dependency)
+
+Mengatasi kelemahan fundamental layar sentuh ponsel (di mana *hover state* tidak ada):
+
+1. **Permanen Visible Action Triggers**:
+   Seluruh tombol aksi (misalnya tombol hapus tugas, navigasi tab, tombol sinkronisasi) **dilarang disembunyikan di balik `opacity-0 group-hover:opacity-100`**. Seluruh tombol dibuat tampak jelas setiap saat di layar ponsel.
+2. **Tactile Feedback (`active:scale-95`)**:
+   Sebagai pengganti hover, seluruh tombol dilengkapi umpan balik taktil saat disentuh (`active:scale-95` dan `active:bg-...`) serta kelas `touch-manipulation` untuk menghilangkan penundaan sentuh 300ms (*tap delay*).
+3. **Anti-Zooming Form Fields**:
+   Ukuran teks pada seluruh elemen input form diatur pada `text-base sm:text-xs` (16px pada viewport ponsel) untuk mencegah peramban Safari iOS melakukan auto-zoom yang merusak tata letak layar saat pengguna mengetik.
+
 
 

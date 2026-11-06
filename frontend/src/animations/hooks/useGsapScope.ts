@@ -24,3 +24,4 @@ export function useGsapScope() {
 
   return { containerRef, engine };
 }
+

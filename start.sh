@@ -16,7 +16,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 echo -e "${CYAN}======================================================${NC}"
-echo -e "${CYAN}🚀 MEMULAI SISTEM SI-PATIR (DevOps Lite)${NC}"
+echo -e "${CYAN}🚀 MEMULAI SISTEM SI-PATIR (Sistem Integrasi Pemantau Aktivitas)${NC}"
 echo -e "${CYAN}======================================================${NC}"
 
 # Fungsi pembersih port

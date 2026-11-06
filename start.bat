@@ -3,7 +3,7 @@ title SI-PATIR Starter
 color 0B
 
 echo ======================================================
-echo    MEMULAI SISTEM SI-PATIR (DevOps Lite)
+echo    MEMULAI SISTEM SI-PATIR (Sistem Integrasi Pemantau Aktivitas)
 echo ======================================================
 echo.
 

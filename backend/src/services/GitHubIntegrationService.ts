@@ -39,7 +39,7 @@ export class GitHubIntegrationService {
     try {
       const response = await axios.get(`https://api.github.com/repos/${repo}/contributors`, {
         headers: {
-          'User-Agent': 'SI-PATIR-DevOps-Engine',
+          'User-Agent': 'SI-PATIR-Integration-Engine',
           Accept: 'application/vnd.github.v3+json',
         },
         timeout: 8000,
@@ -59,7 +59,7 @@ export class GitHubIntegrationService {
     try {
       const response = await axios.get(`https://api.github.com/repos/${repo}/issues?state=all`, {
         headers: {
-          'User-Agent': 'SI-PATIR-DevOps-Engine',
+          'User-Agent': 'SI-PATIR-Integration-Engine',
           Accept: 'application/vnd.github.v3+json',
         },
         timeout: 8000,

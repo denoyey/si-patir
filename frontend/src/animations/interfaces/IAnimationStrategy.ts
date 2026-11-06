@@ -6,3 +6,4 @@ export interface IAnimationStrategy {
   animateModalEntrance(modalBox: HTMLElement, backdrop: HTMLElement): void;
   animateToastEntrance(toastElement: HTMLElement): void;
 }
+

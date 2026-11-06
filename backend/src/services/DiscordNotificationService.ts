@@ -45,7 +45,7 @@ export class DiscordNotificationService {
           },
         ],
         footer: {
-          text: 'SI-PATIR DevOps Lite Integration Engine',
+          text: 'SI-PATIR Sistem Integrasi Pemantau Aktivitas Tugas',
         },
         timestamp: new Date().toISOString(),
       };
