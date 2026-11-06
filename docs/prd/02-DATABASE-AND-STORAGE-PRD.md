@@ -127,4 +127,5 @@ Pada saat inisialisasi pertama kali (`DatabaseService.initialize()`), sistem men
 * **Kontributor Nyata**: Mengambil data kontributor riil langsung dari repositori GitHub yang dikonfigurasi (`denoyey/si-patir`) via GitHub REST API (`GitHubIntegrationService.syncRealContributors()`). Anggota dummy lama secara otomatis dibersihkan (`clearDummyMembers()`) sehingga hanya kontributor nyata (`denoyey` dkk) yang tersimpan di database.
 * **Tugas Nyata**: Mengelola daftar tugas riil (`#TASK-01` s/d `#TASK-05`) yang dialokasikan ke developer riil, dan mendukung penambahan anggota/tugas baru secara dinamis melalui antarmuka web.
 * **In-Memory Fallback Persistence**: Menyediakan data fallback yang diselaraskan dengan identitas kontributor aktif (`denoyey`) jika MySQL berada dalam mode simulasi sementara.
+* **Database Seeder Resmi (`seed_team.sql`)**: Tersedia berkas seeder mandiri di `backend/database/seed_team.sql` untuk inisialisasi basis data MySQL terpadu berisi 4 anggota tim kolaborator (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) dan 5 tugas sprint awal.
 
