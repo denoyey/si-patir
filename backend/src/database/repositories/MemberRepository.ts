@@ -76,5 +76,105 @@ export class MemberRepository {
       });
     }
   }
+
+  public async clearDummyMembers(): Promise<void> {
+    const dummyUsernames = ['andi_dev', 'budi99', 'citra_ui', 'doni_backend'];
+
+    if (this.db.isConnected() && this.db.getPool()) {
+      try {
+        await this.db.getPool()!.query(
+          'DELETE FROM members WHERE github_username IN (?, ?, ?, ?)',
+          dummyUsernames
+        );
+      } catch (err: any) {
+        console.error('[MemberRepository] clearDummyMembers error:', err.message);
+      }
+    }
+
+    // Clear memory fallback dummy
+    const memory = this.db.getMemoryMembers();
+    const filtered = memory.filter((m) => !dummyUsernames.includes(m.github_username.toLowerCase()));
+    this.db.setMemoryMembers(filtered);
+  }
+
+  public async upsertContributor(username: string, contributions: number): Promise<IMember> {
+    if (this.db.isConnected() && this.db.getPool()) {
+      try {
+        const existing = await this.findByUsername(username);
+        if (existing) {
+          await this.db.getPool()!.query(
+            'UPDATE members SET total_commits = ? WHERE github_username = ?',
+            [contributions, username]
+          );
+          return { ...existing, total_commits: contributions };
+        } else {
+          const [result]: any = await this.db.getPool()!.query(
+            'INSERT INTO members (name, github_username, total_commits, tasks_done) VALUES (?, ?, ?, 0)',
+            [username, username, contributions]
+          );
+          return {
+            id: result.insertId,
+            name: username,
+            github_username: username,
+            total_commits: contributions,
+            tasks_done: 0,
+          };
+        }
+      } catch (err: any) {
+        console.error('[MemberRepository] upsertContributor error:', err.message);
+      }
+    }
+
+    // Memory Fallback
+    let mem = this.db.getMemoryMembers().find((m) => m.github_username.toLowerCase() === username.toLowerCase());
+    if (mem) {
+      mem.total_commits = contributions;
+      return mem;
+    } else {
+      const newMember: IMember = {
+        id: this.db.getMemoryMembers().length + 1,
+        name: username,
+        github_username: username,
+        total_commits: contributions,
+        tasks_done: 0,
+      };
+      this.db.getMemoryMembers().push(newMember);
+      return newMember;
+    }
+  }
+
+  public async createMember(name: string, username: string): Promise<IMember | null> {
+    const cleanName = name.trim();
+    const cleanUser = username.trim().replace(/^@/, '');
+
+    if (this.db.isConnected() && this.db.getPool()) {
+      try {
+        const [result]: any = await this.db.getPool()!.query(
+          'INSERT INTO members (name, github_username, total_commits, tasks_done) VALUES (?, ?, 0, 0)',
+          [cleanName, cleanUser]
+        );
+        return {
+          id: result.insertId,
+          name: cleanName,
+          github_username: cleanUser,
+          total_commits: 0,
+          tasks_done: 0,
+        };
+      } catch (err: any) {
+        console.error('[MemberRepository] createMember error:', err.message);
+        return null;
+      }
+    }
+
+    const newMem: IMember = {
+      id: this.db.getMemoryMembers().length + 1,
+      name: cleanName,
+      github_username: cleanUser,
+      total_commits: 0,
+      tasks_done: 0,
+    };
+    this.db.getMemoryMembers().push(newMem);
+    return newMem;
+  }
 }
 

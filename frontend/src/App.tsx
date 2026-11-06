@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, type FormEvent } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import {
@@ -9,7 +9,6 @@ import {
   RefreshCw,
   Terminal,
   Trophy,
-  Users,
   CheckSquare,
   Zap,
   Database,
@@ -19,6 +18,9 @@ import {
   ShieldCheck,
   Radio,
   SlidersHorizontal,
+  Plus,
+  Trash2,
+  X,
 } from 'lucide-react';
 
 interface Member {
@@ -52,6 +54,7 @@ interface SystemStatus {
   trello: boolean;
   discord: boolean;
   github: boolean;
+  repository?: string;
   uptime?: number;
   timestamp?: string;
 }
@@ -65,13 +68,28 @@ export function App() {
     trello: true,
     discord: true,
     github: true,
+    repository: 'denoyey/si-patir',
   });
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'In Progress' | 'Done' | 'To Do'>('ALL');
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [isSyncingTrello, setIsSyncingTrello] = useState(false);
+  const [isSyncingGitHub, setIsSyncingGitHub] = useState(false);
   const [isSimulating, setIsSimulating] = useState(false);
   const [activeToast, setActiveToast] = useState<{ title: string; desc: string } | null>(null);
+
+  // Modals state for real team management
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+
+  // Form states
+  const [newTaskCode, setNewTaskCode] = useState('');
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskAssignee, setNewTaskAssignee] = useState('');
+  const [newTaskStatus, setNewTaskStatus] = useState<'To Do' | 'In Progress' | 'Done'>('In Progress');
+
+  const [newMemberName, setNewMemberName] = useState('');
+  const [newMemberUsername, setNewMemberUsername] = useState('');
 
   // Fetch initial system state
   const refreshData = async () => {
@@ -93,6 +111,9 @@ export function App() {
 
   useEffect(() => {
     refreshData();
+
+    // Auto-sync real GitHub contributors on mount
+    axios.post('/api/members/sync-github').then(() => refreshData()).catch(() => {});
 
     // WebSocket real-time subscription
     const socket = io();
@@ -139,22 +160,127 @@ export function App() {
     return { totalCommits, totalDone, completionRate };
   }, [members, tasks]);
 
+  // Sync real contributors from GitHub repository
+  const handleSyncGitHub = async () => {
+    setIsSyncingGitHub(true);
+    try {
+      const res = await axios.post('/api/members/sync-github');
+      setActiveToast({
+        title: 'GitHub Synced',
+        desc: res.data.message || 'Kontributor nyata dari repositori berhasil disinkronkan.',
+      });
+      setTimeout(() => setActiveToast(null), 4000);
+      await refreshData();
+    } catch (err: any) {
+      console.error('GitHub sync error:', err);
+    } finally {
+      setIsSyncingGitHub(false);
+    }
+  };
+
+  // Sync tasks from Trello
   const handleSyncTrello = async () => {
-    setIsSyncing(true);
+    setIsSyncingTrello(true);
     try {
       await axios.post('/api/tasks/sync');
       await refreshData();
     } finally {
-      setIsSyncing(false);
+      setIsSyncingTrello(false);
     }
   };
 
+  // Clear dummy data and keep real data only
+  const handleClearDummy = async () => {
+    if (!confirm('Hapus seluruh data dummy bawaan (Andi, Budi, Citra, Doni) agar hanya tersisa anggota nyata?')) return;
+    try {
+      await Promise.all([
+        axios.post('/api/members/clear-dummy'),
+        axios.post('/api/members/sync-github'),
+      ]);
+      await refreshData();
+      setActiveToast({
+        title: 'Data Bersih',
+        desc: 'Hanya kontributor nyata dari GitHub yang dipertahankan.',
+      });
+      setTimeout(() => setActiveToast(null), 4000);
+    } catch (err) {
+      console.error('Clear dummy error:', err);
+    }
+  };
+
+  // Create real task
+  const handleCreateTask = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!newTaskCode || !newTaskTitle) return;
+
+    try {
+      await axios.post('/api/tasks', {
+        taskCode: newTaskCode,
+        title: newTaskTitle,
+        assignee: newTaskAssignee || members[0]?.github_username || 'denoyey',
+        status: newTaskStatus,
+      });
+      setShowAddTaskModal(false);
+      setNewTaskCode('');
+      setNewTaskTitle('');
+      setNewTaskAssignee('');
+      await refreshData();
+      setActiveToast({
+        title: 'Tugas Ditambahkan',
+        desc: `Kartu [${newTaskCode}] berhasil didaftarkan ke sistem.`,
+      });
+      setTimeout(() => setActiveToast(null), 4000);
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Gagal menambahkan tugas');
+    }
+  };
+
+  // Delete task
+  const handleDeleteTask = async (id: number) => {
+    if (!confirm('Hapus kartu tugas ini?')) return;
+    try {
+      await axios.delete(`/api/tasks/${id}`);
+      await refreshData();
+    } catch (err) {
+      console.error('Delete task error:', err);
+    }
+  };
+
+  // Create real team member
+  const handleCreateMember = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!newMemberName || !newMemberUsername) return;
+
+    try {
+      await axios.post('/api/members', {
+        name: newMemberName,
+        username: newMemberUsername,
+      });
+      setShowAddMemberModal(false);
+      setNewMemberName('');
+      setNewMemberUsername('');
+      await refreshData();
+      setActiveToast({
+        title: 'Anggota Ditambahkan',
+        desc: `@${newMemberUsername} berhasil terdaftar di tim.`,
+      });
+      setTimeout(() => setActiveToast(null), 4000);
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Gagal menambahkan anggota');
+    }
+  };
+
+  // Instant demo commit with real developer
   const handleSimulateCommit = async () => {
     setIsSimulating(true);
+    const activeDev = members[0]?.github_username || 'denoyey';
+    const targetTask = tasks.find((t) => t.status !== 'Done') || tasks[0];
+    const targetCode = targetTask ? targetTask.task_code : 'TASK-01';
+
     try {
       await axios.post('/api/simulate-commit', {
-        developer: 'budi99',
-        message: 'Fix bug tombol login [done #TASK-02]',
+        developer: activeDev,
+        message: `Selesaikan implementasi fitur [done #${targetCode}]`,
       });
       await refreshData();
     } finally {
@@ -200,26 +326,40 @@ export function App() {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2 shrink-0">
+            {/* Sync Real GitHub Contributors */}
+            <button
+              onClick={handleSyncGitHub}
+              disabled={isSyncingGitHub}
+              aria-label="Sinkronisasi GitHub"
+              className="h-8 px-3 rounded-md bg-zinc-800 hover:bg-zinc-750 border border-zinc-700 text-xs font-medium text-zinc-300 hover:text-white flex items-center gap-1.5 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer touch-manipulation"
+              title="Tarik data kontributor & commit nyata dari repositori GitHub"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncingGitHub ? 'animate-spin text-emerald-400' : ''}`} />
+              <span className="hidden sm:inline">Sync GitHub</span>
+            </button>
+
+            {/* Sync Trello */}
             <button
               onClick={handleSyncTrello}
-              disabled={isSyncing}
+              disabled={isSyncingTrello}
               aria-label="Sinkronisasi Trello"
               className="h-8 px-3 rounded-md bg-zinc-800 hover:bg-zinc-750 border border-zinc-700 text-xs font-medium text-zinc-300 hover:text-white flex items-center gap-1.5 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer touch-manipulation"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+              <CheckSquare className="w-3.5 h-3.5 text-blue-400" />
               <span className="hidden sm:inline">Sync Trello</span>
             </button>
 
+            {/* Test Real Commit */}
             <button
               onClick={handleSimulateCommit}
               disabled={isSimulating}
               aria-label="Simulasi Push Commit"
               className="h-8 px-3.5 rounded-md bg-zinc-100 hover:bg-white text-zinc-950 border border-zinc-300 text-xs font-semibold flex items-center gap-1.5 transition active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-xs touch-manipulation"
-              title="Kirim payload commit webhook untuk simulasi pengujian demo"
+              title="Kirim payload commit webhook untuk pengujian instan"
             >
               <Zap className="w-3.5 h-3.5 fill-zinc-950 text-zinc-950" />
               <span>Test Commit</span>
-              <span className="hidden sm:inline font-mono text-[11px] text-zinc-700">[#TASK-02]</span>
+              <span className="hidden sm:inline font-mono text-[11px] text-zinc-700">[@{members[0]?.github_username || 'denoyey'}]</span>
             </button>
           </div>
         </div>
@@ -228,12 +368,12 @@ export function App() {
       {/* REPOSITORY & SYSTEM CONNECTIVITY BAR (Max-W 7XL) */}
       <section className="border-b border-zinc-800/80 bg-[#0b0e14] py-2 px-4 sm:px-6 lg:px-8 text-xs font-mono">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          {/* Target Repo Info */}
+          {/* Real Target Repo Info */}
           <div className="flex items-center gap-2 text-zinc-400 truncate">
             <GitBranch className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
             <span className="hidden sm:inline text-zinc-500">Repository:</span>
-            <span className="text-zinc-200 bg-zinc-800/60 px-2 py-0.5 rounded-md border border-zinc-700/60 truncate text-[11px]">
-              kelompok-devops/si-patir-core:main
+            <span className="text-zinc-200 bg-zinc-800/60 px-2 py-0.5 rounded-md border border-zinc-700/60 truncate text-[11px] font-semibold">
+              {status.repository || 'denoyey/si-patir'}:main
             </span>
           </div>
 
@@ -278,7 +418,7 @@ export function App() {
               <GitCommit className="w-4 h-4 text-zinc-500 shrink-0" />
             </div>
             <div className="text-2xl font-bold font-mono text-white mt-1.5">{metrics.totalCommits}</div>
-            <div className="text-[11px] text-zinc-500 mt-1 truncate">Terekam di repositori</div>
+            <div className="text-[11px] text-zinc-500 mt-1 truncate">Tercatat di Git repositori</div>
           </div>
 
           <div className="bg-[#11141d] border border-zinc-800 rounded-lg p-4">
@@ -289,7 +429,7 @@ export function App() {
             <div className="text-2xl font-bold font-mono text-emerald-400 mt-1.5">
               {metrics.totalDone} <span className="text-zinc-500 text-sm font-normal">/ {tasks.length}</span>
             </div>
-            <div className="text-[11px] text-zinc-500 mt-1 truncate">Status sinkron Trello</div>
+            <div className="text-[11px] text-zinc-500 mt-1 truncate">Status sinkron real-time</div>
           </div>
 
           <div className="bg-[#11141d] border border-zinc-800 rounded-lg p-4">
@@ -322,24 +462,39 @@ export function App() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* LEFT 2 COLUMNS: Leaderboard & Task Management */}
           <div className="lg:col-span-2 space-y-6">
-            {/* 1. KLASEMEN KONTRIBUSI ANGGOTA */}
+            {/* 1. KLASEMEN KONTRIBUSI ANGGOTA NYATA */}
             <section className="bg-[#11141d] border border-zinc-800 rounded-lg overflow-hidden">
-              <div className="px-5 py-3.5 border-b border-zinc-800 flex items-center justify-between">
+              <div className="px-5 py-3.5 border-b border-zinc-800 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <Trophy className="w-4 h-4 text-amber-400 shrink-0" />
                   <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-200">
-                    Klasemen Kontribusi Anggota
+                    Klasemen Kontribusi Anggota (Real Developers)
                   </h2>
                 </div>
-                <div className="text-[11px] text-zinc-400 font-mono flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-                  <span>{members.length} Developer</span>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowAddMemberModal(true)}
+                    className="h-7 px-2.5 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-[11px] font-medium text-zinc-200 flex items-center gap-1 transition cursor-pointer"
+                    title="Tambah anggota kelompok nyata"
+                  >
+                    <Plus className="w-3 h-3 text-emerald-400" />
+                    <span>Tambah Anggota</span>
+                  </button>
+
+                  <button
+                    onClick={handleClearDummy}
+                    className="h-7 px-2 rounded-md bg-zinc-900 hover:bg-red-950/40 border border-zinc-800 hover:border-red-800/50 text-[11px] text-zinc-400 hover:text-red-300 transition cursor-pointer"
+                    title="Hapus data dummy bawaan"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
                 </div>
               </div>
 
               {/* Table with Safe Horizontal Scroll */}
               <div className="overflow-x-auto touch-scroll">
-                <table className="w-full text-left text-xs min-w-120 sm:min-w-full">
+                <table className="w-full text-left text-xs min-w-[480px] sm:min-w-full">
                   <thead>
                     <tr className="border-b border-zinc-800 bg-[#0d1017] text-zinc-400 font-mono text-[11px]">
                       <th className="py-2.5 px-4 w-12 text-center">#</th>
@@ -352,7 +507,7 @@ export function App() {
                   <tbody className="divide-y divide-zinc-800/60">
                     {members.map((member, index) => {
                       const isTop = index === 0;
-                      const isActive = member.total_commits >= 8;
+                      const isActive = member.total_commits >= 5;
 
                       return (
                         <tr key={member.id} className="hover:bg-zinc-800/30 transition">
@@ -390,7 +545,7 @@ export function App() {
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 text-zinc-400 bg-zinc-800/50 px-2 py-0.5 rounded-md border border-zinc-700">
-                                Perlu Dorongan
+                                Siap Berkontribusi
                               </span>
                             )}
                           </td>
@@ -402,30 +557,42 @@ export function App() {
               </div>
             </section>
 
-            {/* 2. DAFTAR TUGAS TRELLO & FILTER */}
+            {/* 2. DAFTAR TUGAS PROYEK REALTIME */}
             <section className="bg-[#11141d] border border-zinc-800 rounded-lg overflow-hidden">
               <div className="px-5 py-3.5 border-b border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <CheckSquare className="w-4 h-4 text-blue-400 shrink-0" />
                   <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-200">
-                    Daftar Kartu Tugas (Trello Sync)
+                    Daftar Kartu Tugas Nyata
                   </h2>
                 </div>
 
-                {/* Filter Tabs */}
-                <div className="flex items-center gap-1 bg-[#090b10] p-1 rounded-md border border-zinc-800 text-xs overflow-x-auto touch-scroll no-scrollbar">
-                  {(['ALL', 'In Progress', 'Done', 'To Do'] as const).map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setStatusFilter(tab)}
-                      className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition cursor-pointer shrink-0 touch-manipulation ${statusFilter === tab
-                        ? 'bg-zinc-800 text-white shadow-xs'
-                        : 'text-zinc-400 hover:text-zinc-200'
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Button Add Real Task */}
+                  <button
+                    onClick={() => setShowAddTaskModal(true)}
+                    className="h-7 px-2.5 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-[11px] font-medium text-zinc-200 flex items-center gap-1 transition cursor-pointer"
+                  >
+                    <Plus className="w-3 h-3 text-blue-400" />
+                    <span>Tambah Tugas</span>
+                  </button>
+
+                  {/* Filter Tabs */}
+                  <div className="flex items-center gap-1 bg-[#090b10] p-1 rounded-md border border-zinc-800 text-xs overflow-x-auto touch-scroll no-scrollbar">
+                    {(['ALL', 'In Progress', 'Done', 'To Do'] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setStatusFilter(tab)}
+                        className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition cursor-pointer shrink-0 touch-manipulation ${
+                          statusFilter === tab
+                            ? 'bg-zinc-800 text-white shadow-xs'
+                            : 'text-zinc-400 hover:text-zinc-200'
                         }`}
-                    >
-                      {tab}
-                    </button>
-                  ))}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -446,7 +613,7 @@ export function App() {
               {/* Task Items List */}
               <div className="divide-y divide-zinc-800/60">
                 {filteredTasks.length === 0 ? (
-                  <div className="p-8 text-center text-xs text-zinc-500">Tidak ada tugas yang sesuai filter.</div>
+                  <div className="p-8 text-center text-xs text-zinc-500">Belum ada tugas. Klik tombol "Tambah Tugas" untuk menambahkan.</div>
                 ) : (
                   filteredTasks.map((task) => {
                     const isDone = task.status === 'Done';
@@ -455,7 +622,7 @@ export function App() {
                     return (
                       <div
                         key={task.id}
-                        className="px-5 py-3.5 hover:bg-zinc-800/25 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
+                        className="px-5 py-3.5 hover:bg-zinc-800/25 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 group"
                       >
                         <div className="flex items-start gap-3 min-w-0">
                           <div className="mt-0.5 shrink-0">
@@ -472,7 +639,7 @@ export function App() {
                               <span className="font-mono font-bold text-xs text-zinc-200 bg-zinc-800 px-1.5 py-0.5 rounded-md border border-zinc-700 shrink-0">
                                 [#{task.task_code}]
                               </span>
-                              <span className="text-xs font-medium text-white wrap-break-word">{task.title}</span>
+                              <span className="text-xs font-medium text-white break-words">{task.title}</span>
                             </div>
                             <div className="text-[11px] text-zinc-400 mt-1 truncate">
                               Assignee: <span className="font-mono text-zinc-300">@{task.assignee}</span>
@@ -480,17 +647,25 @@ export function App() {
                           </div>
                         </div>
 
-                        <div className="self-start sm:self-center shrink-0">
+                        <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
                           <span
-                            className={`text-[11px] font-mono px-2.5 py-0.5 rounded-md border ${isDone
-                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                              : isInProgress
+                            className={`text-[11px] font-mono px-2.5 py-0.5 rounded-md border ${
+                              isDone
+                                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                : isInProgress
                                 ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
                                 : 'bg-zinc-800 text-zinc-400 border-zinc-700'
-                              }`}
+                            }`}
                           >
                             {task.status}
                           </span>
+                          <button
+                            onClick={() => handleDeleteTask(task.id)}
+                            className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-red-400 transition cursor-pointer"
+                            title="Hapus tugas"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </div>
                     );
@@ -502,7 +677,7 @@ export function App() {
 
           {/* RIGHT 1 COLUMN: LIVE WEBHOOK AUDIT STREAM */}
           <aside className="space-y-4">
-            <div className="bg-[#11141d] border border-zinc-800 rounded-lg overflow-hidden flex flex-col h-120 sm:h-140 lg:h-160">
+            <div className="bg-[#11141d] border border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[480px] sm:h-[560px] lg:h-[640px]">
               <div className="px-4 py-3 border-b border-zinc-800 flex items-center justify-between bg-[#0d1017]">
                 <div className="flex items-center gap-2">
                   <Terminal className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -519,7 +694,7 @@ export function App() {
               {/* Streaming Output Body */}
               <div className="flex-1 bg-[#090b10] p-4 font-mono text-xs overflow-y-auto touch-scroll space-y-3 divide-y divide-zinc-800/40">
                 <div className="text-zinc-500 text-[11px] pb-2">
-                  // Siap menerima sinyal push git dari webhook / hook lokal...
+                  // Menunggu sinyal push git dari pengembang nyata...
                 </div>
 
                 {logs.map((log) => (
@@ -531,7 +706,7 @@ export function App() {
                     <div className="text-zinc-300 text-[11px]">
                       Author: <span className="text-amber-300">@{log.author}</span>
                     </div>
-                    <div className="text-zinc-400 text-[11px] wrap-break-word">
+                    <div className="text-zinc-400 text-[11px] break-words">
                       Msg: <span className="text-zinc-200 italic">"{log.commit_message}"</span>
                     </div>
                     {log.task_code && (
@@ -547,16 +722,144 @@ export function App() {
               {/* Instructions Panel */}
               <div className="p-3 bg-[#0d1017] border-t border-zinc-800 text-[11px] space-y-1.5">
                 <div className="font-semibold text-zinc-300 flex items-center gap-1 text-[11px]">
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-400 shrink-0" /> Perintah Demo di Terminal:
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-400 shrink-0" /> Contoh Commit Nyata di Terminal:
                 </div>
                 <div className="bg-[#11141d] p-2 rounded-md border border-zinc-800 font-mono text-[10px] text-emerald-300 select-all break-all">
-                  git commit -m "Fix bug [done #TASK-02]"
+                  git commit -m "Selesaikan fitur [done #{tasks[0]?.task_code || 'TASK-01'}]"
                 </div>
               </div>
             </div>
           </aside>
         </div>
       </main>
+
+      {/* MODAL TAMBAH TUGAS NYATA */}
+      {showAddTaskModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#11141d] border border-zinc-800 rounded-lg p-5 max-w-md w-full shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+              <h3 className="text-sm font-semibold text-white">Tambah Kartu Tugas Nyata</h3>
+              <button onClick={() => setShowAddTaskModal(false)} className="text-zinc-400 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <form onSubmit={handleCreateTask} className="space-y-3.5 mt-4 text-xs">
+              <div>
+                <label className="block text-zinc-400 mb-1">Kode Tugas (contoh: TASK-01, FEAT-AUTH)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="TASK-01"
+                  value={newTaskCode}
+                  onChange={(e) => setNewTaskCode(e.target.value)}
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-zinc-400 mb-1">Judul Tugas</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Contoh: Perancangan Arsitektur Database"
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-zinc-400 mb-1">Assignee (Username GitHub)</label>
+                <input
+                  type="text"
+                  placeholder="denoyey"
+                  value={newTaskAssignee}
+                  onChange={(e) => setNewTaskAssignee(e.target.value)}
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-zinc-400 mb-1">Status Awal</label>
+                <select
+                  value={newTaskStatus}
+                  onChange={(e: any) => setNewTaskStatus(e.target.value)}
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white"
+                >
+                  <option value="In Progress">In Progress</option>
+                  <option value="To Do">To Do</option>
+                  <option value="Done">Done</option>
+                </select>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddTaskModal(false)}
+                  className="px-3 py-1.5 rounded-md bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 rounded-md bg-emerald-600 text-white font-semibold hover:bg-emerald-500"
+                >
+                  Simpan Tugas
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL TAMBAH ANGGOTA KELOMPOK NYATA */}
+      {showAddMemberModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#11141d] border border-zinc-800 rounded-lg p-5 max-w-md w-full shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+              <h3 className="text-sm font-semibold text-white">Tambah Anggota Kelompok Nyata</h3>
+              <button onClick={() => setShowAddMemberModal(false)} className="text-zinc-400 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <form onSubmit={handleCreateMember} className="space-y-3.5 mt-4 text-xs">
+              <div>
+                <label className="block text-zinc-400 mb-1">Nama Lengkap</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Contoh: Dennis Pratama"
+                  value={newMemberName}
+                  onChange={(e) => setNewMemberName(e.target.value)}
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-zinc-400 mb-1">Username GitHub (tanpa @)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="denoyey"
+                  value={newMemberUsername}
+                  onChange={(e) => setNewMemberUsername(e.target.value)}
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-white font-mono"
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddMemberModal(false)}
+                  className="px-3 py-1.5 rounded-md bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-500"
+                >
+                  Daftarkan Anggota
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

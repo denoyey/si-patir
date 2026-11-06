@@ -21,6 +21,7 @@ export class SystemController {
       trello: Boolean(this.config.trelloApiKey && this.config.trelloToken && this.config.trelloDoneListId),
       discord: Boolean(this.config.discordWebhookUrl),
       github: true,
+      repository: this.config.githubRepo,
       uptime: process.uptime(),
       memoryUsage: process.memoryUsage(),
       timestamp: new Date().toISOString(),

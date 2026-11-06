@@ -54,6 +54,13 @@ SI-PATIR bertindak sebagai **Orchestrator Gateway** yang menjembatani protokol I
 ### 2.2 Local Hook Support (Tanpa Internet / Tunnel)
 Sistem menyediakan skrip `scripts/setup-local-git-hook.sh` yang menyematkan skrip `post-commit` di `.git/hooks/`. Setiap kali developer mengetik `git commit` di laptop, Git lokal langsung menembakkan payload JSON terformat ke `http://localhost:5000/api/webhooks/github`.
 
+### 2.3 Sinkronisasi Real-Time Kontributor GitHub (REST API Inbound)
+Menggunakan `GitHubIntegrationService` untuk memanggil endpoint resmi `https://api.github.com/repos/{owner}/{repo}/contributors`.
+Sistem secara otomatis:
+1. Menarik akun GitHub pengembang nyata dan jumlah commit aslinya (contoh: `@denoyey` dengan 8 commits).
+2. Membersihkan data dummy contoh awal (`andi_dev`, `budi99`, dll).
+3. Menyimpan dan memperbarui data pengembang nyata ke dalam basis data MySQL.
+
 ---
 
 ## 3. Outbound Pipeline 1: Trello REST API Integration

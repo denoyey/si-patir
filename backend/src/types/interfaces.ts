@@ -66,6 +66,7 @@ export interface ISystemStatus {
   trello: boolean;
   discord: boolean;
   github: boolean;
+  repository: string;
   uptime: number;
   memoryUsage: NodeJS.MemoryUsage;
   timestamp: string;

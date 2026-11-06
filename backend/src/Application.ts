@@ -8,6 +8,7 @@ import { WebhookController } from './controllers/WebhookController.js';
 import { TaskController } from './controllers/TaskController.js';
 import { MemberController } from './controllers/MemberController.js';
 import { SystemController } from './controllers/SystemController.js';
+import { GitHubIntegrationService } from './services/GitHubIntegrationService.js';
 
 export class Application {
   private app: Express;
@@ -69,9 +70,21 @@ export class Application {
     );
 
     this.app.post('/api/simulate-commit', webhookController.handleSimulate);
+
+    // Tasks API
     this.app.get('/api/tasks', taskController.getAllTasks);
+    this.app.post('/api/tasks', taskController.createTask);
+    this.app.delete('/api/tasks/:id', taskController.deleteTask);
     this.app.post('/api/tasks/sync', taskController.syncFromTrello);
+    this.app.post('/api/tasks/sync-github', taskController.syncFromGitHubIssues);
+    this.app.post('/api/tasks/clear-dummy', taskController.clearDummy);
+
+    // Members API
     this.app.get('/api/members', memberController.getLeaderboard);
+    this.app.post('/api/members/sync-github', memberController.syncFromGitHub);
+    this.app.post('/api/members', memberController.createMember);
+    this.app.post('/api/members/clear-dummy', memberController.clearDummy);
+
     this.app.get('/api/status', systemController.getStatus);
     this.app.get('/api/logs', systemController.getLogs);
 
@@ -90,6 +103,12 @@ export class Application {
 
   public async start(): Promise<void> {
     await this.db.initialize();
+
+    // Auto-sync real contributors from GitHub
+    const githubService = new GitHubIntegrationService();
+    githubService.syncRealContributors().catch((e) => {
+      console.warn('[Application] GitHub contributors sync notice:', e.message);
+    });
 
     this.server.listen(this.config.port, () => {
       console.log(`=======================================================`);

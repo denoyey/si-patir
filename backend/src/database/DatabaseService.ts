@@ -162,6 +162,10 @@ export class DatabaseService {
     return this.memoryMembers;
   }
 
+  public setMemoryMembers(members: IMember[]): void {
+    this.memoryMembers = members;
+  }
+
   public getMemoryTasks(): ITask[] {
     return this.memoryTasks;
   }

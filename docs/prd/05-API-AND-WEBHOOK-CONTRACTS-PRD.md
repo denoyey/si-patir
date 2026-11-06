@@ -134,25 +134,42 @@ Menampilkan urutan kontribusi anggota tim terurut berdasarkan commit terbanyak.
   ```json
   [
     {
-      "id": 1,
-      "name": "Andi Saputra",
-      "github_username": "andi_dev",
-      "total_commits": 14,
-      "tasks_done": 3
-    },
-    {
-      "id": 2,
-      "name": "Budi Santoso",
-      "github_username": "budi99",
-      "total_commits": 10,
-      "tasks_done": 2
+      "id": 5,
+      "name": "denoyey",
+      "github_username": "denoyey",
+      "total_commits": 8,
+      "tasks_done": 1
     }
   ]
   ```
 
 ---
 
-### 2.6 Status Kesehatan Sistem
+### 2.6 Sinkronisasi Kontributor Nyata dari GitHub
+Menarik data kontributor dan jumlah commit asli dari repositori GitHub.
+
+* **Method:** `POST`
+* **Path:** `/members/sync-github`
+* **Success Response (200 OK):**
+  ```json
+  {
+    "success": true,
+    "message": "Berhasil menyinkronkan 1 kontributor asli dari GitHub.",
+    "members": [...]
+  }
+  ```
+
+---
+
+### 2.7 Tambah Tugas & Anggota Nyata
+* `POST /tasks`: Mendaftarkan kartu tugas baru (`taskCode`, `title`, `assignee`, `status`).
+* `DELETE /tasks/:id`: Menghapus tugas dari sistem.
+* `POST /members`: Mendaftarkan anggota kelompok nyata (`name`, `username`).
+* `POST /members/clear-dummy`: Menghapus data contoh bawaan sistem.
+
+---
+
+### 2.8 Status Kesehatan Sistem
 Menampilkan status kesiapan koneksi seluruh subsistem.
 
 * **Method:** `GET`

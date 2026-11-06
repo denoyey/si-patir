@@ -17,6 +17,7 @@ export class EnvironmentConfig {
   public readonly trelloBoardId: string;
   public readonly trelloDoneListId: string;
   public readonly githubWebhookSecret: string;
+  public readonly githubRepo: string;
   public readonly corsOrigins: string[];
 
   private constructor() {
@@ -39,6 +40,7 @@ export class EnvironmentConfig {
     this.trelloBoardId = process.env.TRELLO_BOARD_ID || '';
     this.trelloDoneListId = process.env.TRELLO_DONE_LIST_ID || '';
     this.githubWebhookSecret = process.env.GITHUB_WEBHOOK_SECRET || 'sipatir_secret_123';
+    this.githubRepo = process.env.GITHUB_REPO || 'denoyey/si-patir';
 
     // CORS Whitelist
     const rawOrigins = process.env.CORS_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000';
@@ -68,6 +70,7 @@ export class EnvironmentConfig {
       discordConfigured: Boolean(this.discordWebhookUrl),
       trelloConfigured: Boolean(this.trelloApiKey && this.trelloToken && this.trelloDoneListId),
       githubSecretProtected: Boolean(this.githubWebhookSecret),
+      githubRepo: this.githubRepo,
     };
   }
 }

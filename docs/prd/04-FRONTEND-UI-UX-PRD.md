@@ -62,15 +62,21 @@ Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-genera
 ### 3.1 Top Navigation Bar
 * **Branding:** Logo inisial `[SP]` berbingkai dan label versi *DevOps Control*.
 * **Action Controls:**
+  * Tombol **"Sync GitHub"** (menarik data kontributor & commit asli dari repositori GitHub).
   * Tombol **"Sync Trello"** (dengan ikon loading spin saat proses fetch berlangsung).
-  * Tombol aksi cepat **"Test Commit [done #TASK-02]"** untuk menguji end-to-end integrasi hanya dalam satu klik saat presentasi.
+  * Tombol aksi cepat **"Test Commit"** (otomatis menggunakan nama developer nyata yang aktif).
 
-### 3.2 Connectivity Strip
-Menampilkan status kesehatan seluruh subsistem eksternal secara berdampingan:
+### 3.2 Connectivity & Dynamic Repository Strip
+Menampilkan target repositori asli secara dinamis (`denoyey/si-patir:main`) dan status kesehatan seluruh subsistem eksternal secara berdampingan:
 * `GitHub: Ready 🟢`
 * `Trello: Synced 🟢`
 * `Discord: Active 🟢`
 * `MySQL: Connected 🟢` (atau `Memory Fallback 🟡` jika database lokal offline).
+
+### 3.3 Manajemen Anggota & Tugas Nyata (Interactive Modals)
+* Tombol **"+ Tambah Anggota"**: Mendaftarkan anggota kelompok nyata beserta username GitHub aslinya ke dalam sistem.
+* Tombol **"+ Tambah Tugas"**: Mendaftarkan tugas-tugas riil kelompok beserta kode unik (`#TASK-XX` / `#FEAT-XX`).
+* Tombol **"Hapus Dummy"**: Membersihkan seluruh data contoh bawaan agar sistem bersih 100% dengan data nyata.
 
 ### 3.3 Summary Metrics Cards
 Empat metrik visual berpresisi tinggi:
