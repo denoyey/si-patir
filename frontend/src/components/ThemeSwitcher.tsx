@@ -23,7 +23,7 @@ export function ThemeSwitcher() {
             className={`p-1.5 rounded-md transition-all flex items-center justify-center cursor-pointer touch-manipulation ${
               isActive
                 ? 'bg-white dark:bg-zinc-700 text-zinc-950 dark:text-white shadow-xs font-medium'
-                : 'text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-200'
+                : 'text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100/60 dark:hover:bg-zinc-700/50'
             }`}
           >
             <Icon className="w-3.5 h-3.5 shrink-0" />

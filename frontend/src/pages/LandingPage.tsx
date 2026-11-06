@@ -88,12 +88,12 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-[3.75rem] py-2 sm:py-0 flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
-            <div className="w-8 h-8 rounded-md bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-750 dark:to-zinc-900 border border-zinc-700 text-white flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-xs group-hover:scale-105 transition">
+            <div className="w-8 h-8 rounded-md bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-800 dark:to-zinc-900 border border-zinc-700 text-white flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-xs group-hover:scale-105 transition">
               SP
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
               <span className="font-bold text-sm tracking-tight text-zinc-950 dark:text-white">SI-PATIR</span>
-              <span className="hidden sm:inline-flex text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-150 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700">
+              <span className="hidden sm:inline-flex text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700">
                 v2.0
               </span>
             </div>
@@ -195,9 +195,9 @@ export function LandingPage() {
               href="https://github.com/denoyey/si-patir"
               target="_blank"
               rel="noreferrer"
-              className="w-full sm:w-auto h-11 px-5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-850 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700 font-medium text-xs flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer shadow-xs"
+              className="w-full sm:w-auto h-11 px-5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 font-medium text-xs flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer shadow-xs"
             >
-              <GitBranch className="w-4 h-4 text-zinc-500 shrink-0" />
+              <GitBranch className="w-4 h-4 text-zinc-500 dark:text-zinc-400 shrink-0" />
               <span>Lihat Source Code GitHub</span>
             </a>
           </div>
@@ -405,7 +405,7 @@ export function LandingPage() {
               >
                 <div className="space-y-4">
                   {/* Large Prominent Photo Frame */}
-                  <div className="relative w-full aspect-square rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-750 shadow-inner">
+                  <div className="relative w-full aspect-square rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 shadow-inner">
                     {member.avatar ? (
                       <img
                         src={member.avatar}
@@ -445,7 +445,7 @@ export function LandingPage() {
                         href={`https://github.com/${member.username}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-[11px] font-mono text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 transition touch-manipulation active:scale-95"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-[11px] font-mono text-zinc-700 dark:text-zinc-300 dark:hover:text-white border border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 transition touch-manipulation active:scale-95"
                         title={`Buka profil GitHub @${member.username}`}
                       >
                         <span>@{member.username}</span>
@@ -537,7 +537,7 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="pt-3 border-t border-zinc-100 dark:border-zinc-850 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+          <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-zinc-500 dark:text-zinc-400">
             <span>Dibuat oleh Tim: Deni, Rafli, Fatir, Fajri</span>
             <span>&copy; {CURRENT_YEAR} SI-PATIR. Open Source Engineering.</span>
           </div>

@@ -436,7 +436,7 @@ export function DashboardPage() {
 
             <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800 hidden sm:block"></div>
 
-            <div className="w-8 h-8 rounded-md bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-750 dark:to-zinc-900 border border-zinc-700 text-white flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-xs">
+            <div className="w-8 h-8 rounded-md bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-800 dark:to-zinc-900 border border-zinc-700 text-white flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-xs">
               SP
             </div>
             <div className="min-w-0">
@@ -462,10 +462,10 @@ export function DashboardPage() {
               }}
               disabled={isSyncingGitHub}
               aria-label="Sinkronisasi GitHub"
-              className="h-8.5 px-2 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-750 active:scale-95 border border-zinc-300 dark:border-zinc-700 text-xs font-medium text-zinc-700 dark:text-zinc-200 flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation shadow-xs shrink-0"
+              className="h-8.5 px-2 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation shadow-xs shrink-0"
               title="Tarik data kontributor & commit nyata dari repositori GitHub"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isSyncingGitHub ? 'animate-spin text-emerald-500' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncingGitHub ? 'animate-spin text-emerald-500' : 'text-zinc-500 dark:text-zinc-400'}`} />
               <span className="hidden md:inline">Sync GitHub</span>
             </button>
 
@@ -477,7 +477,7 @@ export function DashboardPage() {
               }}
               disabled={isSyncingTrello}
               aria-label="Sinkronisasi Trello"
-              className="h-8.5 px-2 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-750 active:scale-95 border border-zinc-300 dark:border-zinc-700 text-xs font-medium text-zinc-700 dark:text-zinc-200 flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation shadow-xs shrink-0"
+              className="h-8.5 px-2 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition disabled:opacity-50 cursor-pointer touch-manipulation shadow-xs shrink-0"
             >
               <CheckSquare className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
               <span className="hidden md:inline">Sync Trello</span>
@@ -522,7 +522,7 @@ export function DashboardPage() {
               href={`https://github.com/${status.repository || 'denoyey/si-patir'}`}
               target="_blank"
               rel="noreferrer"
-              className="text-zinc-900 dark:text-zinc-200 hover:underline bg-white dark:bg-zinc-800/80 px-2 py-0.5 rounded-md border border-zinc-300 dark:border-zinc-700/80 truncate text-[11px] font-semibold flex items-center gap-1.5 transition shadow-xs"
+              className="text-zinc-900 dark:text-zinc-200 hover:text-zinc-950 dark:hover:text-white bg-white hover:bg-zinc-50 dark:bg-zinc-800/80 dark:hover:bg-zinc-700/80 px-2 py-0.5 rounded-md border border-zinc-300 dark:border-zinc-700/80 hover:border-zinc-400 dark:hover:border-zinc-600 truncate text-[11px] font-semibold flex items-center gap-1.5 transition shadow-xs"
               title="Buka repositori GitHub di tab baru"
             >
               <span>{status.repository || 'denoyey/si-patir'}:main</span>
@@ -765,7 +765,7 @@ export function DashboardPage() {
                       engine.animateButtonPress(e.currentTarget);
                       setShowAddMemberModal(true);
                     }}
-                    className="h-8.5 px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-750 active:scale-95 border border-zinc-300 dark:border-zinc-700 text-xs font-medium text-zinc-700 dark:text-zinc-200 flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
+                    className="h-8.5 px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
                     title="Tambah anggota kelompok nyata"
                   >
                     <Plus className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
@@ -897,7 +897,7 @@ export function DashboardPage() {
                       engine.animateButtonPress(e.currentTarget);
                       setShowAddTaskModal(true);
                     }}
-                    className="h-8.5 px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-750 active:scale-95 border border-zinc-300 dark:border-zinc-700 text-xs font-medium text-zinc-700 dark:text-zinc-200 flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
+                    className="h-8.5 px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
                   >
                     <Plus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                     <span>Tambah Tugas</span>
@@ -1193,7 +1193,7 @@ export function DashboardPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddTaskModal(false)}
-                  className="h-9 px-3.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-750 text-zinc-700 dark:text-zinc-300 active:scale-95 transition cursor-pointer touch-manipulation text-xs font-medium"
+                  className="h-9 px-3.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white active:scale-95 transition cursor-pointer touch-manipulation text-xs font-medium"
                 >
                   Batal
                 </button>
@@ -1256,7 +1256,7 @@ export function DashboardPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddMemberModal(false)}
-                  className="h-9 px-3.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-750 text-zinc-700 dark:text-zinc-300 active:scale-95 transition cursor-pointer touch-manipulation text-xs font-medium"
+                  className="h-9 px-3.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white active:scale-95 transition cursor-pointer touch-manipulation text-xs font-medium"
                 >
                   Batal
                 </button>
