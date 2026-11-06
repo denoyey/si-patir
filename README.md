@@ -306,6 +306,15 @@ si-patir/
     ```
   *(Skrip akan otomatis menjalankan verifikasi tipe & build produksi, membuat branch baru jika belum ada, membuat conventional commit, dan melakukan push ke GitHub remote).*
 
+#### 🛡️ Mekanisme Proteksi Anti-Conflict & Rebase Safety
+Untuk mencegah terjadinya *merge conflict*, commit tertinggal (*divergent history*), atau kerusakan repositori lokal saat beberapa pengembang bekerja bersamaan, sistem otomasi SI-PATIR dilengkapi 5 lapis pengaman:
+1. **Penyelarasan Metadata (`git fetch origin --prune`)**: Dijalankan di awal setiap proses agar referensi remote selalu *up-to-date*.
+2. **Fresh Base Guarantee**: Jika membuat branch fitur baru saat berada di `main`, skrip secara otomatis menarik `origin/main` terbaru (*fast-forward*) terlebih dahulu sehingga branch fitur tidak pernah dibuat dari commit usang.
+3. **Smart Branch Resolution**: Jika branch fitur sudah dibuat oleh rekan tim di GitHub (misal: Rafli atau Fatir), skrip otomatis mengaitkan (*track*) remote branch tersebut tanpa membuat branch terpisah.
+4. **Rebase Sinkronisasi Otomatis**: Jika branch remote memiliki commit baru, skrip menjalankan `git pull --rebase origin <branch>` sebelum push untuk menghasilkan riwayat Git linear yang rapi tanpa commit merge yang berantakan.
+5. **Auto-Abort saat Terjadi Konflik Konten**: Jika commit rekan tim bentrok pada baris kode yang sama, skrip mendeteksi kegagalan dan **seketika mengeksekusi `git rebase --abort`** agar workspace lokal kembali bersih dan aman (tidak tertinggal dalam mode interaktif rebase yang membingungkan), lalu memberikan petunjuk resolusi manual yang jelas.
+6. **Proteksi Pembersihan Branch (`clean-merged-branches`)**: Memvalidasi bahwa tidak ada perubahan file yang belum di-commit (`uncommitted changes`) sebelum berpindah ke `main`, memvalidasi status merge terhadap `origin/main`, dan menekan error jika branch remote sudah otomatis dihapus oleh GitHub.
+
 ---
 
 ## 👥 11. Tim Pengembang & Pembagian Tugas (Jobdesk)
