@@ -11,13 +11,13 @@ export function BackToTop() {
       onClick={() => scrollToTop(1.0)}
       aria-label="Kembali ke atas"
       title="Kembali ke atas"
-      className={`fixed bottom-[max(1rem,calc(env(safe-area-inset-bottom,0px)+0.5rem))] right-3 sm:right-6 z-50 p-2 sm:p-2.5 rounded-md bg-zinc-950/90 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-950 shadow-lg border border-zinc-700/60 dark:border-zinc-300 backdrop-blur-xs transition-all duration-300 flex items-center justify-center cursor-pointer touch-manipulation active:scale-95 ${
+      className={`fixed bottom-[max(0.75rem,calc(env(safe-area-inset-bottom,0px)+0.5rem))] right-3 sm:right-6 z-40 w-8 h-8 sm:w-9 sm:h-9 rounded-md bg-zinc-950/85 hover:bg-zinc-800 dark:bg-white/90 dark:hover:bg-white text-white dark:text-zinc-950 shadow-md border border-zinc-700/60 dark:border-zinc-300 backdrop-blur-xs transition-all duration-300 flex items-center justify-center cursor-pointer touch-manipulation active:scale-95 ${
         isVisible
-          ? 'opacity-100 translate-y-0 pointer-events-auto'
+          ? 'opacity-85 sm:opacity-90 hover:opacity-100 translate-y-0 pointer-events-auto'
           : 'opacity-0 translate-y-4 pointer-events-none'
       }`}
     >
-      <ArrowUp className="w-4 h-4 shrink-0" />
+      <ArrowUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
     </button>
   );
 }

@@ -440,7 +440,7 @@ export function DashboardPage() {
             : '-translate-y-full shadow-none pointer-events-none'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-[3.5rem] py-1.5 sm:py-0 flex items-center justify-between gap-2 sm:gap-4">
+        <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 min-h-[3.25rem] sm:min-h-[3.5rem] py-1.5 sm:py-0 flex items-center justify-between gap-1.5 sm:gap-4">
           {/* Brand Logo & Back to Landing */}
           <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 shrink-0">
             <Link
@@ -525,16 +525,16 @@ export function DashboardPage() {
       </header>
 
       {/* Spacer to reserve layout height under fixed top navbar */}
-      <div className="h-[3.5rem] pt-[env(safe-area-inset-top,0px)] shrink-0" aria-hidden="true" />
+      <div className="h-[3.25rem] sm:h-[3.5rem] pt-[env(safe-area-inset-top,0px)] shrink-0" aria-hidden="true" />
 
       {/* REPOSITORY & SYSTEM CONNECTIVITY BAR */}
       <section
         data-anim="header"
-        className="border-b border-zinc-200 dark:border-zinc-800/80 bg-zinc-100/80 dark:bg-[#0b0e14] py-2.5 px-4 sm:px-6 lg:px-8 text-xs font-mono"
+        className="border-b border-zinc-200 dark:border-zinc-800/80 bg-zinc-100/80 dark:bg-[#0b0e14] py-2.5 px-3 sm:px-6 lg:px-8 text-xs font-mono"
       >
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           {/* Target Repo Info */}
-          <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400 truncate">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-zinc-500 dark:text-zinc-400 truncate">
             <GitBranch className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
             <span className="hidden sm:inline">Repository:</span>
             <a
@@ -549,28 +549,28 @@ export function DashboardPage() {
             </a>
           </div>
 
-          {/* Connection Status Badges */}
-          <div className="flex items-center gap-2 overflow-x-auto touch-scroll py-0.5 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
-            <div className="flex items-center gap-1.5 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 shrink-0 text-[11px] shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+          {/* Connection Status Badges - 2x2 grid on mobile, flex on sm+ */}
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2 sm:px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
               <span className="text-zinc-500 dark:text-zinc-400">GitHub:</span>
               <span className="text-emerald-600 dark:text-emerald-400 font-medium">Ready</span>
             </div>
 
-            <div className="flex items-center gap-1.5 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 shrink-0 text-[11px] shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2 sm:px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
               <span className="text-zinc-500 dark:text-zinc-400">Trello:</span>
               <span className="text-emerald-600 dark:text-emerald-400 font-medium">Synced</span>
             </div>
 
-            <div className="flex items-center gap-1.5 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 shrink-0 text-[11px] shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2 sm:px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
               <span className="text-zinc-500 dark:text-zinc-400">Discord:</span>
               <span className="text-emerald-600 dark:text-emerald-400 font-medium">Active</span>
             </div>
 
-            <div className="flex items-center gap-1.5 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 shrink-0 text-[11px] shadow-xs">
-              <Database className="w-3 h-3 text-blue-500 dark:text-blue-400" />
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2 sm:px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs">
+              <Database className="w-3 h-3 text-blue-500 dark:text-blue-400 shrink-0" />
               <span className="text-zinc-500 dark:text-zinc-400">MySQL:</span>
               <span className={status.mysql ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-amber-600 dark:text-amber-400 font-medium'}>
                 {status.mysql ? 'Connected' : 'Memory Sync'}
@@ -751,7 +751,7 @@ export function DashboardPage() {
                 <ShieldCheck className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-base sm:text-xl font-bold font-mono text-emerald-600 dark:text-emerald-300 tracking-tight mt-0.5 truncate">
+            <div className="text-sm xs:text-base sm:text-xl font-bold font-mono text-emerald-600 dark:text-emerald-300 tracking-tight mt-0.5">
               HMAC SHA-256
             </div>
             <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
@@ -768,9 +768,9 @@ export function DashboardPage() {
           <div data-anim="content-grid" className="lg:col-span-2 space-y-5">
             {/* 1. KLASEMEN KONTRIBUSI ANGGOTA NYATA */}
             <section className="bg-white dark:bg-[#0e121b] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden shadow-xs">
-              <div className="px-5 py-3.5 min-h-[52px] border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#121623] flex items-center justify-between gap-2">
+              <div className="px-3.5 sm:px-5 py-3 sm:py-3.5 min-h-[52px] border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#121623] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-2">
                 <div className="flex items-center gap-2">
-                  <div className="p-1 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                  <div className="p-1 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
                     <Trophy className="w-4 h-4" />
                   </div>
                   <div>
@@ -781,13 +781,13 @@ export function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 self-start sm:self-center">
                   <button
                     onClick={(e) => {
                       engine.animateButtonPress(e.currentTarget);
                       setShowAddMemberModal(true);
                     }}
-                    className="h-8.5 px-2.5 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
+                    className="h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
                     title="Tambah anggota kelompok nyata"
                   >
                     <Plus className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
@@ -800,7 +800,7 @@ export function DashboardPage() {
                       engine.animateButtonPress(e.currentTarget);
                       handleClearDummy();
                     }}
-                    className="h-8.5 px-2.5 rounded-md bg-zinc-100 hover:bg-red-50 dark:bg-zinc-900 dark:hover:bg-red-950/40 active:scale-95 border border-zinc-300 dark:border-zinc-800 hover:border-red-300 dark:hover:border-red-800/50 text-xs text-zinc-500 hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-300 transition cursor-pointer touch-manipulation"
+                    className="h-8 sm:h-8.5 px-2.5 rounded-md bg-zinc-100 hover:bg-red-50 dark:bg-zinc-900 dark:hover:bg-red-950/40 active:scale-95 border border-zinc-300 dark:border-zinc-800 hover:border-red-300 dark:hover:border-red-800/50 text-xs text-zinc-500 hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-300 transition cursor-pointer touch-manipulation"
                     title="Hapus data dummy bawaan"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -813,10 +813,10 @@ export function DashboardPage() {
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100/60 dark:bg-[#0a0d14] text-zinc-500 dark:text-zinc-400 font-mono text-[11px]">
-                      <th className="py-2.5 sm:py-3 px-2 sm:px-4 w-12 sm:w-16 text-center">RANK</th>
-                      <th className="py-2.5 sm:py-3 px-2 sm:px-4">DEVELOPER</th>
-                      <th className="py-2.5 sm:py-3 px-2 sm:px-4 text-center">COMMITS</th>
-                      <th className="py-2.5 sm:py-3 px-2 sm:px-4 text-center">TASKS</th>
+                      <th className="py-2.5 sm:py-3 px-1.5 sm:px-4 w-10 sm:w-16 text-center">RANK</th>
+                      <th className="py-2.5 sm:py-3 px-1.5 sm:px-4">DEVELOPER</th>
+                      <th className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">COMMITS</th>
+                      <th className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">TASKS</th>
                       <th className="hidden md:table-cell py-2.5 sm:py-3 px-4 text-right">STATUS KERJA</th>
                     </tr>
                   </thead>
@@ -827,7 +827,7 @@ export function DashboardPage() {
 
                       return (
                         <tr key={member.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/25 transition">
-                          <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-center">
+                          <td className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">
                             <span
                               className={`inline-flex items-center justify-center font-mono text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-md ${
                                 index === 0
@@ -842,7 +842,7 @@ export function DashboardPage() {
                               #{index + 1}
                             </span>
                           </td>
-                          <td className="py-2.5 sm:py-3 px-2 sm:px-4">
+                          <td className="py-2.5 sm:py-3 px-1.5 sm:px-4">
                             <div className="flex items-center gap-2 sm:gap-3">
                               <AvatarWithFallback username={member.github_username} name={member.name} />
                               <div className="min-w-0">
@@ -869,12 +869,12 @@ export function DashboardPage() {
                               </div>
                             </div>
                           </td>
-                          <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-center">
+                          <td className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">
                             <span className="font-mono text-xs font-bold px-2 sm:px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800/90 text-zinc-900 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-700 shadow-xs">
                               {member.total_commits}
                             </span>
                           </td>
-                          <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-center">
+                          <td className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">
                             <span className="font-mono text-xs font-bold px-2 sm:px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 shadow-xs">
                               {member.tasks_done}
                             </span>
@@ -901,37 +901,50 @@ export function DashboardPage() {
 
             {/* 2. DAFTAR TUGAS PROYEK REALTIME */}
             <section className="bg-white dark:bg-[#0e121b] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden shadow-xs">
-              <div className="px-5 py-3.5 min-h-[52px] border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#121623] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <div className="p-1 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-                    <CheckSquare className="w-4 h-4" />
+              <div className="px-3.5 sm:px-5 py-3 sm:py-3.5 min-h-[52px] border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#121623] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
+                <div className="flex items-center justify-between w-full sm:w-auto gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0">
+                      <CheckSquare className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-950 dark:text-white">
+                        Daftar Kartu Tugas
+                      </h2>
+                      <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                        {filteredTasks.length} dari {tasks.length} Tugas Ditampilkan
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-950 dark:text-white">
-                      Daftar Kartu Tugas
-                    </h2>
-                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">
-                      {filteredTasks.length} dari {tasks.length} Tugas Ditampilkan
-                    </span>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
-                  {/* Button Add Real Task */}
+                  {/* Button Add Real Task (Mobile Top Right) */}
                   <button
                     onClick={(e) => {
                       engine.animateButtonPress(e.currentTarget);
                       setShowAddTaskModal(true);
                     }}
-                    className="h-8.5 px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
+                    className="sm:hidden h-8 px-2.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1 transition cursor-pointer touch-manipulation shadow-xs shrink-0"
                   >
                     <Plus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                    <span className="hidden sm:inline">Tambah Tugas</span>
-                    <span className="sm:hidden">Tugas</span>
+                    <span>Tugas</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  {/* Button Add Real Task (Desktop) */}
+                  <button
+                    onClick={(e) => {
+                      engine.animateButtonPress(e.currentTarget);
+                      setShowAddTaskModal(true);
+                    }}
+                    className="hidden sm:flex h-8.5 px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs shrink-0"
+                  >
+                    <Plus className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                    <span>Tambah Tugas</span>
                   </button>
 
-                  {/* Filter Tabs */}
-                  <div className="flex items-center gap-1 bg-zinc-100 dark:bg-[#090b10] p-1 rounded-md border border-zinc-300 dark:border-zinc-800 text-xs overflow-x-auto touch-scroll no-scrollbar">
+                  {/* Filter Tabs - Full-width 4-column grid on mobile, flex on sm+ */}
+                  <div className="w-full sm:w-auto grid grid-cols-4 sm:flex items-center gap-1 bg-zinc-100 dark:bg-[#090b10] p-1 rounded-md border border-zinc-300 dark:border-zinc-800 text-xs">
                     {(['ALL', 'In Progress', 'Done', 'To Do'] as const).map((tab) => (
                       <button
                         key={tab}
@@ -939,7 +952,7 @@ export function DashboardPage() {
                           engine.animateButtonPress(e.currentTarget);
                           setStatusFilter(tab);
                         }}
-                        className={`px-3 py-1 rounded-md text-xs font-medium transition active:scale-95 cursor-pointer shrink-0 touch-manipulation ${
+                        className={`px-1.5 sm:px-3 py-1 rounded-md text-[11px] sm:text-xs font-medium transition active:scale-95 cursor-pointer text-center touch-manipulation truncate ${
                           statusFilter === tab
                             ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs border border-zinc-300 dark:border-zinc-700'
                             : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
@@ -980,7 +993,7 @@ export function DashboardPage() {
                     return (
                       <div
                         key={task.id}
-                        className={`p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/20 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-l-3 ${
+                        className={`p-3.5 sm:p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/20 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 border-l-3 ${
                           isDone
                             ? 'border-l-emerald-500'
                             : isInProgress
@@ -988,7 +1001,7 @@ export function DashboardPage() {
                             : 'border-l-zinc-400 dark:border-l-zinc-700'
                         }`}
                       >
-                        <div className="flex items-start gap-3 min-w-0">
+                        <div className="flex items-start gap-2.5 sm:gap-3 min-w-0">
                           <div className="mt-0.5 shrink-0">
                             {isDone ? (
                               <div className="p-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
@@ -1022,7 +1035,7 @@ export function DashboardPage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
+                        <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-zinc-100 dark:border-zinc-800/60 shrink-0">
                           <span
                             className={`text-xs font-mono font-semibold px-2.5 py-1 rounded-md border ${
                               isDone
@@ -1057,7 +1070,7 @@ export function DashboardPage() {
 
           {/* RIGHT 1 COLUMN: LIVE WEBHOOK AUDIT STREAM */}
           <aside data-anim="content-grid" className="space-y-4">
-            <div className="bg-white dark:bg-[#0e121b] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[560px] sm:h-[640px] lg:h-[720px] shadow-xs">
+            <div className="bg-white dark:bg-[#0e121b] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[500px] sm:h-[620px] lg:h-[720px] shadow-xs">
               <div className="px-5 py-3.5 min-h-[52px] border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-[#121623]">
                 <div className="flex items-center gap-2">
                   <div className="p-1 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -1121,11 +1134,11 @@ export function DashboardPage() {
               </div>
 
               {/* Instructions Panel */}
-              <div className="p-3.5 bg-zinc-50 dark:bg-[#121623] border-t border-zinc-200 dark:border-zinc-800 text-xs space-y-2">
+              <div className="p-3 sm:p-3.5 bg-zinc-50 dark:bg-[#121623] border-t border-zinc-200 dark:border-zinc-800 text-xs space-y-2 shrink-0">
                 <div className="flex items-center justify-between gap-1.5 font-semibold text-zinc-800 dark:text-zinc-200 text-xs">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 min-w-0">
                     <SlidersHorizontal className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                    <span>Uji Coba Commit Nyata di Terminal:</span>
+                    <span className="truncate">Uji Coba Commit Nyata di Terminal:</span>
                   </div>
                   <button
                     onClick={() => {
@@ -1136,7 +1149,7 @@ export function DashboardPage() {
                         desc: 'Tempel (paste) dan jalankan pada terminal repo Git Anda.',
                       });
                     }}
-                    className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition active:scale-95 cursor-pointer touch-manipulation text-[11px] flex items-center gap-1 shrink-0"
+                    className="p-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-950 dark:hover:text-white transition active:scale-95 cursor-pointer touch-manipulation text-[11px] flex items-center gap-1 shrink-0"
                     title="Salin perintah commit"
                     aria-label="Salin perintah commit"
                   >
@@ -1144,7 +1157,7 @@ export function DashboardPage() {
                     <span className="hidden sm:inline">Salin</span>
                   </button>
                 </div>
-                <div className="bg-white dark:bg-[#090b10] p-2.5 rounded-md border border-zinc-300 dark:border-zinc-800 font-mono text-[11px] text-emerald-600 dark:text-emerald-300 select-all break-all shadow-inner">
+                <div className="bg-white dark:bg-[#090b10] p-2.5 rounded-md border border-zinc-300 dark:border-zinc-800 font-mono text-[10.5px] sm:text-[11px] text-emerald-600 dark:text-emerald-300 select-all overflow-x-auto whitespace-pre no-scrollbar shadow-inner">
                   git commit -m "Selesaikan fitur [done #{tasks[0]?.task_code || 'TASK-01'}]"
                 </div>
               </div>
@@ -1152,6 +1165,18 @@ export function DashboardPage() {
           </aside>
         </div>
       </main>
+
+      {/* FOOTER */}
+      <footer className="border-t border-zinc-200 dark:border-zinc-800 py-6 px-4 sm:px-6 lg:px-8 text-center text-xs text-zinc-500 dark:text-zinc-400 bg-white dark:bg-[#0b0e14] shrink-0">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 font-mono text-[11px]">
+          <div>
+            SI-PATIR v2.0.0 • DevOps Real-Time Monitoring
+          </div>
+          <div className="text-zinc-400 dark:text-zinc-500">
+            Deni • Rafli • Fatir • Fajri
+          </div>
+        </div>
+      </footer>
 
       {/* MODAL TAMBAH TUGAS NYATA */}
       {showAddTaskModal && (
