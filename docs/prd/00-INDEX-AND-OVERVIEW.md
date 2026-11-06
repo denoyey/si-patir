@@ -66,6 +66,9 @@ Dokumentasi spesifikasi kebutuhan produk (PRD) SI-PATIR dipecah menjadi modul-mo
 3. **High Availability**: Backend harus tetap beroperasi penuh dengan *in-memory fallback* jika koneksi server MySQL lokal belum menyala atau mengalami *network hiccup*.
 4. **Security Compliance**: Endpoint webhook harus menolak payload tidak sah dengan verifikasi biner konstan `crypto.timingSafeEqual` dan membatasi ukuran request maksimal `100kb`.
 5. **Universal Device & iPhone Responsiveness**: Tampilan antarmuka wajib responsif 100% tanpa *layout breaking* di semua perangkat, mulai dari layar Ultrawide 4K hingga seluruh varian iPhone (termasuk penanganan *Dynamic Island*, *Notch*, dan *Home Indicator*).
+6. **Cross-Platform Parity**: Seluruh skrip orkestrasi startup, auto-push, dan pembersihan branch berjalan identik di Linux/macOS (`.sh`) dan Windows (`.bat`).
+7. **Zero-Conflict Automation**: Otomasi Git dilengkapi deteksi rebase otomatis dan pembatalan aman (`rebase --abort`) untuk menjamin workspace lokal anggota tim tidak pernah rusak atau tertinggal dalam mode interaktif.
+8. **Accessibility & Theme Continuity**: Pergantian tema (System OS, Light, Dark) berlangsung instan tanpa kedipan (*zero flash*), rasio kontras teks memenuhi standar WCAG AA, dan navigasi halaman mengembalikan posisi scroll ke puncak kanvas secara otomatis.
 
 ---
 

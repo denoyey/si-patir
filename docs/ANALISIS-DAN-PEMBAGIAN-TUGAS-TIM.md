@@ -1,7 +1,7 @@
 # ANALISIS GAP PROYEK & PEMBAGIAN TUGAS TIM (SI-PATIR)
 > **Nama Proyek:** SI-PATIR (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repositori*)  
 > **Tanggal Rilis Dokumen:** 6 November 2026  
-> **Status:** `ACTIVE ROADMAP` | **Versi:** `1.0.0`  
+> **Status:** `ACTIVE ROADMAP` | **Versi:** `2.0.0`  
 > **Anggota Tim (4 Orang):** Deni (Lead), Rafli, Fatir, Fajri  
 
 ---
@@ -11,13 +11,13 @@
 Berdasarkan audit arsitektur kode dan dokumentasi PRD SI-PATIR, berikut adalah pemetaan fitur yang **sudah selesai** vs yang **masih belum / perlu disempurnakan**:
 
 ### 1.1 Apa yang Sudah Selesai (Completed & Verified)
-1. **Frontend Dashboard UI (React 19 + Tailwind v4 + GSAP + Poppins)**:
-   - Layout *Pure Human Engineering* (Anti-AI Slop) dengan kontainer `max-w-7xl`.
-   - Token sudut ketat (`rounded-md` & `rounded-lg`) dan keselarasan padding/tinggi (`p-5`, `min-h-[52px]`).
-   - Tidak ada emoji clutter/spam, digantikan badge peringkat tipografis `#1`, `#2`, `#3`.
-   - Engine animasi OOP GSAP (`GsapAnimationEngine.ts`) untuk efek masuk, counter numerik, dan highlight log.
-   - PWA & Mobile Web App meta tag compliance (`mobile-web-app-capable`).
-   - SEO 100% (Robots.txt, Sitemap.xml, OpenGraph, JSON-LD Schema).
+1. **Frontend Modern & Dashboard UI (React 19 + Tailwind v4 + GSAP + Lenis + Poppins)**:
+   - **Interactive Landing Page**: Hero section interaktif, diagram visual alur kerja Git ➔ Trello ➔ Discord, kartu fitur, preview mockup, dan showcase tim.
+   - **Theme Switcher Cerdas**: Mendukung mode `System OS`, `Light`, dan `Dark` dengan deteksi otomatis, penyimpanan persisten di localStorage, dan kepatuhan kontras WCAG AA.
+   - **Lenis Smooth Scroll OOP Engine**: Gulir halaman halus matematis dengan tombol Back to Top melayang, auto-scroll stream log, dan *Route Scroll Restoration* (otomatis kembali ke posisi atas saat berpindah rute).
+   - **Optimasi Responsif Multi-Device & iOS**: Penyesuaian layout 100% untuk monitor desktop hingga seluruh varian iPhone (penanganan Dynamic Island, Notch, Safe Area Insets, dan header toolbar yang adaptif).
+   - Layout *Pure Human Engineering* (Anti-AI Slop) dengan kontainer `max-w-7xl`, token sudut ketat (`rounded-md` & `rounded-lg`), dan ritme tinggi seragam (`p-5`, `min-h-[52px]`).
+   - PWA & Mobile Web App meta tag compliance (`mobile-web-app-capable`) dan SEO 100%.
 2. **Backend Gateway & Webhook Security**:
    - Express.js + TypeScript berarsitektur OOP (`Application.ts`, controllers, services, repositories).
    - Verifikasi tanda tangan GitHub HMAC SHA-256 konstan (`crypto.timingSafeEqual`).
@@ -28,9 +28,11 @@ Berdasarkan audit arsitektur kode dan dokumentasi PRD SI-PATIR, berikut adalah p
    - Mekanisme *In-Memory Fallback* yang membuat aplikasi tetap jalan meski MySQL lokal padam.
 4. **Discord Webhook Notification**:
    - `DiscordNotificationService.ts` terhubung dan mengirimkan pesan kaya (*Rich Embed*) ke kanal Discord.
-5. **Skrip Operasional**:
-   - `start.sh` (Linux/macOS) & `start.bat` (Windows) dengan auto port-kill (port 5000 & 3000).
-   - `auto-git-push.sh` untuk otomasi branch fitur dan commit konvensional.
+5. **Skrip Operasional & Otomasi Multi-Platform Lintas OS**:
+   - **Starter Scripts**: `start.sh` (Linux/macOS) & `start.bat` (Windows) dengan auto port-kill (port 5000 & 3000) dan inisialisasi dependensi otomatis.
+   - **Auto-Push Engine**: `scripts/auto-git-push.sh` & `scripts/auto-git-push.bat` dengan quality gate otomatis (`tsc` + `vite build`), pembuatan branch konvensional, dan push GitHub.
+   - **Repository Hygiene Utility**: `scripts/clean-merged-branches.sh` & `scripts/clean-merged-branches.bat` (serta `npm run clean:branches`) untuk membersihkan branch usang yang sudah selesai di-merge ke `origin/main`.
+   - **5-Tier Conflict-Proof & Rebase Safety Engine**: Proteksi otomatis terhadap desinkronisasi git: fetch remote & prune, jaminan branch dasar segar dari `origin/main`, auto-track branch tim, linear rebase sebelum push, dan **automatic `rebase --abort`** seketika saat terdeteksi bentrok kode agar workspace tidak rusak.
 
 ---
 
@@ -218,22 +220,37 @@ Berdasarkan audit arsitektur kode dan dokumentasi PRD SI-PATIR, berikut adalah p
 Seluruh anggota (Deni, Rafli, Fatir, Fajri) **wajib** mengikuti aturan git berikut:
 
 1. **Dilarang Keras Push ke Branch `main` Langsung**:
-   Gunakan branch fitur masing-masing:
+   Gunakan branch fitur masing-masing yang terisolasi:
    - Deni: `feat/devops-gateway-setup`
    - Rafli: `feat/analytics-chart-and-export`
    - Fatir: `feat/trello-real-integration`
    - Fajri: `test/automated-qa-and-docs`
-2. **Gunakan Script Auto-Push**:
-   Jalankan script starter yang sudah disediakan agar format commit rapi dan pre-push test lolos:
+2. **Gunakan Script Auto-Push (Mendukung Linux & Windows)**:
+   Jalankan script starter yang sudah disediakan agar format commit rapi, verifikasi tipe lolos, dan build produksi diverifikasi sebelum push:
+   * **Linux / macOS / Git Bash**:
+     ```bash
+     ./scripts/auto-git-push.sh feat analytics-chart ui "tambahkan grafik analitik kontribusi tim"
+     ```
+   * **Windows (Command Prompt / PowerShell)**:
+     ```cmd
+     scripts\auto-git-push.bat feat analytics-chart ui "tambahkan grafik analitik kontribusi tim"
+     ```
+3. **Proteksi Anti-Conflict Otomatis**:
+   Sistem secara otomatis melindungi pekerjaan Anda saat menjalankan `auto-git-push`:
+   - Jika rekan tim sudah membuat commit di branch remote, skrip melakukan `git pull --rebase origin <branch>` sebelum push.
+   - Jika terdeteksi konflik kode baris yang sama, skrip **segera membatalkan rebase (`git rebase --abort`) secara otomatis** sehingga file lokal Anda tetap utuh, aman, dan tidak rusak.
+4. **Pembersihan Rutin Branch Usang**:
+   Setelah Pull Request di-merge ke `main` di GitHub, bersihkan branch lokal dan remote menggunakan:
    ```bash
-   ./scripts/auto-git-push.sh feat analytics-chart ui "tambahkan grafik analitik kontribusi tim"
+   npm run clean:branches
    ```
-3. **Format Pesan Commit (Conventional Commits)**:
+   *(Atau jalankan `./scripts/clean-merged-branches.sh` di Linux atau `scripts\clean-merged-branches.bat` di Windows)*.
+5. **Format Pesan Commit (Conventional Commits)**:
    - `feat(...)`: Untuk penambahan fitur baru.
    - `fix(...)`: Untuk perbaikan bug.
    - `docs(...)`: Untuk pembaruan dokumen laporan/PRD.
    - `test(...)`: Untuk pembuatan berkas test pengujian.
-4. **Wajib Update PRD**:
+6. **Wajib Update PRD**:
    Setiap kali menambah endpoint atau mengubah UI, perbarui dokumen terkait di folder `docs/prd/`.
 
 ---

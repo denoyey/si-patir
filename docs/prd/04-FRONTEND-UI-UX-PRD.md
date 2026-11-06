@@ -304,6 +304,38 @@ Komponen interaktif untuk deskripsi panjang kartu anggota tim:
 2. **Breakpoint Layar Ultra-Kompak (`--breakpoint-xs: 23.5rem`)**: Mengakomodasi resolusi sempit seperti iPhone SE dan mini (320px–375px) tanpa terpotongnya teks tombol atau badge status.
 3. **Pemberian Buffer Area Footer**: Mencegah tombol melayang *Back to Top* bertabrakan atau menutupi tautan footer dengan padding `pb-24 sm:pb-8`.
 
+---
+
+## 15. Mesin Pengalih Tema (Theme Switcher: System OS, Light, Dark)
+
+Antarmuka SI-PATIR dilengkapi sistem tema cerdas yang mematuhi preferensi sistem operasi pengguna secara dinamis:
+
+### 15.1 State & Mekanisme Sinkronisasi Tema (`ThemeContext.tsx`)
+* **3 Mode Tersedia**:
+  - `system`: Mengikuti preferensi mode gelap/terang bawaan OS melalui listener `window.matchMedia('(prefers-color-scheme: dark)')`.
+  - `light`: Memaksa tema terang dengan latar belakang bersih (#f8fafc / slate-50).
+  - `dark`: Memaksa tema gelap industrial (#090b10 / zinc-950).
+* **Penyimpanan Persisten**: Pilihan tema disimpan di `localStorage` dengan kunci `'si-patir-theme'` sehingga preferensi pengguna tidak hilang saat halaman di-refresh.
+* **Pergantian Instan Tanpa Kedip (*Zero-FODC*)**: Kelas `dark` langsung diterapkan pada elemen `document.documentElement` secara sinkron sebelum render pertama komponen.
+
+### 15.2 Standar Aksesibilitas Kontras (WCAG AA Compliance)
+* **Kontras Tombol Terang pada Mode Gelap**: Seluruh tombol interaktif (seperti tombol GitHub di landing page dan tombol Sinkronisasi di dashboard) memiliki kelas kontras eksplisit:
+  - Mode Terang: `bg-slate-900 text-white hover:bg-slate-800`
+  - Mode Gelap: `dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700`
+  - Menghilangkan anomali tombol teks putih di atas latar putih buram yang sulit dibaca.
+* **Badge Status Adaptif**: Badge status Trello, GitHub, dan Discord memiliki teks dengan kontras tinggi (`text-zinc-800 dark:text-zinc-200`) dan latar bergaris tepi halus (`border-zinc-300 dark:border-zinc-700`).
+
+---
+
+## 16. Penyempurnaan Responsivitas Dashboard Mobile
+
+Untuk memastikan pengalaman monitoring di perangkat seluler setara dengan desktop:
+1. **Header Toolbar Adaptif**: Tombol tema, sinkronisasi, dan tombol test otomatis melipat (*flex-wrap*) secara proporsional tanpa memotong judul sistem `SI-PATIR`.
+2. **Metrik Stat Cards 4-Kolom Fluid**: Menggunakan grid responsif `grid-cols-2 md:grid-cols-4` sehingga metrik (Total Commits, Tugas Selesai, Sprint Rate, dan Proteksi Webhook HMAC) tertata rapi tanpa teks label yang terpotong.
+3. **Tabel Klasemen Bebas Horizontal Overflow**: Struktur tabel dioptimalkan dengan padding ringkas, avatar tajam 36px, badge peringkat tipografis `#1`, `#2`, `#3`, dan link GitHub profil yang ringkas.
+4. **Format Timestamp Log Bersih**: Timestamp ISO mentah (`2026-11-06T09:34:36.000Z`) diparsing menjadi format waktu ringkas yang nyaman dibaca (`HH:mm:ss` / `YYYY-MM-DD HH:mm`) pada layar ponsel sempit.
+5. **Tombol Salin Terminal Cepat**: Kotak terminal uji commit di bagian bawah panel log stream dilengkapi tombol salin satu-klik dengan notifikasi status visual berhasil.
+
 
 
 

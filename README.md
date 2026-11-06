@@ -84,12 +84,18 @@ Cukup tambahkan tag kode tugas pada pesan commit Git (contoh: `git commit -m "Se
 
 ## ✨ 3. Fitur Unggulan
 
-* **Automasi DevOps Bebas Repot**: Tidak perlu membuka web Trello secara manual untuk menggeser kartu kerja.
-* **Papan Klasemen Kontribusi Transparan**: Memantau peringkat developer berdasarkan jumlah commit dan tugas selesai secara objektif.
-* **Live Webhook Audit Stream**: Terminal monitoring interaktif berbasis WebSocket (`Socket.io`) untuk memantau sinyal commit secara detik-per-detik.
+* **Automasi DevOps Bebas Repot**: Tidak perlu membuka web Trello secara manual untuk menggeser kartu kerja; cukup commit dengan tag tugas (misal: `[done #TASK-02]`).
+* **Interactive Landing Page & Architecture Showcase**: Halaman beranda visual yang menjelaskan alur kerja 3-sistem, demonstrasi pipeline, kartu teknologi, dan profil pengembang.
+* **Sistem Pengalih Tema Cerdas (System OS, Light, Dark)**: Mendeteksi preferensi tema OS secara otomatis, didukung toggle manual, tersimpan secara persisten di `localStorage`, serta memenuhi standar rasio kontras WCAG AA.
+* **Lenis Smooth Scroll & Navigation Restoration**: Pengalaman gulir halaman ultra-mulus berbasis OOP matematika eksponensial dengan isolasi native pada tabel/modal, tombol *Back to Top* melayang, dan reset posisi scroll otomatis ke puncak saat berpindah halaman.
+* **Papan Klasemen Kontribusi Transparan**: Memantau peringkat developer berdasarkan jumlah commit dan tugas selesai secara objektif dengan avatar asli dan link profil GitHub.
+* **Live Webhook Audit Stream**: Terminal monitoring interaktif berbasis WebSocket (`Socket.io`) untuk memantau sinyal commit secara detik-per-detik lengkap dengan tombol salin perintah terminal cepat.
 * **Dual-Tier Resilient Storage**: Didukung penuh oleh basis data relasional **MySQL** dengan sistem **In-Memory Fallback otomatis** (sistem tetap jalan lancar tanpa crash meskipun server MySQL lokal sedang offline).
 * **Pure Human Engineering UI (Anti-AI Slop)**: Desain antarmuka profesional bertaraf Linear/GitHub Actions: palet Zinc/Slate, standar radius `rounded-md` & `rounded-lg`, kontainer lebar `max-w-7xl`, dan nol gradasi sintetis.
-* **Dukungan Penuh Semua Perangkat & iPhone**: Kompatibel 100% dari monitor Ultrawide 4K hingga seluruh varian iPhone (dilengkapi penanganan khusus *Dynamic Island*, *Notch*, dan *Safe Area Insets*).
+* **Dukungan Responsif 100% Seluruh Perangkat & iPhone**: Kompatibel dari monitor Ultrawide 4K hingga seluruh varian iPhone (penanganan *Dynamic Island*, *Notch*, dan *Safe Area Insets*).
+* **Dukungan Multi-Platform Penuh (Linux, macOS & Windows Native)**: Seluruh orkestrasi startup (`start.sh` & `start.bat`), auto-push (`auto-git-push.sh` & `.bat`), dan pembersihan branch (`clean-merged-branches.sh` & `.bat`) berjalan mulus di semua OS tim.
+* **5-Tier Conflict-Proof & Rebase Safety Automation Engine**: Mencegah insiden Git desinkronisasi: penarikan branch dasar segar dari `origin/main`, rebase linear sebelum push, dan pembatalan otomatis (`git rebase --abort`) jika terdeteksi bentrok kode agar repositori lokal tidak pernah rusak.
+* **Pembersihan Branch Otomatis (`npm run clean:branches`)**: Menjaga kebersihan repositori jangka panjang dengan menghapus branch lokal dan remote yang telah di-merge ke `origin/main`.
 * **OWASP Hardened Security**: Kebal dari Timing Attacks via `crypto.timingSafeEqual`, bebas SQL Injection berkat Parameterized Queries, anti-ReDoS, dan perlindungan DoS via rate limiting bertingkat & pembatasan payload 100kb.
 
 ---
@@ -291,6 +297,7 @@ si-patir/
 * 📑 [PRD 04: Spesifikasi Antarmuka Klien & Desain Humanis](docs/prd/04-FRONTEND-UI-UX-PRD.md)
 * 📑 [PRD 05: Kontrak Teknis REST API & WebSocket Event](docs/prd/05-API-AND-WEBHOOK-CONTRACTS-PRD.md)
 * 📑 [PRD 06: Panduan Operasional & Runbook Demonstrasi](docs/prd/06-OPERATIONS-AND-DEMO-RUNBOOK-PRD.md)
+* 📑 [Team Roadmap: Analisis Gap & Pembagian Tugas Anggota](docs/ANALISIS-DAN-PEMBAGIAN-TUGAS-TIM.md)
 
 ### Alur Kerja Git Developer (*Best Practices*):
 * **Dilarang push langsung ke branch `main`**. Selalu buat branch fitur terpisah: `feat/<nama-fitur>`, `fix/<nama-bug>`, atau `docs/<topik>`.
@@ -342,7 +349,7 @@ Proyek **SI-PATIR** dikembangkan secara kolaboratif oleh empat pengembang dengan
   3. Membangun middleware sanitasi ReDoS, pembatasan ukuran payload (100kb), dan rate limiter bertingkat.
   4. Merancang sistem dual-tier storage: sinkronisasi MySQL utama dengan *in-memory resilient fallback* otomatis saat MySQL offline.
   5. Mengonfigurasi WebSocket server (`Socket.io`) untuk penyiaran aktivitas real-time ke seluruh klien dashboard.
-  6. Menyusun skrip orkestrasi otomatis `start.sh`, `start.bat`, dan `auto-git-push.sh`.
+  6. Menyusun skrip orkestrasi otomatis `start.sh`, `start.bat`, `auto-git-push.sh`, `auto-git-push.bat`, `clean-merged-branches.sh`, dan `clean-merged-branches.bat` dengan sistem proteksi 5-lapis *Conflict-Proof & Rebase Safety*.
 </details>
 
 <details open>
@@ -352,7 +359,7 @@ Proyek **SI-PATIR** dikembangkan secara kolaboratif oleh empat pengembang dengan
 - **Jobdesk Spesifik**:
   1. Merancang dan mengimplementasikan antarmuka Landing Page dan Dashboard Monitoring berbasis React 19 dan Tailwind CSS v4.
   2. Menerapkan filosofi *Pure Human Engineering UI* (standar token `rounded-md` untuk tombol/input/badge, `rounded-lg` untuk kartu/modal, kontainer `max-w-7xl`, palet Zinc/Slate).
-  3. Mengembangkan engine scroll halus Lenis OOP (`LenisScrollEngine`) yang terisolasi cerdas pada kontainer tabel dan modal dialog.
+  3. Mengembangkan engine scroll halus Lenis OOP (`LenisScrollEngine`) yang terisolasi cerdas pada kontainer tabel dan modal dialog, dilengkapi pemulihan otomatis posisi scroll (*route restoration*).
   4. Membangun sistem navigasi auto-hiding navbar yang responsif terhadap arah scroll pengguna di semua perangkat.
   5. Mengoptimalkan tampilan untuk seluruh varian iPhone (penanganan *Safe Area Insets*, *Dynamic Island*, dan *Notch*).
   6. Menjamin kontras warna sempurna dan transisi mulus pada tema Sistem (Otomatis), Terang (*Light*), dan Gelap (*Dark*).

@@ -129,11 +129,50 @@ cd backend && npx tsc --noEmit
 # 2. Build Production Frontend
 cd ../frontend && npm run build
 ```
-Jika kedua pengujian menghasilkan status lolos (`exit code 0`), branch baru di-push ke GitHub:
-```bash
-git checkout -b feat/nama-fitur-baru
-git add .
-git commit -m "feat(scope): deskripsi bermakna"
-git push -u origin feat/nama-fitur-baru
-```
+Jika kedua pengujian menghasilkan status lolos (`exit code 0`), branch baru di-push ke GitHub.
+
+---
+
+### 5.5 Utilitas Otomasi Multi-Platform (`auto-git-push`)
+Untuk mengeliminasi kesalahan penamaan manual, SI-PATIR menyediakan skrip otomasi yang membungkus pre-push quality gate, resolusi branch, konvensi commit, dan push remote:
+* **Linux / macOS / Git Bash**:
+  ```bash
+  ./scripts/auto-git-push.sh <type> <branch_slug> <scope> <commit_message>
+  # Contoh:
+  ./scripts/auto-git-push.sh feat responsive-ui ui "standardize rounded-md tokens"
+  ```
+* **Windows (Command Prompt / PowerShell)**:
+  ```cmd
+  scripts\auto-git-push.bat <type> <branch_slug> <scope> <commit_message>
+  # Contoh:
+  scripts\auto-git-push.bat feat responsive-ui ui "standardize rounded-md tokens"
+  ```
+
+---
+
+### 5.6 Utilitas Pembersihan Branch Otomatis (`clean-merged-branches`)
+Setelah Pull Request di-merge ke branch `main`, branch fitur yang telah usang harus dibersihkan secara berkala agar riwayat repositori tetap ringkas dan tidak membebani tim:
+* **Linux / macOS / Git Bash**:
+  ```bash
+  ./scripts/clean-merged-branches.sh
+  # atau
+  npm run clean:branches
+  ```
+* **Windows (Command Prompt / PowerShell)**:
+  ```cmd
+  scripts\clean-merged-branches.bat
+  # atau
+  npm run clean:branches
+  ```
+
+---
+
+### 5.7 Arsitektur Proteksi Anti-Conflict & Rebase Safety (5-Tier Engine)
+Untuk melindungi repositori dan workspace lokal pengembang dari kerusakan akibat konflik kolaborasi:
+1. **Metadata Synchronization (`git fetch origin --prune`)**: Memastikan daftar ref lokal selalu sinkron dengan state remote GitHub.
+2. **Fresh Base Guarantee**: Saat membuat branch baru dari `main`, skrip secara otomatis melakukan fast-forward (`git pull --ff-only origin main`) sehingga branch fitur tidak pernah dibuat dari commit usang.
+3. **Smart Collaborative Branch Resolution**: Jika branch fitur sudah dibuat oleh rekan tim di GitHub, skrip otomatis mengaitkan (*track*) remote branch tersebut.
+4. **Pre-Push Rebase Synchronization**: Jika terdapat commit baru di remote, skrip melakukan `git pull --rebase origin <branch>` sebelum push untuk mempertahankan riwayat Git linear.
+5. **Automatic Rebase Abort**: Jika terjadi bentrok baris kode (*content conflict*), skrip **seketika mengeksekusi `git rebase --abort` secara otomatis** agar workspace pengembang tidak terjebak dalam mode interaktif dan kode lokal tetap utuh dan aman.
+6. **Uncommitted Changes Guard**: Skrip pembersihan branch memeriksa status perubahan (`git diff --quiet`) sebelum berpindah ke branch `main` untuk mencegah hilangnya pekerjaan yang belum disimpan.
 
