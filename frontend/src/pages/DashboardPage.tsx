@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { useNavbarVisibility } from '../services/scroll/hooks/useNavbarVisibility';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 
 function formatLogTime(timestamp: string): string {
   if (!timestamp) return '';
@@ -193,6 +194,23 @@ export function DashboardPage() {
   // Sync Dropdown State
   const [isSyncMenuOpen, setIsSyncMenuOpen] = useState(false);
   const syncMenuRef = useRef<HTMLDivElement | null>(null);
+
+  // Reusable custom confirm dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    confirmText?: string;
+    cancelText?: string;
+    variant?: 'danger' | 'warning' | 'primary';
+    isLoading?: boolean;
+    onConfirm: () => void | Promise<void>;
+  }>({
+    isOpen: false,
+    title: '',
+    description: '',
+    onConfirm: () => {},
+  });
 
   // Fetch initial system state
   const refreshData = async () => {
@@ -362,22 +380,31 @@ export function DashboardPage() {
   };
 
   // Clear dummy data and keep real data only
-  const handleClearDummy = async () => {
-    if (!confirm('Hapus seluruh data dummy bawaan agar hanya tersisa anggota nyata?')) return;
-    try {
-      await Promise.all([
-        axios.post('/api/members/clear-dummy'),
-        axios.post('/api/members/sync-github'),
-      ]);
-      await refreshData();
-      setActiveToast({
-        title: 'Data Bersih',
-        desc: 'Hanya kontributor nyata dari GitHub yang dipertahankan.',
-      });
-      setTimeout(() => setActiveToast(null), 4000);
-    } catch (err) {
-      console.error('Clear dummy error:', err);
-    }
+  const handleClearDummy = () => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Bersihkan Data Dummy',
+      description: 'Hapus seluruh data dummy bawaan agar hanya tersisa anggota nyata dan data tersinkronisasi?',
+      confirmText: 'Ya, Bersihkan',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+        try {
+          await Promise.all([
+            axios.post('/api/members/clear-dummy'),
+            axios.post('/api/members/sync-github'),
+          ]);
+          await refreshData();
+          setActiveToast({
+            title: 'Data Bersih',
+            desc: 'Hanya kontributor nyata dari GitHub yang dipertahankan.',
+          });
+          setTimeout(() => setActiveToast(null), 4000);
+        } catch (err) {
+          console.error('Clear dummy error:', err);
+        }
+      },
+    });
   };
 
   // Create real task
@@ -403,19 +430,40 @@ export function DashboardPage() {
       });
       setTimeout(() => setActiveToast(null), 4000);
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Gagal menambahkan tugas');
+      setActiveToast({
+        title: 'Gagal Menambahkan Tugas',
+        desc: err.response?.data?.error || 'Gagal menambahkan tugas ke database.',
+      });
+      setTimeout(() => setActiveToast(null), 4000);
     }
   };
 
   // Delete task
-  const handleDeleteTask = async (id: number) => {
-    if (!confirm('Hapus kartu tugas ini?')) return;
-    try {
-      await axios.delete(`/api/tasks/${id}`);
-      await refreshData();
-    } catch (err) {
-      console.error('Delete task error:', err);
-    }
+  const handleDeleteTask = (id: number) => {
+    const taskToDelete = tasks.find((t) => t.id === id);
+    const taskLabel = taskToDelete ? `[${taskToDelete.task_code}] "${taskToDelete.title}"` : 'kartu tugas ini';
+
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Hapus Kartu Tugas',
+      description: `Apakah Anda yakin ingin menghapus ${taskLabel}? Tindakan ini tidak dapat dibatalkan.`,
+      confirmText: 'Ya, Hapus',
+      variant: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
+        try {
+          await axios.delete(`/api/tasks/${id}`);
+          await refreshData();
+          setActiveToast({
+            title: 'Tugas Dihapus',
+            desc: `Kartu ${taskToDelete ? `[${taskToDelete.task_code}]` : ''} berhasil dihapus dari sistem.`,
+          });
+          setTimeout(() => setActiveToast(null), 4000);
+        } catch (err) {
+          console.error('Delete task error:', err);
+        }
+      },
+    });
   };
 
   // Create real team member
@@ -438,7 +486,11 @@ export function DashboardPage() {
       });
       setTimeout(() => setActiveToast(null), 4000);
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Gagal menambahkan anggota');
+      setActiveToast({
+        title: 'Gagal Menambahkan Anggota',
+        desc: err.response?.data?.error || 'Gagal menambahkan anggota ke database.',
+      });
+      setTimeout(() => setActiveToast(null), 4000);
     }
   };
 
@@ -1516,7 +1568,7 @@ export function DashboardPage() {
       {showAddTaskModal && (
         <div
           ref={modalTaskBackdropRef}
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
+          className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-3 sm:p-4"
         >
           <div
             ref={modalTaskRef}
@@ -1630,7 +1682,7 @@ export function DashboardPage() {
       {showAddMemberModal && (
         <div
           ref={modalMemberBackdropRef}
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
+          className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-3 sm:p-4"
         >
           <div
             ref={modalMemberRef}
@@ -1694,6 +1746,19 @@ export function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* REUSABLE CUSTOM CONFIRM DIALOG */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        confirmText={confirmDialog.confirmText}
+        cancelText={confirmDialog.cancelText}
+        variant={confirmDialog.variant}
+        isLoading={confirmDialog.isLoading}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 }
