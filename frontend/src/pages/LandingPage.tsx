@@ -420,8 +420,8 @@ export function LandingPage() {
                 className="group bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 sm:p-5 shadow-xs flex flex-col justify-between hover:border-zinc-400 dark:hover:border-zinc-700 hover:shadow-md transition-all duration-300"
               >
                 <div className="space-y-4">
-                  {/* Large Prominent Photo Frame */}
-                  <div className="relative w-full aspect-square rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 shadow-inner">
+                  {/* Prominent Photo Frame - Compact on mobile */}
+                  <div className="relative w-full h-44 xs:h-52 sm:h-56 lg:h-auto lg:aspect-square rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 shadow-inner">
                     {member.avatar ? (
                       <img
                         src={member.avatar}

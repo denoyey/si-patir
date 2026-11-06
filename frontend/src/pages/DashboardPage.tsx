@@ -23,9 +23,6 @@ import {
   Trash2,
   X,
   Sparkles,
-  ArrowRight,
-  Kanban,
-  MessageSquare,
   ExternalLink,
   ChevronLeft,
   ChevronDown,
@@ -237,9 +234,6 @@ export function DashboardPage() {
 
   useEffect(() => {
     refreshData();
-
-    // Auto-sync real GitHub contributors on mount
-    axios.post('/api/members/sync-github').then(() => refreshData()).catch(() => {});
 
     // WebSocket real-time subscription
     const socket = io();
@@ -571,30 +565,40 @@ export function DashboardPage() {
   // Instant demo commit with specified or resolved developer
   const handleSimulateCommit = async (customAuthor?: string) => {
     setIsSimulating(true);
-    const targetTask = tasks.find((t) => t.status !== 'Done') || tasks[0];
-    const targetCode = targetTask ? targetTask.task_code : 'TASK-01';
 
-    // Prioritas author:
-    // 1. customAuthor jika dipanggil langsung
-    // 2. Assignee kartu tugas tujuan jika ada
-    // 3. Developer yang dipilih aktif oleh user (selectedTestDev)
-    // 4. Developer yang masih Standby (0 commits)
-    // 5. Fallback ke currentTestDev
     const authorToUse =
       customAuthor ||
-      (targetTask?.assignee ? targetTask.assignee.replace(/^@/, '') : '') ||
       selectedTestDev ||
-      currentTestDev;
+      currentTestDev ||
+      members[0]?.github_username ||
+      'denoyey';
+
+    // Perbarui penguji terpilih agar seluruh tampilan (navbar & terminal) sinkron
+    if (customAuthor) {
+      setSelectedTestDev(customAuthor);
+    }
+
+    // Cari tugas milik author bersangkutan yang belum selesai, atau fallback ke tugas pending lainnya
+    const authorTask =
+      tasks.find(
+        (t) =>
+          t.assignee?.replace(/^@/, '').toLowerCase() === authorToUse.toLowerCase() &&
+          t.status !== 'Done'
+      ) ||
+      tasks.find((t) => t.status !== 'Done') ||
+      tasks[0];
+
+    const targetCode = authorTask ? authorTask.task_code : 'TASK-01';
 
     try {
       await axios.post('/api/simulate-commit', {
         developer: authorToUse,
-        message: `Selesaikan implementasi fitur [done #${targetCode}]`,
+        message: `Selesaikan implementasi tugas [done #${targetCode}]`,
       });
       await refreshData();
       setActiveToast({
         title: 'Test Commit Berhasil',
-        desc: `@${authorToUse} berhasil melakukan commit & menutup [${targetCode}].`,
+        desc: `Commit berhasil dicatat atas nama @${authorToUse} [done #${targetCode}].`,
       });
       setTimeout(() => setActiveToast(null), 4000);
     } catch (err: any) {
@@ -1020,92 +1024,6 @@ export function DashboardPage() {
 
       {/* CORE DASHBOARD CONTENT */}
       <main className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-6 pb-24 sm:pb-12 space-y-6 flex-1 safe-bottom">
-        {/* VISUAL PIPELINE AUTOMATION GUIDE */}
-        <section
-          data-anim="header"
-          className="rounded-lg bg-white dark:bg-gradient-to-r dark:from-[#131726] dark:via-[#10131f] dark:to-[#131726] border border-zinc-200 dark:border-zinc-800/90 p-4 sm:p-5 shadow-xs"
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-zinc-200 dark:border-zinc-800/80">
-            <div className="flex items-center gap-2.5">
-              <div className="p-1.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-950 dark:text-white">
-                  Alur Kerja Automasi 3-Sistem (Git ➔ Trello ➔ Discord)
-                </h3>
-                <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5">
-                  Setiap commit di repositori otomatis memindahkan kartu tugas dan memberitahu tim via Discord.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 self-start sm:self-center shrink-0">
-              <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20 flex items-center gap-1.5 font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Real-Time Automation Active
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-3.5">
-            {/* Step 1 */}
-            <div className="bg-slate-50 dark:bg-[#121522] border border-zinc-200 dark:border-zinc-800 rounded-md p-3.5 flex items-start gap-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition">
-              <div className="p-2 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shrink-0 mt-0.5">
-                <GitCommit className="w-4 h-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-1.5">
-                  <span className="text-[10px] font-mono font-bold bg-purple-500/15 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded-md">
-                    1. GIT COMMIT
-                  </span>
-                  <ArrowRight className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-600 hidden md:inline shrink-0" />
-                </div>
-                <h4 className="text-xs font-semibold text-zinc-950 dark:text-white mt-1">Push Kode &amp; Tag Tugas</h4>
-                <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                  Sertakan tag di pesan commit: <code className="text-purple-700 dark:text-purple-300 font-mono text-[10px] bg-purple-100 dark:bg-purple-950/40 px-1 py-0.5 rounded-md">[done #TASK-02]</code>
-                </p>
-              </div>
-            </div>
-
-            {/* Step 2 */}
-            <div className="bg-slate-50 dark:bg-[#121522] border border-zinc-200 dark:border-zinc-800 rounded-md p-3.5 flex items-start gap-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition">
-              <div className="p-2 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0 mt-0.5">
-                <Kanban className="w-4 h-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-1.5">
-                  <span className="text-[10px] font-mono font-bold bg-blue-500/15 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded-md">
-                    2. TRELLO SYNC
-                  </span>
-                  <ArrowRight className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-600 hidden md:inline shrink-0" />
-                </div>
-                <h4 className="text-xs font-semibold text-zinc-950 dark:text-white mt-1">Kartu Pindah ke Done</h4>
-                <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                  Kartu otomatis digeser dari <span className="text-amber-600 dark:text-amber-300 font-medium">In Progress</span> ke <span className="text-emerald-600 dark:text-emerald-300 font-medium">Done</span>.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div className="bg-slate-50 dark:bg-[#121522] border border-zinc-200 dark:border-zinc-800 rounded-md p-3.5 flex items-start gap-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition">
-              <div className="p-2 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0 mt-0.5">
-                <MessageSquare className="w-4 h-4" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 px-1.5 py-0.5 rounded-md">
-                    3. DISCORD NOTIF
-                  </span>
-                </div>
-                <h4 className="text-xs font-semibold text-zinc-950 dark:text-white mt-1">Kirim Broadcast Tim</h4>
-                <p className="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5 leading-relaxed">
-                  Kanal Discord tim menerima notifikasi kartu selesai dan ringkasan commit secara detik itu juga.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* SUMMARY METRICS CARDS */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div
@@ -1290,15 +1208,27 @@ export function DashboardPage() {
                                     <span className="md:hidden w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" title="Aktif Berkontribusi"></span>
                                   )}
                                 </div>
-                                <a
-                                  href={`https://github.com/${member.github_username}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-[11px] font-mono text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white flex items-center gap-1 mt-0.5 group/gh transition"
-                                >
-                                  <span>@{member.github_username}</span>
-                                  <ExternalLink className="w-2.5 h-2.5 opacity-50 group-hover/gh:opacity-100 transition shrink-0" />
-                                </a>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <a
+                                    href={`https://github.com/${member.github_username}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[11px] font-mono text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white flex items-center gap-1 group/gh transition"
+                                  >
+                                    <span>@{member.github_username}</span>
+                                    <ExternalLink className="w-2.5 h-2.5 opacity-50 group-hover/gh:opacity-100 transition shrink-0" />
+                                  </a>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSimulateCommit(member.github_username)}
+                                    disabled={isSimulating}
+                                    className="md:hidden px-1.5 py-0.2 rounded text-[10px] font-mono bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 active:scale-95 transition cursor-pointer flex items-center gap-0.5"
+                                    title={`Tes commit @${member.github_username}`}
+                                  >
+                                    <Zap className="w-2.5 h-2.5 fill-amber-500" />
+                                    <span>Tes</span>
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </td>
@@ -1313,22 +1243,38 @@ export function DashboardPage() {
                             </span>
                           </td>
                           <td className="hidden md:table-cell py-2.5 sm:py-3 px-4 text-right">
-                            {isActive ? (
-                              <span
-                                className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-200 dark:border-emerald-500/20 text-xs font-medium"
-                                title="Developer aktif: telah melakukan minimal 1 commit di repositori"
+                            <div className="inline-flex items-center gap-2">
+                              {isActive ? (
+                                <span
+                                  className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-200 dark:border-emerald-500/20 text-xs font-medium"
+                                  title="Developer aktif: telah melakukan minimal 1 commit di repositori"
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                  Aktif Berkontribusi
+                                </span>
+                              ) : (
+                                <span
+                                  className="inline-flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/60 px-2.5 py-1 rounded-md border border-zinc-300 dark:border-zinc-700 text-xs"
+                                  title="Standby: belum ada riwayat commit di repositori"
+                                >
+                                  Standby
+                                </span>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  engine.animateButtonPress(e.currentTarget);
+                                  handleSimulateCommit(member.github_username);
+                                }}
+                                disabled={isSimulating}
+                                className="px-2 py-1 rounded-md bg-zinc-100 hover:bg-amber-500/15 dark:bg-zinc-800 dark:hover:bg-amber-500/20 text-zinc-700 hover:text-amber-700 dark:text-zinc-300 dark:hover:text-amber-300 border border-zinc-300 dark:border-zinc-700 hover:border-amber-400 dark:hover:border-amber-500/40 text-[10.5px] font-mono transition cursor-pointer active:scale-95 inline-flex items-center gap-1 shadow-2xs"
+                                title={`Kirim 1 commit webhook atas nama @${member.github_username}`}
                               >
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                Aktif Berkontribusi
-                              </span>
-                            ) : (
-                              <span
-                                className="inline-flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/60 px-2.5 py-1 rounded-md border border-zinc-300 dark:border-zinc-700 text-xs"
-                                title="Standby: belum ada riwayat commit di repositori"
-                              >
-                                Standby
-                              </span>
-                            )}
+                                <Zap className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
+                                <span>Tes</span>
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
