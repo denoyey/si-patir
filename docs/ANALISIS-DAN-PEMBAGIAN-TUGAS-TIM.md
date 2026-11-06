@@ -1,0 +1,237 @@
+# ANALISIS GAP PROYEK & PEMBAGIAN TUGAS TIM (SI-PATIR)
+> **Nama Proyek:** SI-PATIR (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repositori*)  
+> **Tanggal Rilis Dokumen:** 6 November 2026  
+> **Status:** `ACTIVE ROADMAP` | **Versi:** `1.0.0`  
+> **Anggota Tim (4 Orang):** Deni (Lead), Rafli, Fatir, Fajri  
+
+---
+
+## 1. Analisis Status Proyek Saat Ini (Current State Analysis)
+
+Berdasarkan audit arsitektur kode dan dokumentasi PRD SI-PATIR, berikut adalah pemetaan fitur yang **sudah selesai** vs yang **masih belum / perlu disempurnakan**:
+
+### 1.1 Apa yang Sudah Selesai (Completed & Verified)
+1. **Frontend Dashboard UI (React 19 + Tailwind v4 + GSAP + Poppins)**:
+   - Layout *Pure Human Engineering* (Anti-AI Slop) dengan kontainer `max-w-7xl`.
+   - Token sudut ketat (`rounded-md` & `rounded-lg`) dan keselarasan padding/tinggi (`p-5`, `min-h-[52px]`).
+   - Tidak ada emoji clutter/spam, digantikan badge peringkat tipografis `#1`, `#2`, `#3`.
+   - Engine animasi OOP GSAP (`GsapAnimationEngine.ts`) untuk efek masuk, counter numerik, dan highlight log.
+   - PWA & Mobile Web App meta tag compliance (`mobile-web-app-capable`).
+   - SEO 100% (Robots.txt, Sitemap.xml, OpenGraph, JSON-LD Schema).
+2. **Backend Gateway & Webhook Security**:
+   - Express.js + TypeScript berarsitektur OOP (`Application.ts`, controllers, services, repositories).
+   - Verifikasi tanda tangan GitHub HMAC SHA-256 konstan (`crypto.timingSafeEqual`).
+   - Rate limiting (30 req/min) & pencegahan DoS/ReDoS.
+   - Socket.io broadcast engine untuk real-time update tanpa refresh halaman.
+3. **Database Layer (MySQL & In-Memory Fallback)**:
+   - Skema tabel `members`, `tasks`, dan `activity_logs` dengan migrasi otomatis.
+   - Mekanisme *In-Memory Fallback* yang membuat aplikasi tetap jalan meski MySQL lokal padam.
+4. **Discord Webhook Notification**:
+   - `DiscordNotificationService.ts` terhubung dan mengirimkan pesan kaya (*Rich Embed*) ke kanal Discord.
+5. **Skrip Operasional**:
+   - `start.sh` (Linux/macOS) & `start.bat` (Windows) dengan auto port-kill (port 5000 & 3000).
+   - `auto-git-push.sh` untuk otomasi branch fitur dan commit konvensional.
+
+---
+
+### 1.2 Apa yang Masih Belum / Perlu Dikerjakan (Gaps & Pending Items)
+
+| No | Modul / Kebutuhan | Kondisi Saat Ini | Target Penyelesaian | Prioritas |
+| :--- | :--- | :--- | :--- | :---: |
+| 1 | **Trello Board Nyata** | Kunci API & Token di `.env` masih **KOSONG**, pemindahan kartu masih berjalan secara simulasi fallback. | Papan Trello resmi dibuat, API Key & Token diisi, kartu nyata bergeser otomatis saat commit masuk. | **Tinggi (P1)** |
+| 2 | **Pendaftaran Akun Anggota Nyata** | Anggota nyata baru ada `denoyey` (1 orang). Rafli, Fatir, dan Fajri belum terdaftar di database & repositori. | Mendaftarkan 4 akun GitHub nyata tim ke database dan memetakan task-nya masing-masing. | **Tinggi (P1)** |
+| 3 | **Deployment Publik (Public HTTPS URL)** | Backend masih berjalan di `localhost:5000`. GitHub.com membutuhkan URL HTTPS publik untuk push webhook internet. | Deploy backend/frontend ke VPS/Railway/Render atau setup Cloudflare Tunnel / Ngrok permanen. | **Tinggi (P1)** |
+| 4 | **Visualisasi Grafik Kontribusi** | Belum ada diagram analitik perbandingan kontribusi commit & velocity tugas per anggota. | Menambahkan chart (Recharts / Chart.js) di tab analitik dashboard. | **Sedang (P2)** |
+| 5 | **Interaktivitas Tugas (Edit & Status)** | Status tugas hanya bisa diubah via commit atau add baru, belum bisa di-edit langsung dari dashboard UI. | Fitur edit judul, ganti status via dropdown/modal, dan deskripsi tugas. | **Sedang (P2)** |
+| 6 | **Export Laporan (PDF/CSV)** | Belum ada fitur download rekap kerja tim untuk diserahkan ke dosen evaluasi mingguan. | Tombol export laporan sprint ke format CSV atau PDF cetak. | **Sedang (P2)** |
+| 7 | **Automated Testing (QA Unit Tests)** | Belum ada unit test otomatis (Vitest/Jest) untuk parser commit dan validasi HMAC. | Suite test otomatis untuk `CommitParserService` dan `WebhookSecurityService`. | **Sedang (P2)** |
+| 8 | **Laporan Akademik & Diagram UML** | PRD teknis sudah ada, namun berkas laporan formal (Bab 1–5, Use Case, Activity, Sequence, ERD) belum disusun. | Dokumen Laporan Skripsi/Tugas Besar lengkap beserta slide presentasi demo. | **Tinggi (P1)** |
+
+---
+
+## 2. Struktur Tim & Pembagian Peran (Role Distribution)
+
+```
+                            ┌───────────────────────────────┐
+                            │          DENI (LEAD)          │
+                            │  Lead Architect & DevOps      │
+                            └───────────────┬───────────────┘
+                                            │
+            ┌───────────────────────────────┼───────────────────────────────┐
+            ▼                               ▼                               ▼
+┌───────────────────────┐       ┌───────────────────────┐       ┌───────────────────────┐
+│         RAFLI         │       │         FATIR         │       │         FAJRI         │
+│  Frontend & Analytics │       │ Trello & Database Eng │       │ QA, Testing & Docs    │
+└───────────────────────┘       └───────────────────────┘       └───────────────────────┘
+```
+
+---
+
+## 3. Rincian Tugas Mendalam untuk Setiap Anggota
+
+---
+
+### 👤 1. DENI (Lead Engineer & DevOps Integrator)
+* **Peran Utama:** Pimpinan Proyek, Arsitektur Sistem, Integrasi GitHub Webhook Internet & Deployment Server.
+* **Tanggung Jawab:**
+
+#### Checklist Pekerjaan:
+- [ ] **1.1 Setup Public Webhook Gateway (Cloud/Tunnel)**:
+  - Konfigurasi Cloudflare Tunnel (`cloudflared`) atau deploy backend ke platform cloud (Railway/Render/VPS) agar endpoint `https://domain-kamu/api/webhooks/github` dapat diakses langsung oleh server GitHub.com.
+  - Pasang webhook di pengaturan GitHub repository (`Settings -> Webhooks -> Add Webhook`) dengan Content Type `application/json` dan masukkan Secret yang sama dengan `GITHUB_WEBHOOK_SECRET` di `.env`.
+- [ ] **1.2 Setup CI/CD Pipeline (GitHub Actions)**:
+  - Buat berkas `.github/workflows/ci.yml` yang otomatis menjalankan:
+    1. Backend `tsc --noEmit`
+    2. Frontend `npm run build`
+    3. Linter dan Unit Test setiap ada Pull Request ke branch `main`.
+- [ ] **1.3 Integrasi Multi-Contributor GitHub**:
+  - Memastikan seluruh commit dari 4 akun anggota (Deni, Rafli, Fatir, Fajri) yang di-push ke repositori GitHub otomatis terdeteksi via endpoint `/api/members/sync-github`.
+- [ ] **1.4 Code Review & Branch Management**:
+  - Memeriksa setiap Pull Request dari Rafli, Fatir, dan Fajri sebelum di-merge ke `main`.
+  - Memastikan seluruh developer mematuhi aturan Conventional Commits (`feat(...)`, `fix(...)`, `docs(...)`).
+
+* **Berkas Kerja Utama:**
+  - `.github/workflows/ci.yml`
+  - `backend/src/Application.ts`
+  - `backend/src/services/GitHubIntegrationService.ts`
+  - `backend/.env` (Konfigurasi Domain & Public URL)
+
+---
+
+### 👤 2. RAFLI (Frontend UI & Data Visualization Engineer)
+* **Peran Utama:** Pengembangan Antarmuka Interaktif, Visualisasi Data Grafik, dan Fitur Reporting.
+* **Tanggung Jawab:**
+
+#### Checklist Pekerjaan:
+- [ ] **2.1 Implementasi Grafik Analitik Kontribusi**:
+  - Pasang library grafik ringan (misal `recharts` atau diagram SVG kustom berbasis GSAP).
+  - Tampilkan visualisasi perbandingan kontribusi commit harian/mingguan antar 4 anggota tim (Deni, Rafli, Fatir, Fajri).
+  - Tampilkan diagram lingkaran (*pie/donut chart*) persentase status tugas (*To Do*, *In Progress*, *Done*).
+- [ ] **2.2 Interaktivitas & Edit Kartu Tugas**:
+  - Buat modal **Edit Tugas** di frontend: memungkinkan penggantian judul tugas, penugasan (*re-assign* anggota), atau pengubahan status manual.
+  - Tambahkan konfirmasi dialog yang rapi saat menghapus atau mengubah tugas.
+- [ ] **2.3 Fitur Export Laporan Sprint (PDF / CSV)**:
+  - Buat tombol **"Export Laporan"** di dashboard:
+    - Opsi CSV: Menghasilkan berkas `laporan-aktivitas-sipatir.csv` berisi daftar tugas, assignee, status, dan riwayat commit.
+    - Opsi Print/PDF: Styling CSS `@media print` agar dashboard dapat dicetak langsung ke PDF secara rapi untuk dilampirkan ke dosen.
+- [ ] **2.4 Halaman / Tab Riwayat Audit Log**:
+  - Tambahkan fitur pencarian teks dan filter per author pada panel *Live Webhook Stream*.
+  - Sediakan pagination atau "Muat Lebih Banyak" untuk membaca log yang tersimpan di database.
+
+* **Berkas Kerja Utama:**
+  - `frontend/src/App.tsx`
+  - `frontend/src/components/` (Buat komponen baru: `ContributionChart.tsx`, `EditTaskModal.tsx`, `ExportReportModal.tsx`)
+  - `frontend/package.json` (Jika menambah dependency seperti `recharts`)
+
+---
+
+### 👤 3. FATIR (Kanban Trello Integrator & Database Engineer)
+* **Peran Utama:** Integrasi Nyata Papan Trello, Otomasi Kolom Tugas, dan Optimalisasi Basis Data MySQL.
+* **Tanggung Jawab:**
+
+#### Checklist Pekerjaan:
+- [ ] **3.1 Setup Akun & Papan Trello Resmi Tim**:
+  - Buat board Trello publik/workspace bernama **"SI-PATIR Sprint Board"**.
+  - Buat daftar kolom standar: `To Do`, `In Progress`, `Done`.
+  - Buat kartu tugas nyata awal untuk 4 anggota (contoh: `#TASK-01`, `#TASK-02`, `#TASK-03`, `#TASK-04`).
+- [ ] **3.2 Konfigurasi Trello Developer API Key & Token**:
+  - Masuk ke `https://trello.com/power-ups/admin` untuk generate **API Key** dan **Server Token** Trello.
+  - Ambil **Board ID** dan **Done List ID** menggunakan curl atau Postman.
+  - Isi variabel berikut ke dalam berkas `backend/.env`:
+    ```env
+    TRELLO_API_KEY=your_actual_trello_key
+    TRELLO_TOKEN=your_actual_trello_token
+    TRELLO_BOARD_ID=your_board_id
+    TRELLO_DONE_LIST_ID=your_done_list_id
+    ```
+- [ ] **3.3 Verifikasi Otomasi Pergeseran Kartu Nyata**:
+  - Uji fungsi `moveCardToDone()` di `backend/src/services/TrelloIntegrationService.ts`.
+  - Pastikan saat ada commit `[done #TASK-XX]`, kartu di Trello benar-benar berpindah ke kolom *Done* dan komentar bukti commit GitHub tertempel di kartu tersebut.
+- [ ] **3.4 Database Seeder & Skema Penugasan Anggota**:
+  - Daftarkan 4 anggota kelompok (Deni, Rafli, Fatir, Fajri) ke dalam basis data MySQL melalui seeder resmi.
+  - Buat script SQL di `backend/database/seed_team.sql` agar saat clone baru, data 4 anggota langsung terisi otomatis.
+
+* **Berkas Kerja Utama:**
+  - `backend/src/services/TrelloIntegrationService.ts`
+  - `backend/src/controllers/TaskController.ts`
+  - `backend/src/database/DatabaseService.ts`
+  - `backend/database/seed_team.sql`
+
+---
+
+### 👤 4. FAJRI (Quality Assurance, Security Testing & Academic Docs Specialist)
+* **Peran Utama:** Pengujian Otomatis (QA), Security Audit, Dokumentasi Laporan Akademik & Skenario Presentasi Demo.
+* **Tanggung Jawab:**
+
+#### Checklist Pekerjaan:
+- [ ] **4.1 Automated Unit Testing (Vitest / Jest)**:
+  - Pasang Vitest di backend: buat suite pengujian di `backend/tests/`:
+    1. `CommitParserService.test.ts`: Uji parsing regex pesan commit (`[done #TASK-01]`, `closes #TASK-02`, `fix: auth (#TASK-03)`).
+    2. `WebhookSecurityService.test.ts`: Uji verifikasi signature HMAC SHA-256 (payload valid vs signature palsu/spoofed).
+- [ ] **4.2 Uji Ketahanan Keamanan (Security & Load Test)**:
+  - Uji rate limiter: tembak endpoint `/api/webhooks/github` lebih dari 30 kali per menit dan pastikan status HTTP `429 Too Many Requests` muncul.
+  - Uji payload raksasa (>100kb) dan pastikan sistem menolak dengan HTTP `413 Payload Too Large`.
+  - Catat hasil pengujian untuk dilampirkan pada Bab Pengujian sistem.
+- [ ] **4.3 Penyusunan Laporan Akademik Formal (Bab 1 s/d Bab 5)**:
+  - Mengonversi PRD yang sudah ada ke dalam format dokumen laporan resmi:
+    - **Bab 1:** Latar Belakang Masalah, Rumusan Masalah, Tujuan & Manfaat.
+    - **Bab 2:** Landasan Teori (Webhook, REST API, WebSocket, HMAC SHA-256, React, Express, MySQL).
+    - **Bab 3:** Analisis & Perancangan Sistem (Diagram Use Case, Activity Diagram, Sequence Diagram Integrasi 3 Sistem, ERD Database).
+    - **Bab 4:** Implementasi & Hasil Pengujian (Tabel hasil uji fungsi & keamanan).
+    - **Bab 5:** Kesimpulan & Saran Pengembangan.
+- [ ] **4.4 Pembuatan Slide Presentasi & Skenario Demo Dosen**:
+  - Buat slide presentasi (Canva / PowerPoint) berdesain modern dan profesional.
+  - Susun naskah demonstrasi sistem 30 detik (Langkah 1 s/d Langkah 4 sesuai `06-OPERATIONS-AND-DEMO-RUNBOOK-PRD.md`) agar saat presentasi di depan dosen berjalan lancar tanpa kendala.
+
+* **Berkas Kerja Utama:**
+  - `backend/tests/CommitParser.test.ts`
+  - `backend/tests/Security.test.ts`
+  - `docs/academic/LAPORAN-TUGAS-BESAR-SI-PATIR.md`
+  - `docs/academic/DIAGRAM-ARSITEKTUR-UML.md`
+
+---
+
+## 4. Jadwal & Alur Kerja Kolaborasi (Sprint Timeline)
+
+```
+[ Minggu 1: Setup & Integrasi Nyata ]
+  ├─ Deni   : Setup Public Gateway / Tunnel & Webhook GitHub
+  ├─ Fatir  : Setup Papan Trello Resmi & Isi Token .env
+  ├─ Rafli  : Buat Komponen Grafik Kontribusi & Modal Edit Tugas
+  └─ Fajri  : Rancang Diagram UML & Unit Test Awal
+
+[ Minggu 2: Pengujian Terpadu & Pelaporan ]
+  ├─ Deni   : Review PR, CI/CD Actions & Multi-contributor Sync
+  ├─ Fatir  : Uji Real Move Card Trello & Database Seeder 4 Anggota
+  ├─ Rafli  : Fitur Export CSV/PDF & Riwayat Audit Log
+  └─ Fajri  : Load Testing, Laporan Akademik Lengkap & Slide Demo
+```
+
+---
+
+## 5. Standar Aturan Kolaborasi Git Tim (Team Git Rules)
+
+Seluruh anggota (Deni, Rafli, Fatir, Fajri) **wajib** mengikuti aturan git berikut:
+
+1. **Dilarang Keras Push ke Branch `main` Langsung**:
+   Gunakan branch fitur masing-masing:
+   - Deni: `feat/devops-gateway-setup`
+   - Rafli: `feat/analytics-chart-and-export`
+   - Fatir: `feat/trello-real-integration`
+   - Fajri: `test/automated-qa-and-docs`
+2. **Gunakan Script Auto-Push**:
+   Jalankan script starter yang sudah disediakan agar format commit rapi dan pre-push test lolos:
+   ```bash
+   ./scripts/auto-git-push.sh feat analytics-chart ui "tambahkan grafik analitik kontribusi tim"
+   ```
+3. **Format Pesan Commit (Conventional Commits)**:
+   - `feat(...)`: Untuk penambahan fitur baru.
+   - `fix(...)`: Untuk perbaikan bug.
+   - `docs(...)`: Untuk pembaruan dokumen laporan/PRD.
+   - `test(...)`: Untuk pembuatan berkas test pengujian.
+4. **Wajib Update PRD**:
+   Setiap kali menambah endpoint atau mengubah UI, perbarui dokumen terkait di folder `docs/prd/`.
+
+---
+
+Dokumen ini adalah panduan resmi pembagian tugas tim SI-PATIR. Simpan dan bagikan kepada Rafli, Fatir, dan Fajri untuk segera dieksekusi!

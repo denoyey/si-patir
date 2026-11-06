@@ -39,6 +39,7 @@ Dokumentasi spesifikasi kebutuhan produk (PRD) SI-PATIR dipecah menjadi modul-mo
 | **04. Frontend UI/UX Spec** | [`04-FRONTEND-UI-UX-PRD.md`](file:///home/whoami/Documents/Projects/si-patir/docs/prd/04-FRONTEND-UI-UX-PRD.md) | Standar desain rekayasa *Pure Human* (Anti-AI Slop), palet Zinc/Slate, & hierarki data. |
 | **05. API & Webhook Contracts** | [`05-API-AND-WEBHOOK-CONTRACTS-PRD.md`](file:///home/whoami/Documents/Projects/si-patir/docs/prd/05-API-AND-WEBHOOK-CONTRACTS-PRD.md) | Spesifikasi formal endpoint REST API, WebSocket event schema, & format payload. |
 | **06. Operations & Demo Runbook** | [`06-OPERATIONS-AND-DEMO-RUNBOOK-PRD.md`](file:///home/whoami/Documents/Projects/si-patir/docs/prd/06-OPERATIONS-AND-DEMO-RUNBOOK-PRD.md) | Panduan eksekusi `start.sh` & `start.bat`, pembersih port, serta protokol demo 30 detik. |
+| **Team Task Roadmap** | [`ANALISIS-DAN-PEMBAGIAN-TUGAS-TIM.md`](file:///home/whoami/Documents/Projects/si-patir/docs/ANALISIS-DAN-PEMBAGIAN-TUGAS-TIM.md) | Analisis gap sistem & matriks pembagian tugas tim (Deni, Rafli, Fatir, Fajri). |
 
 ---
 
