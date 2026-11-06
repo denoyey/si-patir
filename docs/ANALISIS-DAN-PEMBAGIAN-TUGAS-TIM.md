@@ -40,7 +40,7 @@ Berdasarkan audit arsitektur kode dan dokumentasi PRD SI-PATIR, berikut adalah p
 
 | No | Modul / Kebutuhan | Kondisi Saat Ini | Target Penyelesaian | Prioritas |
 | :--- | :--- | :--- | :--- | :---: |
-| 1 | **Trello Board Nyata** | Kunci API & Token di `.env` masih **KOSONG**, pemindahan kartu masih berjalan secara simulasi fallback. | Papan Trello resmi dibuat, API Key & Token diisi, kartu nyata bergeser otomatis saat commit masuk. | **Tinggi (P1)** |
+| 1 | **Trello Board Nyata** | **SELESAI (DONE)**: Papan Trello resmi `SI-PATIR Sprint Board` telah dibuat (`https://trello.com/b/1GJ7t2HK/si-patir-sprint-board`), API Key, Token, Board ID, dan Done List ID telah dikonfigurasikan di `.env`. | Terhubung penuh ke Trello API untuk pemindahan kartu otomatis. | **Tuntas (P1)** |
 | 2 | **Pendaftaran Akun Anggota Nyata** | **SELESAI (DONE)**: 4 akun GitHub nyata telah di-acc sebagai kolaborator repositori dan tersinkronisasi ke basis data: `@denoyey` (Deni), `@muhamadrafli16` (Rafli), `@Patirparkerr` (Fatir), `@AATTTRAWRRR` (Fajri). | Terhubung penuh ke database MySQL & leaderboard. | **Tuntas (P1)** |
 | 3 | **Deployment Publik (Public HTTPS URL)** | Backend masih berjalan di `localhost:5000`. GitHub.com membutuhkan URL HTTPS publik untuk push webhook internet. | Deploy backend/frontend ke VPS/Railway/Render atau setup Cloudflare Tunnel / Ngrok permanen. | **Tinggi (P1)** |
 | 4 | **Visualisasi Grafik Kontribusi** | Belum ada diagram analitik perbandingan kontribusi commit & velocity tugas per anggota. | Menambahkan chart (Recharts / Chart.js) di tab analitik dashboard. | **Sedang (P2)** |
@@ -135,26 +135,18 @@ Berdasarkan audit arsitektur kode dan dokumentasi PRD SI-PATIR, berikut adalah p
 * **Tanggung Jawab:**
 
 #### Checklist Pekerjaan:
-- [ ] **3.1 Setup Akun & Papan Trello Resmi Tim**:
-  - Buat board Trello publik/workspace bernama **"SI-PATIR Sprint Board"**.
-  - Buat daftar kolom standar: `To Do`, `In Progress`, `Done`.
-  - Buat kartu tugas nyata awal untuk 4 anggota (contoh: `#TASK-01`, `#TASK-02`, `#TASK-03`, `#TASK-04`).
-- [ ] **3.2 Konfigurasi Trello Developer API Key & Token**:
-  - Masuk ke `https://trello.com/power-ups/admin` untuk generate **API Key** dan **Server Token** Trello.
-  - Ambil **Board ID** dan **Done List ID** menggunakan curl atau Postman.
-  - Isi variabel berikut ke dalam berkas `backend/.env`:
-    ```env
-    TRELLO_API_KEY=your_actual_trello_key
-    TRELLO_TOKEN=your_actual_trello_token
-    TRELLO_BOARD_ID=your_board_id
-    TRELLO_DONE_LIST_ID=your_done_list_id
-    ```
+- [x] **3.1 Setup Akun & Papan Trello Resmi Tim**:
+  - Papan resmi tim dibuat: `https://trello.com/b/1GJ7t2HK/si-patir-sprint-board`.
+  - Kolom standar aktif: `To Do`, `in progress`, `Done`.
+  - Kartu tugas awal aktif (`#TASK-01`, `#TASK-02`, `#TASK-03`, `#TASK-05`).
+- [x] **3.2 Konfigurasi Trello Developer API Key & Token**:
+  - API Key & Server Token berhasil di-generate dari Trello Developer Portal.
+  - Board ID (`6aeda5a802922f9870c61315`) & Done List ID (`6aeda5a902922f9870c61336`) telah diekstrak dan dikonfigurasi ke `.env`.
 - [ ] **3.3 Verifikasi Otomasi Pergeseran Kartu Nyata**:
   - Uji fungsi `moveCardToDone()` di `backend/src/services/TrelloIntegrationService.ts`.
   - Pastikan saat ada commit `[done #TASK-XX]`, kartu di Trello benar-benar berpindah ke kolom *Done* dan komentar bukti commit GitHub tertempel di kartu tersebut.
-- [ ] **3.4 Database Seeder & Skema Penugasan Anggota**:
-  - Daftarkan 4 anggota kelompok (Deni, Rafli, Fatir, Fajri) ke dalam basis data MySQL melalui seeder resmi.
-  - Buat script SQL di `backend/database/seed_team.sql` agar saat clone baru, data 4 anggota langsung terisi otomatis.
+- [x] **3.4 Database Seeder & Skema Penugasan Anggota**:
+  - 4 anggota nyata (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) dan 5 tugas awal diresmikan ke dalam skrip SQL `backend/database/seed_team.sql`.
 
 * **Berkas Kerja Utama:**
   - `backend/src/services/TrelloIntegrationService.ts`
