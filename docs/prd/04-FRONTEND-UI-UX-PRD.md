@@ -238,6 +238,15 @@ Sesuai spesifikasi tim proyek, seluruh anggota tim memiliki nama dan tanggung ja
 | **Fatir** | Kanban Trello & Database Engineer | `@Patirparkerr` (Collaborator) | Integrasi REST API Trello untuk mutasi kartu otomatis, manajemen basis data MySQL, dan sinkronisasi tugas. |
 | **Fajri** | QA, Security Testing & Documentation | `@AATTTRAWRRR` (Collaborator / Fajrii) | Pengujian unit otomatis, audit ketahanan rate limiting & anti-DoS, diagram arsitektur UML, dan laporan akademik. |
 
+### 11.1 Desain Kartu Showcase Anggota (Heroic High-Resolution Team Cards)
+Untuk memastikan seluruh pengunjung web mengenali kontributor proyek secara jelas:
+* **Foto Profil Skala Penuh**: Bingkai foto profil persegi beresolusi tinggi (`w-full aspect-square`, 400x400) dengan sudut `rounded-md` yang memenuhi bagian atas kartu, menggantikan thumbnail kecil sebelumnya agar wajah dan identitas setiap anggota tampak sangat jelas.
+* **Badge Peran & Status Kolaborator**:
+  - Pojok kanan atas foto: Badge jabatan anggota (`Project Lead`, `UI/UX Specialist`, dll) berbingkai semi-transparan.
+  - Pojok kiri bawah foto: Indikator terverifikasi `Collaborator` dengan indikator pulse hijau emerald.
+* **Tautan Langsung Akun GitHub**: Tombol pill nama pengguna (`@username`) yang dapat diklik langsung membuka profil GitHub asli di tab baru.
+* **Peningkatan Visibilitas Tabel Dashboard**: Ukuran avatar pengembang pada tabel klasemen juga diperbesar menjadi `w-10 h-10` (40px) beresolusi tajam.
+
 ---
 
 ## 12. Arsitektur Smooth Scroll OOP Lenis & Back to Top Engine

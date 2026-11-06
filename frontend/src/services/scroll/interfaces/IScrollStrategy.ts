@@ -32,3 +32,4 @@ export interface IScrollStrategy {
   off(event: 'scroll', callback: ScrollEventListener): void;
   shouldPreventScroll(node: HTMLElement): boolean;
 }
+

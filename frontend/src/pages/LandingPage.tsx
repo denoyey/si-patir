@@ -23,7 +23,7 @@ const TEAM_MEMBERS = [
     role: 'Lead Architect & DevOps Integrator',
     username: 'denoyey',
     badge: 'Project Lead',
-    avatar: 'https://github.com/denoyey.png?size=120',
+    avatar: 'https://github.com/denoyey.png?size=400',
     description:
       'Memimpin arsitektur sistem terpadu, webhook ingestion pipeline, verifikasi keamanan HMAC SHA-256, serta otomasi CI/CD deployment.',
     skills: ['Node.js', 'Express', 'WebSocket', 'DevOps', 'Security'],
@@ -33,7 +33,7 @@ const TEAM_MEMBERS = [
     role: 'Frontend UI & Data Visualization Engineer',
     username: 'muhamadrafli16',
     badge: 'UI/UX Specialist',
-    avatar: 'https://github.com/muhamadrafli16.png?size=120',
+    avatar: 'https://github.com/muhamadrafli16.png?size=400',
     description:
       'Merancang antarmuka dashboard modern, visualisasi analitik kontribusi, dan interaksi tugas yang intuitif serta responsif di semua perangkat.',
     skills: ['React 19', 'Tailwind CSS', 'GSAP', 'Lenis Scroll'],
@@ -43,7 +43,7 @@ const TEAM_MEMBERS = [
     role: 'Kanban Trello & Database Engineer',
     username: 'Patirparkerr',
     badge: 'Integrations Lead',
-    avatar: 'https://github.com/Patirparkerr.png?size=120',
+    avatar: 'https://github.com/Patirparkerr.png?size=400',
     description:
       'Mengintegrasikan Trello REST API untuk pemindahan kartu otomatis, perancangan basis data MySQL, dan sinkronisasi status tugas.',
     skills: ['Trello API', 'MySQL', 'RESTful API', 'Database Design'],
@@ -53,7 +53,7 @@ const TEAM_MEMBERS = [
     role: 'QA, Security Testing & Academic Documentation',
     username: 'AATTTRAWRRR',
     badge: 'Quality & Docs',
-    avatar: 'https://github.com/AATTTRAWRRR.png?size=120',
+    avatar: 'https://github.com/AATTTRAWRRR.png?size=400',
     description:
       'Menyusun pengujian unit test otomatis, audit ketahanan rate limiting & DoS, serta perancangan laporan akademik dan diagram UML.',
     skills: ['Automated QA', 'Security Audit', 'UML Modeling', 'Technical Writing'],
@@ -367,44 +367,60 @@ export function LandingPage() {
             {TEAM_MEMBERS.map((member) => (
               <div
                 key={member.name}
-                className="bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 shadow-xs flex flex-col justify-between hover:border-zinc-400 dark:hover:border-zinc-700 transition duration-200"
+                className="group bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 sm:p-5 shadow-xs flex flex-col justify-between hover:border-zinc-400 dark:hover:border-zinc-700 hover:shadow-md transition-all duration-300"
               >
                 <div className="space-y-4">
-                  {/* Avatar & Badge */}
-                  <div className="flex items-start justify-between gap-3">
+                  {/* Large Prominent Photo Frame */}
+                  <div className="relative w-full aspect-square rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-750 shadow-inner">
                     {member.avatar ? (
                       <img
                         src={member.avatar}
                         alt={member.name}
-                        className="w-14 h-14 rounded-md border border-zinc-300 dark:border-zinc-700 object-cover shadow-xs"
+                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
                       />
                     ) : (
-                      <div className="w-14 h-14 rounded-md bg-gradient-to-br from-blue-600 to-indigo-800 text-white font-mono font-bold text-lg flex items-center justify-center border border-zinc-700 shadow-xs">
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-700 to-zinc-900 text-white font-mono font-bold text-3xl">
                         {member.name.slice(0, 2).toUpperCase()}
                       </div>
                     )}
-                    <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700">
-                      {member.badge}
-                    </span>
+
+                    {/* Role Badge in Top Right of Image */}
+                    <div className="absolute top-2.5 right-2.5">
+                      <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-zinc-950/85 dark:bg-zinc-900/90 text-white border border-zinc-700/80 backdrop-blur-xs shadow-xs">
+                        {member.badge}
+                      </span>
+                    </div>
+
+                    {/* Verified GitHub Collaborator Indicator */}
+                    <div className="absolute bottom-2.5 left-2.5">
+                      <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-emerald-600/90 dark:bg-emerald-500/90 text-white backdrop-blur-xs shadow-xs flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                        Collaborator
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Name & Role */}
-                  <div>
-                    <h4 className="text-base font-bold text-zinc-950 dark:text-white flex items-center gap-1.5">
-                      <span>{member.name}</span>
-                    </h4>
-                    <div className="text-xs font-medium text-blue-600 dark:text-blue-400 mt-0.5">
+                  {/* Name, Role & GitHub Link */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <h4 className="text-lg font-bold text-zinc-950 dark:text-white tracking-tight">
+                        {member.name}
+                      </h4>
+                      <a
+                        href={`https://github.com/${member.username}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-[11px] font-mono text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 transition touch-manipulation active:scale-95"
+                        title={`Buka profil GitHub @${member.username}`}
+                      >
+                        <span>@{member.username}</span>
+                        <ExternalLink className="w-2.5 h-2.5 opacity-60 shrink-0" />
+                      </a>
+                    </div>
+                    <div className="text-xs font-semibold text-blue-600 dark:text-blue-400">
                       {member.role}
                     </div>
-                    <a
-                      href={`https://github.com/${member.username}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[11px] font-mono text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-200 mt-0.5 group/link transition"
-                    >
-                      <span>@{member.username}</span>
-                      <ExternalLink className="w-2.5 h-2.5 opacity-60 group-hover/link:opacity-100 transition shrink-0" />
-                    </a>
                   </div>
 
                   {/* Description */}
@@ -413,12 +429,12 @@ export function LandingPage() {
                   </p>
                 </div>
 
-                {/* Skills tags */}
-                <div className="pt-4 mt-4 border-t border-zinc-100 dark:border-zinc-800 flex flex-wrap gap-1">
+                {/* Technical Skills Pills */}
+                <div className="pt-4 mt-4 border-t border-zinc-100 dark:border-zinc-800/80 flex flex-wrap gap-1.5">
                   {member.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-850 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800"
+                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800/70 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700/60"
                     >
                       {skill}
                     </span>

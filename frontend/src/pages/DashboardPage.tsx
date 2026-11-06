@@ -45,7 +45,7 @@ function AvatarWithFallback({ username, name }: { username: string; name: string
 
   if (error || !username) {
     return (
-      <div className="w-8 h-8 rounded-md bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 flex items-center justify-center text-[11px] font-mono font-bold text-zinc-700 dark:text-zinc-300 shrink-0 shadow-xs">
+      <div className="w-10 h-10 rounded-md bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 flex items-center justify-center text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300 shrink-0 shadow-xs">
         {initials}
       </div>
     );
@@ -53,10 +53,10 @@ function AvatarWithFallback({ username, name }: { username: string; name: string
 
   return (
     <img
-      src={`https://github.com/${username}.png?size=64`}
+      src={`https://github.com/${username}.png?size=200`}
       alt={name}
       onError={() => setError(true)}
-      className="w-8 h-8 rounded-md border border-zinc-300 dark:border-zinc-700 object-cover shrink-0 bg-zinc-200 dark:bg-zinc-800 shadow-xs"
+      className="w-10 h-10 rounded-md border border-zinc-300 dark:border-zinc-700 object-cover shrink-0 bg-zinc-200 dark:bg-zinc-800 shadow-xs"
       loading="lazy"
     />
   );
