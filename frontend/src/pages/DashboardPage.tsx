@@ -24,10 +24,12 @@ import {
   ChevronRight,
   ChevronDown,
   Copy,
+  Code2,
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { useNavbarVisibility } from '../services/scroll/hooks/useNavbarVisibility';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { ApiExplorerModal } from '../components/ApiExplorerModal';
 
 function formatLogTime(timestamp: string): string {
   if (!timestamp) return '';
@@ -149,9 +151,14 @@ export function DashboardPage() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [perPage, setPerPage] = useState<number>(5);
 
-  // Modals state for team management
+  // Modals state for team management & API Explorer
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+  const [showApiModal, setShowApiModal] = useState(false);
+
+  // Active filter for developer in Leaderboard
+  const [selectedAssignee, setSelectedAssignee] = useState<string | null>(null);
+  const [updatingTaskId, setUpdatingTaskId] = useState<number | null>(null);
 
   // Form states
   const [newTaskCode, setNewTaskCode] = useState('');
@@ -236,7 +243,7 @@ export function DashboardPage() {
     };
   }, [engine]);
 
-  // Filter tasks based on search & status
+  // Filter tasks based on search, status, and selected developer assignee
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
       const matchSearch =
@@ -245,9 +252,11 @@ export function DashboardPage() {
         task.assignee.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchStatus = statusFilter === 'ALL' || task.status === statusFilter;
-      return matchSearch && matchStatus;
+      const matchAssignee = !selectedAssignee || task.assignee.toLowerCase() === selectedAssignee.toLowerCase();
+
+      return matchSearch && matchStatus && matchAssignee;
     });
-  }, [tasks, searchQuery, statusFilter]);
+  }, [tasks, searchQuery, statusFilter, selectedAssignee]);
 
   // Paginated tasks slice for Filament v5 Table
   const totalResults = filteredTasks.length;
@@ -346,14 +355,54 @@ export function DashboardPage() {
     }
   };
 
-  // Sync tasks from Trello
+  // Sync tasks from Trello (bidirectional)
   const handleSyncTrello = async () => {
     setIsSyncingTrello(true);
     try {
-      await axios.post('/api/tasks/sync');
+      const res = await axios.post('/api/v1/tasks/sync-trello');
       await refreshData();
+      setActiveToast({
+        title: 'Trello Tersinkronisasi',
+        desc: res.data.message || 'Kartu dan kolom dari papan Trello berhasil disinkronkan.',
+      });
+      setTimeout(() => setActiveToast(null), 4000);
+    } catch (err: any) {
+      console.error('Trello sync error:', err);
+      setActiveToast({
+        title: 'Gagal Sinkronisasi Trello',
+        desc: err.response?.data?.error || err.message,
+      });
+      setTimeout(() => setActiveToast(null), 4000);
     } finally {
       setIsSyncingTrello(false);
+    }
+  };
+
+  // Inline update task status with bidirectional Trello move
+  const handleUpdateTaskStatus = async (taskId: number, newStatus: 'To Do' | 'In Progress' | 'Done') => {
+    setUpdatingTaskId(taskId);
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
+    );
+
+    try {
+      const res = await axios.patch(`/api/v1/tasks/${taskId}/status`, { status: newStatus });
+      setActiveToast({
+        title: 'Status Diperbarui',
+        desc: res.data.message || `Tugas #${taskId} diubah ke "${newStatus}". Sinkronisasi Trello aktif.`,
+      });
+      setTimeout(() => setActiveToast(null), 3500);
+      await refreshData();
+    } catch (err: any) {
+      console.error('Update status error:', err);
+      setActiveToast({
+        title: 'Gagal Mengubah Status',
+        desc: err.response?.data?.error || err.message,
+      });
+      setTimeout(() => setActiveToast(null), 4000);
+      await refreshData();
+    } finally {
+      setUpdatingTaskId(null);
     }
   };
 
@@ -535,6 +584,17 @@ export function DashboardPage() {
 
           {/* Action Buttons & Theme Switcher */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* API Explorer & Webhooks Trigger Button */}
+            <button
+              type="button"
+              onClick={() => setShowApiModal(true)}
+              className="h-8 sm:h-8.5 px-2 sm:px-2.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs shrink-0"
+              title="Katalog & Playground API SI-PATIR"
+            >
+              <Code2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span className="hidden sm:inline text-xs font-medium">API Docs</span>
+            </button>
+
             {/* Theme Switcher Dropdown */}
             <ThemeSwitcher />
 
@@ -865,9 +925,22 @@ export function DashboardPage() {
                       const isTop = index === 0;
                       // Developer dinyatakan aktif murni berdasarkan jumlah commit (> 0)
                       const isActive = member.total_commits > 0;
+                      const isSelected = selectedAssignee?.toLowerCase() === member.github_username.toLowerCase();
 
                       return (
-                        <tr key={member.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/25 transition">
+                        <tr
+                          key={member.id}
+                          onClick={() => {
+                            setSelectedAssignee((prev) => (prev?.toLowerCase() === member.github_username.toLowerCase() ? null : member.github_username));
+                            setCurrentPage(1);
+                          }}
+                          className={`hover:bg-zinc-100/60 dark:hover:bg-zinc-800/40 transition cursor-pointer ${
+                            isSelected
+                              ? 'bg-blue-50/80 dark:bg-blue-950/30'
+                              : ''
+                          }`}
+                          title={`Klik untuk memfilter kartu tugas @${member.github_username}`}
+                        >
                           <td className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">
                             <span
                               className={`inline-flex items-center justify-center font-mono text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-md ${
@@ -889,6 +962,11 @@ export function DashboardPage() {
                               <div className="min-w-0">
                                 <div className="font-semibold text-zinc-950 dark:text-white flex items-center gap-1.5 flex-wrap">
                                   <span>{member.name}</span>
+                                  {isSelected && (
+                                    <span className="text-[10px] bg-blue-600 text-white px-1.5 py-0.2 rounded-md font-mono font-medium">
+                                      Difilter
+                                    </span>
+                                  )}
                                   {isTop && (
                                     <span className="text-[10px] bg-amber-500/15 text-amber-700 dark:text-amber-300 px-1.5 py-0.2 rounded-md border border-amber-500/30 font-mono font-medium">
                                       Lead
@@ -1023,28 +1101,58 @@ export function DashboardPage() {
                   )}
                 </div>
 
-                {/* Status Filter Tabs (Filament style pills) */}
+                {/* Status Filter Tabs (Filament style pills with counts) */}
                 <div className="grid grid-cols-4 sm:flex items-center gap-1 bg-zinc-100 dark:bg-[#121623] p-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-xs shrink-0">
-                  {(['ALL', 'In Progress', 'Done', 'To Do'] as const).map((tab) => (
-                    <button
-                      key={tab}
-                      type="button"
-                      onClick={(e) => {
-                        engine.animateButtonPress(e.currentTarget);
-                        setStatusFilter(tab);
-                        setCurrentPage(1);
-                      }}
-                      className={`px-2.5 py-1 rounded-md text-[11px] sm:text-xs font-medium transition active:scale-95 cursor-pointer text-center truncate ${
-                        statusFilter === tab
-                          ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs border border-zinc-300 dark:border-zinc-700 font-semibold'
-                          : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
-                      }`}
-                    >
-                      {tab === 'ALL' ? 'Semua' : tab}
-                    </button>
-                  ))}
+                  {(['ALL', 'In Progress', 'Done', 'To Do'] as const).map((tab) => {
+                    const count = tab === 'ALL'
+                      ? tasks.length
+                      : tasks.filter((t) => t.status === tab).length;
+
+                    return (
+                      <button
+                        key={tab}
+                        type="button"
+                        onClick={(e) => {
+                          engine.animateButtonPress(e.currentTarget);
+                          setStatusFilter(tab);
+                          setCurrentPage(1);
+                        }}
+                        className={`px-2.5 py-1 rounded-md text-[11px] sm:text-xs font-medium transition active:scale-95 cursor-pointer text-center truncate flex items-center justify-center gap-1 ${
+                          statusFilter === tab
+                            ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs border border-zinc-300 dark:border-zinc-700 font-semibold'
+                            : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                        }`}
+                      >
+                        <span>{tab === 'ALL' ? 'Semua' : tab}</span>
+                        <span className="text-[10px] font-mono opacity-70">({count})</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
+
+              {/* Active Developer Filter Notice */}
+              {selectedAssignee && (
+                <div className="px-3.5 sm:px-4 py-2 bg-blue-50/80 dark:bg-blue-950/25 border-b border-blue-200 dark:border-blue-900/40 flex items-center justify-between text-xs text-blue-900 dark:text-blue-300">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span>Menyaring tugas untuk kontributor:</span>
+                    <span className="font-mono font-bold bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800">
+                      @{selectedAssignee}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedAssignee(null);
+                      setCurrentPage(1);
+                    }}
+                    className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 flex items-center gap-1 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Hapus Filter</span>
+                  </button>
+                </div>
+              )}
 
               {/* Table Data View */}
               <div className="overflow-x-auto touch-scroll" data-lenis-prevent>
@@ -1103,18 +1211,31 @@ export function DashboardPage() {
                                 </span>
                               </div>
                             </td>
-                            <td className="py-3 px-3 sm:px-4 text-center whitespace-nowrap">
-                              <span
-                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border ${
-                                  isDone
-                                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
-                                    : isInProgress
-                                    ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/20'
-                                    : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700'
-                                }`}
-                              >
+                            <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-center whitespace-nowrap">
+                              <div className="inline-flex items-center relative">
+                                <select
+                                  id={`task-status-select-${task.id}`}
+                                  name={`task_status_${task.id}`}
+                                  value={task.status}
+                                  disabled={updatingTaskId === task.id}
+                                  onChange={(e) =>
+                                    handleUpdateTaskStatus(task.id, e.target.value as 'To Do' | 'In Progress' | 'Done')
+                                  }
+                                  aria-label={`Ubah status tugas #${task.task_code}`}
+                                  className={`appearance-none cursor-pointer text-[11px] font-semibold pl-6 pr-6 py-1 rounded-md border transition shadow-2xs focus:outline-hidden disabled:opacity-60 ${
+                                    isDone
+                                      ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30'
+                                      : isInProgress
+                                      ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30'
+                                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-300 dark:border-zinc-700'
+                                  }`}
+                                >
+                                  <option value="To Do" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">To Do</option>
+                                  <option value="In Progress" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">In Progress</option>
+                                  <option value="Done" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">Done</option>
+                                </select>
                                 <span
-                                  className={`w-1.5 h-1.5 rounded-full ${
+                                  className={`w-1.5 h-1.5 rounded-full absolute left-2.5 pointer-events-none ${
                                     isDone
                                       ? 'bg-emerald-500 animate-pulse'
                                       : isInProgress
@@ -1122,8 +1243,8 @@ export function DashboardPage() {
                                       : 'bg-zinc-400'
                                   }`}
                                 />
-                                {task.status}
-                              </span>
+                                <ChevronDown className="w-3 h-3 absolute right-2 pointer-events-none text-current opacity-70" />
+                              </div>
                             </td>
                             <td className="py-3 px-3 sm:px-4 text-right whitespace-nowrap">
                               <button
@@ -1568,6 +1689,12 @@ export function DashboardPage() {
         isLoading={confirmDialog.isLoading}
         onConfirm={confirmDialog.onConfirm}
         onCancel={() => setConfirmDialog((prev) => ({ ...prev, isOpen: false }))}
+      />
+
+      {/* INTERACTIVE REST API EXPLORER & WEBHOOK MODAL */}
+      <ApiExplorerModal
+        isOpen={showApiModal}
+        onClose={() => setShowApiModal(false)}
       />
     </div>
   );

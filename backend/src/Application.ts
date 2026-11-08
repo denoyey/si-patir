@@ -58,34 +58,95 @@ export class Application {
 
   private configureRoutes(): void {
     const webhookController = new WebhookController(this.io);
-    const taskController = new TaskController();
+    const taskController = new TaskController(this.io);
     const memberController = new MemberController();
     const systemController = new SystemController();
 
-    // Webhook Route with dedicated tight rate limiter
+    // ==========================================
+    // 1. Root Discovery & Interactive API Docs
+    // ==========================================
+    this.app.get('/', (req, res) => {
+      // Jika request menerima HTML (misal dari browser), arahkan ke /api/docs
+      if (req.accepts('html')) {
+        res.redirect('/api/docs');
+        return;
+      }
+      systemController.getRootCatalog(req, res);
+    });
+    this.app.get('/api', systemController.getRootCatalog);
+    this.app.get('/api/v1', systemController.getRootCatalog);
+
+    // Interactive Swagger / HTML API Explorer
+    this.app.get('/docs', systemController.getSwaggerHtml);
+    this.app.get('/api/docs', systemController.getSwaggerHtml);
+    this.app.get('/api/v1/docs', systemController.getSwaggerHtml);
+    this.app.get('/api/docs/json', systemController.getApiDocs);
+    this.app.get('/api/v1/system/docs', systemController.getApiDocs);
+
+    // ==========================================
+    // 2. Webhook Routes (GitHub Push & Simulation)
+    // ==========================================
+    this.app.post(
+      '/api/v1/webhooks/github',
+      SecurityMiddleware.webhookRateLimiter(),
+      webhookController.handleGitHubWebhook
+    );
     this.app.post(
       '/api/webhooks/github',
       SecurityMiddleware.webhookRateLimiter(),
       webhookController.handleGitHubWebhook
     );
-
+    this.app.post('/api/v1/webhooks/simulate', webhookController.handleSimulate);
     this.app.post('/api/simulate-commit', webhookController.handleSimulate);
 
-    // Tasks API
+    // ==========================================
+    // 3. Tasks API (CRUD, Status Update, Sync)
+    // ==========================================
+    // List & Detail
+    this.app.get('/api/v1/tasks', taskController.getAllTasks);
     this.app.get('/api/tasks', taskController.getAllTasks);
+    this.app.get('/api/v1/tasks/:id', taskController.getTaskById);
+    this.app.get('/api/tasks/:id', taskController.getTaskById);
+
+    // Create & Status Update
+    this.app.post('/api/v1/tasks', taskController.createTask);
     this.app.post('/api/tasks', taskController.createTask);
+    this.app.patch('/api/v1/tasks/:id/status', taskController.updateTaskStatus);
+    this.app.patch('/api/tasks/:id/status', taskController.updateTaskStatus);
+
+    // Delete
+    this.app.delete('/api/v1/tasks/:id', taskController.deleteTask);
     this.app.delete('/api/tasks/:id', taskController.deleteTask);
+
+    // Sync Trello & GitHub
+    this.app.post('/api/v1/tasks/sync-trello', taskController.syncFromTrello);
     this.app.post('/api/tasks/sync', taskController.syncFromTrello);
+    this.app.post('/api/v1/tasks/sync-github', taskController.syncFromGitHubIssues);
     this.app.post('/api/tasks/sync-github', taskController.syncFromGitHubIssues);
+    this.app.post('/api/v1/tasks/clear-dummy', taskController.clearDummy);
     this.app.post('/api/tasks/clear-dummy', taskController.clearDummy);
 
-    // Members API
+    // ==========================================
+    // 4. Members API (Leaderboard & Profile)
+    // ==========================================
+    this.app.get('/api/v1/members', memberController.getLeaderboard);
     this.app.get('/api/members', memberController.getLeaderboard);
-    this.app.post('/api/members/sync-github', memberController.syncFromGitHub);
+    this.app.get('/api/v1/members/:username', memberController.getMemberByUsername);
+    this.app.get('/api/members/:username', memberController.getMemberByUsername);
+
+    this.app.post('/api/v1/members', memberController.createMember);
     this.app.post('/api/members', memberController.createMember);
+    this.app.post('/api/v1/members/sync-github', memberController.syncFromGitHub);
+    this.app.post('/api/members/sync-github', memberController.syncFromGitHub);
+    this.app.post('/api/v1/members/clear-dummy', memberController.clearDummy);
     this.app.post('/api/members/clear-dummy', memberController.clearDummy);
 
+    // ==========================================
+    // 5. System API (Health, Logs, Specs)
+    // ==========================================
+    this.app.get('/api/v1/system/status', systemController.getStatus);
     this.app.get('/api/status', systemController.getStatus);
+    this.app.get('/api/v1/system/logs', systemController.getLogs);
     this.app.get('/api/logs', systemController.getLogs);
 
     // Socket.io connection logging

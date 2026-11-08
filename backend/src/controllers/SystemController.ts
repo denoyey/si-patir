@@ -3,6 +3,8 @@ import { DatabaseService } from '../database/DatabaseService.js';
 import { EnvironmentConfig } from '../config/EnvironmentConfig.js';
 import { ActivityLogRepository } from '../database/repositories/ActivityLogRepository.js';
 import { ISystemStatus } from '../types/interfaces.js';
+import { API_METADATA, API_ENDPOINTS } from '../docs/apiSpec.js';
+import { renderApiDocsHtml } from '../docs/renderApiDocsHtml.js';
 
 export class SystemController {
   private db: DatabaseService;
@@ -37,5 +39,35 @@ export class SystemController {
       res.status(500).json({ success: false, error: 'Failed to retrieve logs' });
     }
   };
-}
 
+  public getRootCatalog = (req: Request, res: Response): void => {
+    const groupedEndpoints: Record<string, Record<string, string>> = {};
+    for (const ep of API_ENDPOINTS) {
+      const cat = ep.category.toLowerCase();
+      if (!groupedEndpoints[cat]) groupedEndpoints[cat] = {};
+      groupedEndpoints[cat][`${ep.method} ${ep.path}`] = `${ep.summary}: ${ep.description}`;
+    }
+
+    res.status(200).json({
+      name: API_METADATA.name,
+      version: API_METADATA.version,
+      description: API_METADATA.description,
+      status: 'operational',
+      documentation: `${req.protocol}://${req.get('host')}/api/docs`,
+      endpoints_count: API_ENDPOINTS.length,
+      endpoints: groupedEndpoints,
+    });
+  };
+
+  public getApiDocs = (req: Request, res: Response): void => {
+    res.status(200).json({
+      metadata: API_METADATA,
+      endpoints: API_ENDPOINTS,
+    });
+  };
+
+  public getSwaggerHtml = (req: Request, res: Response): void => {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.status(200).send(renderApiDocsHtml());
+  };
+}

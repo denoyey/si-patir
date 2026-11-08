@@ -20,6 +20,20 @@ export class MemberController {
     }
   };
 
+  public getMemberByUsername = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const usernameParam = Array.isArray(req.params.username) ? req.params.username[0] : req.params.username;
+      const member = await this.memberRepo.findByUsername(usernameParam);
+      if (!member) {
+        res.status(404).json({ success: false, error: `Anggota dengan username "${usernameParam}" tidak ditemukan.` });
+        return;
+      }
+      res.status(200).json({ success: true, member });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  };
+
   public syncFromGitHub = async (req: Request, res: Response): Promise<void> => {
     try {
       const result = await this.githubService.syncRealContributors();
