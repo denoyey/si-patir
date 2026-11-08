@@ -25,6 +25,7 @@ import {
   ChevronDown,
   Copy,
   Code2,
+  Send,
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { useNavbarVisibility } from '../services/scroll/hooks/useNavbarVisibility';
@@ -168,6 +169,17 @@ export function DashboardPage() {
 
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberUsername, setNewMemberUsername] = useState('');
+
+  // Interactive Terminal Simulator vs Real Terminal Guide State
+  const [activeTerminalTab, setActiveTerminalTab] = useState<'simulator' | 'guide'>('simulator');
+  const [selectedTerminalAuthor, setSelectedTerminalAuthor] = useState<string>('');
+  const [terminalCommand, setTerminalCommand] = useState<string>(
+    'git commit -m "Selesaikan implementasi fitur [done #TASK-01]"'
+  );
+  const [isTerminalSubmitting, setIsTerminalSubmitting] = useState(false);
+  const [terminalOutput, setTerminalOutput] = useState<string>(
+    'SI-PATIR Terminal Simulator v2.1 Siap. Ketik perintah git commit & tekan Kirim.'
+  );
 
   // Sync Dropdown State
   const [isSyncMenuOpen, setIsSyncMenuOpen] = useState(false);
@@ -537,6 +549,50 @@ export function DashboardPage() {
         desc: err.response?.data?.error || 'Gagal menambahkan anggota ke database.',
       });
       setTimeout(() => setActiveToast(null), 4000);
+    }
+  };
+
+  const handleExecuteTerminal = async (e?: FormEvent) => {
+    if (e) e.preventDefault();
+    if (!terminalCommand.trim() || isTerminalSubmitting) return;
+
+    const effectiveAuthor = selectedTerminalAuthor || (members.length > 0 ? members[0].github_username : 'denoyey');
+    setIsTerminalSubmitting(true);
+
+    let commitMsg = terminalCommand.trim();
+    const msgMatch = commitMsg.match(/git commit -m\s+["'](.*)["']/i);
+    if (msgMatch && msgMatch[1]) {
+      commitMsg = msgMatch[1];
+    } else if (commitMsg.toLowerCase().startsWith('git commit')) {
+      commitMsg = commitMsg.replace(/^git commit\s*(-m)?\s*/i, '').replace(/^["']|["']$/g, '');
+    }
+
+    const taskMatch = commitMsg.match(/\[done\s+#(TASK-\d+)\]/i) || terminalCommand.match(/#(TASK-\d+)/i);
+    const taskCode = taskMatch ? taskMatch[1].toUpperCase() : undefined;
+
+    try {
+      await axios.post('/api/v1/webhooks/simulate', {
+        developer: effectiveAuthor,
+        commitMsg: commitMsg || 'Update fitur via terminal simulator',
+        taskCode,
+      });
+
+      setTerminalOutput(
+        `[OK] Commit berhasil disimulasikan untuk @${effectiveAuthor}! ${taskCode ? `Task #${taskCode} selesai & Trello tersinkron.` : 'Push event tercatat di stream.'}`
+      );
+
+      setActiveToast({
+        title: taskCode ? `Simulasi Selesai #${taskCode}` : 'Simulasi Commit Berhasil',
+        desc: `@${effectiveAuthor}: "${commitMsg}". Trello & Klasemen terupdate (Discord tetap tenang tanpa spam).`,
+      });
+      setTimeout(() => setActiveToast(null), 4000);
+
+      await refreshData();
+    } catch (err: any) {
+      console.error('[Terminal Simulator Error]', err);
+      setTerminalOutput(`[ERR] Gagal menjalankan simulasi: ${err.response?.data?.error || err.message}`);
+    } finally {
+      setIsTerminalSubmitting(false);
     }
   };
 
@@ -1423,70 +1479,211 @@ export function DashboardPage() {
                 )}
               </div>
 
-              {/* Developer Git Commit Quick Reference Guide */}
-              <div className="p-3.5 sm:p-4 bg-zinc-50 dark:bg-[#121623] border-t border-zinc-200 dark:border-zinc-800 text-xs space-y-2.5 shrink-0">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 font-semibold text-zinc-900 dark:text-white text-xs">
-                    <Terminal className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span>Panduan Commit Git Tim:</span>
+              {/* Terminal Panel: Dual Mode (Simulator Browser vs Real Terminal Guide) */}
+              <div className="p-3.5 sm:p-4 bg-zinc-50 dark:bg-[#121623] border-t border-zinc-200 dark:border-zinc-800 text-xs space-y-3 shrink-0">
+                {/* Mode Selector Tabs */}
+                <div className="flex items-center justify-between gap-2 border-b border-zinc-200 dark:border-zinc-800/80 pb-2.5">
+                  <div className="flex items-center gap-1 p-0.5 bg-zinc-200/80 dark:bg-zinc-800/80 rounded-lg text-[11px] font-medium">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTerminalTab('simulator')}
+                      className={`px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1.5 ${
+                        activeTerminalTab === 'simulator'
+                          ? 'bg-white dark:bg-zinc-900 text-emerald-600 dark:text-emerald-400 font-semibold shadow-2xs'
+                          : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                      }`}
+                      title="Uji coba langsung dari dashboard web tanpa buka terminal komputer"
+                    >
+                      <Terminal className="w-3.5 h-3.5" />
+                      <span>⚡ Simulator Browser</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTerminalTab('guide')}
+                      className={`px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1.5 ${
+                        activeTerminalTab === 'guide'
+                          ? 'bg-white dark:bg-zinc-900 text-emerald-600 dark:text-emerald-400 font-semibold shadow-2xs'
+                          : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                      }`}
+                      title="Panduan menjalankan git commit asli di terminal laptop Anda"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>📖 Terminal Asli (Laptop)</span>
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText('git commit -m "Selesaikan fitur [done #TASK-01]" && git push origin main');
-                      setActiveToast({
-                        title: 'Perintah Berhasil Disalin',
-                        desc: 'Tempel perintah ini di terminal laptop Git Anda.',
-                      });
-                      setTimeout(() => setActiveToast(null), 3500);
-                    }}
-                    className="px-2 py-0.5 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 text-[11px] font-mono flex items-center gap-1 transition active:scale-95 cursor-pointer shadow-2xs shrink-0"
-                    title="Salin contoh sintaks commit"
-                  >
-                    <Copy className="w-3 h-3" />
-                    <span>Salin</span>
-                  </button>
+
+                  {activeTerminalTab === 'guide' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText('git commit -m "Selesaikan fitur [done #TASK-01]" && git push origin main');
+                        setActiveToast({
+                          title: 'Perintah Berhasil Disalin',
+                          desc: 'Tempel perintah ini di terminal laptop Git Anda.',
+                        });
+                        setTimeout(() => setActiveToast(null), 3500);
+                      }}
+                      className="px-2 py-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 text-[11px] font-mono flex items-center gap-1 transition active:scale-95 cursor-pointer shadow-2xs shrink-0"
+                      title="Salin contoh sintaks commit"
+                    >
+                      <Copy className="w-3 h-3" />
+                      <span>Salin</span>
+                    </button>
+                  )}
                 </div>
 
-                {/* Real Git Command Codebox */}
-                <div className="p-2.5 rounded-md bg-[#07090e] border border-zinc-800 text-emerald-400 font-mono text-[11px] leading-relaxed overflow-x-auto shadow-inner">
-                  <code>git commit -m "fitur [done #TASK-01]" &amp;&amp; git push</code>
-                </div>
+                {activeTerminalTab === 'simulator' ? (
+                  /* TAB 1: INTERACTIVE SIMULATOR */
+                  <div className="space-y-2.5">
+                    {/* Author selection chips */}
+                    {members.length > 0 && (
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-[10px] text-zinc-500 dark:text-zinc-400">
+                          <span>Pilih Penguji (Author):</span>
+                          <span className="font-mono text-emerald-600 dark:text-emerald-400 font-medium">
+                            @{selectedTerminalAuthor || members[0]?.github_username}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {members.map((m) => {
+                            const isSelected = (selectedTerminalAuthor || members[0]?.github_username) === m.github_username;
+                            return (
+                              <button
+                                key={m.id}
+                                type="button"
+                                onClick={() => setSelectedTerminalAuthor(m.github_username)}
+                                className={`px-2 py-0.5 rounded-md font-mono text-[10px] transition cursor-pointer border ${
+                                  isSelected
+                                    ? 'bg-blue-600 text-white border-blue-600 shadow-2xs'
+                                    : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700'
+                                }`}
+                              >
+                                @{m.github_username} ({m.total_commits}c)
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
 
-                {/* Quick Task Tag Copy Chips */}
-                {tasks.length > 0 && (
-                  <div className="space-y-1">
-                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
-                      Salin Perintah Berdasarkan Tugas:
-                    </span>
-                    <div className="flex flex-wrap gap-1">
-                      {tasks.slice(0, 5).map((t) => (
+                    {/* Quick Task Selection Chips */}
+                    {tasks.length > 0 && (
+                      <div className="space-y-1">
+                        <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
+                          Pilih Cepat Tugas:
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {tasks.slice(0, 5).map((t) => (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => {
+                                setTerminalCommand(`git commit -m "Selesaikan ${t.title.slice(0, 24)} [done #${t.task_code}]"`);
+                                if (t.assignee) {
+                                  setSelectedTerminalAuthor(t.assignee);
+                                }
+                              }}
+                              className="px-1.5 py-0.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 font-mono text-[10px] transition cursor-pointer active:scale-95 shadow-2xs"
+                              title={`Pilih cepat untuk #${t.task_code}`}
+                            >
+                              #{t.task_code}
+                            </button>
+                          ))}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setTerminalCommand('git commit -m "Update konfigurasi sistem dan clean code"');
+                            }}
+                            className="px-1.5 py-0.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700 font-mono text-[10px] transition cursor-pointer"
+                          >
+                            Umum
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Terminal Input Screen */}
+                    <div className="p-2.5 rounded-lg bg-[#07090e] border border-zinc-800 font-mono shadow-inner space-y-2">
+                      <div className="text-[10px] text-zinc-400 leading-relaxed border-b border-zinc-800/80 pb-1.5 line-clamp-2">
+                        {terminalOutput}
+                      </div>
+
+                      <form onSubmit={handleExecuteTerminal} className="flex items-center gap-1.5">
+                        <span className="text-emerald-400 text-[11px] font-bold select-none shrink-0">
+                          @{selectedTerminalAuthor || (members.length > 0 ? members[0].github_username : 'denoyey')} $
+                        </span>
+                        <input
+                          type="text"
+                          value={terminalCommand}
+                          onChange={(e) => setTerminalCommand(e.target.value)}
+                          placeholder='git commit -m "pesan [done #TASK-01]"'
+                          className="flex-1 bg-transparent border-0 text-emerald-300 font-mono text-[11px] focus:outline-none focus:ring-0 p-0 selection:bg-emerald-800"
+                        />
                         <button
-                          key={t.id}
-                          type="button"
-                          onClick={() => {
-                            const cmd = `git commit -m "Selesaikan ${t.title.slice(0, 24)} [done #${t.task_code}]" && git push origin main`;
-                            navigator.clipboard.writeText(cmd);
-                            setActiveToast({
-                              title: `Perintah #${t.task_code} Disalin`,
-                              desc: `Perintah commit untuk kartu #${t.task_code} telah disalin ke clipboard.`,
-                            });
-                            setTimeout(() => setActiveToast(null), 3000);
-                          }}
-                          className="px-1.5 py-0.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 font-mono text-[10px] transition cursor-pointer active:scale-95 shadow-2xs"
-                          title={`Salin perintah commit untuk #${t.task_code}`}
+                          type="submit"
+                          disabled={isTerminalSubmitting}
+                          className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-medium text-[10px] flex items-center gap-1 transition cursor-pointer disabled:opacity-50 shrink-0"
+                          title="Eksekusi simulasi commit"
                         >
-                          #{t.task_code}
+                          <span>{isTerminalSubmitting ? '...' : 'Kirim'}</span>
+                          <Send className="w-2.5 h-2.5" />
                         </button>
-                      ))}
+                      </form>
+                    </div>
+
+                    <div className="text-[10px] text-zinc-500 dark:text-zinc-400 border-t border-zinc-200 dark:border-zinc-800/80 pt-2 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                      <span>Simulasi lokal langsung mengupdate Trello &amp; Klasemen (tanpa spam Discord).</span>
+                    </div>
+                  </div>
+                ) : (
+                  /* TAB 2: REAL GIT TERMINAL GUIDE */
+                  <div className="space-y-2.5">
+                    <p className="text-[11px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                      Terminal asli adalah <strong>terminal laptop Anda</strong> (Git Bash / VS Code). Jalankan perintah berikut untuk push nyata ke GitHub:
+                    </p>
+
+                    {/* Real Git Command Codebox */}
+                    <div className="p-2.5 rounded-md bg-[#07090e] border border-zinc-800 text-emerald-400 font-mono text-[11px] leading-relaxed overflow-x-auto shadow-inner">
+                      <code>git commit -m "fitur [done #TASK-01]" &amp;&amp; git push origin main</code>
+                    </div>
+
+                    {/* Quick Task Tag Copy Chips */}
+                    {tasks.length > 0 && (
+                      <div className="space-y-1">
+                        <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
+                          Salin Perintah Berdasarkan Tugas:
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {tasks.slice(0, 5).map((t) => (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => {
+                                const cmd = `git commit -m "Selesaikan ${t.title.slice(0, 24)} [done #${t.task_code}]" && git push origin main`;
+                                navigator.clipboard.writeText(cmd);
+                                setActiveToast({
+                                  title: `Perintah #${t.task_code} Disalin`,
+                                  desc: `Perintah commit untuk kartu #${t.task_code} telah disalin ke clipboard.`,
+                                });
+                                setTimeout(() => setActiveToast(null), 3000);
+                              }}
+                              className="px-1.5 py-0.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 font-mono text-[10px] transition cursor-pointer active:scale-95 shadow-2xs"
+                              title={`Salin perintah commit untuk #${t.task_code}`}
+                            >
+                              #{t.task_code}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="text-[10px] text-zinc-500 dark:text-zinc-400 border-t border-zinc-200 dark:border-zinc-800/80 pt-2 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                      <span>Push dari terminal Git asli otomatis memindahkan kartu Trello &amp; notif Discord.</span>
                     </div>
                   </div>
                 )}
-
-                <div className="text-[10px] text-zinc-500 dark:text-zinc-400 border-t border-zinc-200 dark:border-zinc-800/80 pt-2 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
-                  <span>Push dari terminal Git asli otomatis memindahkan kartu Trello &amp; notif Discord.</span>
-                </div>
               </div>
             </div>
           </aside>

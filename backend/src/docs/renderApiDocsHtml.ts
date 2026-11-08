@@ -259,7 +259,7 @@ export function renderApiDocsHtml(): string {
 
         return `
         <div class="endpoint-card" data-category="${endpoint.category}" id="card-${index}">
-          <div class="endpoint-header" onclick="toggleCard(${index})">
+          <div class="endpoint-header" data-card-index="${index}">
             <div class="endpoint-path">
               <span class="badge ${badgeClass}">${endpoint.method}</span>
               <span>${endpoint.path}</span>
@@ -289,10 +289,10 @@ export function renderApiDocsHtml(): string {
             ` : ''}
 
             <div style="display:flex; gap:0.5rem; align-items:center; margin-top:1rem;">
-              <button class="btn btn-primary" onclick="executeApi(${index}, '${endpoint.method}', '${endpoint.path}')">
+              <button type="button" class="btn btn-primary btn-execute" data-index="${index}" data-method="${endpoint.method}" data-path="${endpoint.path}">
                 ⚡ Send Request
               </button>
-              <button class="btn btn-secondary" onclick="copyCurl(${index}, '${endpoint.method}', '${endpoint.path}')">
+              <button type="button" class="btn btn-secondary btn-copy" data-index="${index}" data-method="${endpoint.method}" data-path="${endpoint.path}">
                 📋 Copy cURL
               </button>
             </div>
@@ -400,7 +400,7 @@ export function renderApiDocsHtml(): string {
       }
     }
 
-    function copyCurl(index, method, path) {
+    function copyCurl(index, method, path, buttonEl) {
       let resolvedPath = path;
       const paramInputs = document.querySelectorAll('[id^="param-' + index + '-"]');
       paramInputs.forEach(input => {
@@ -412,13 +412,77 @@ export function renderApiDocsHtml(): string {
       const fullUrl = window.location.origin + resolvedPath;
       let curl = 'curl -X ' + method + ' "' + fullUrl + '"';
       const payloadEl = document.getElementById('payload-' + index);
-      if (payloadEl && (method === 'POST' || method === 'PATCH')) {
-        const payloadClean = payloadEl.value.replace(/\s+/g, ' ').replace(/'/g, "");
-        curl += ' -H "Content-Type: application/json" -d \'' + payloadClean + '\'';
+      if (payloadEl && (method === 'POST' || method === 'PATCH' || method === 'PUT')) {
+        const payloadClean = payloadEl.value.replace(/\\s+/g, ' ').replace(/'/g, "\\\\'");
+        curl += " -H \\"Content-Type: application/json\\" -d '" + payloadClean + "'";
       }
 
-      navigator.clipboard.writeText(curl);
-      alert('Perintah cURL berhasil disalin ke clipboard!\n\n' + curl);
+      const finishCopy = () => {
+        if (buttonEl) {
+          const originalText = buttonEl.innerHTML;
+          buttonEl.innerHTML = '✅ Copied!';
+          setTimeout(() => {
+            buttonEl.innerHTML = originalText;
+          }, 2000);
+        }
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(curl).then(finishCopy).catch(() => {
+          fallbackCopyText(curl);
+          finishCopy();
+        });
+      } else {
+        fallbackCopyText(curl);
+        finishCopy();
+      }
+    }
+
+    function fallbackCopyText(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-9999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (e) {
+        console.error('Fallback copy error:', e);
+      }
+      document.body.removeChild(textArea);
+    }
+
+    // Delegated click event listener for endpoint cards, send, and copy buttons
+    const endpointsContainer = document.getElementById('endpoints-list');
+    if (endpointsContainer) {
+      endpointsContainer.addEventListener('click', function(e) {
+        const header = e.target.closest('.endpoint-header');
+        if (header) {
+          const idx = header.getAttribute('data-card-index');
+          if (idx !== null) toggleCard(idx);
+          return;
+        }
+
+        const execBtn = e.target.closest('.btn-execute');
+        if (execBtn) {
+          const idx = execBtn.getAttribute('data-index');
+          const method = execBtn.getAttribute('data-method');
+          const path = execBtn.getAttribute('data-path');
+          if (idx !== null && method && path) executeApi(idx, method, path);
+          return;
+        }
+
+        const copyBtn = e.target.closest('.btn-copy');
+        if (copyBtn) {
+          const idx = copyBtn.getAttribute('data-index');
+          const method = copyBtn.getAttribute('data-method');
+          const path = copyBtn.getAttribute('data-path');
+          if (idx !== null && method && path) copyCurl(idx, method, path, copyBtn);
+          return;
+        }
+      });
     }
   </script>
 </body>
