@@ -7,7 +7,12 @@ export function renderApiDocsHtml(): string {
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SI-PATIR API">
+  <meta name="theme-color" content="#090d16">
+  <meta name="format-detection" content="telephone=no">
   <title>${API_METADATA.name} — Interactive API Explorer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,27 +30,89 @@ export function renderApiDocsHtml(): string {
       --patch: #f59e0b;
       --delete: #ef4444;
       --code-bg: #050811;
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
     body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background-color: var(--bg);
       color: var(--text);
       line-height: 1.5;
-      padding-bottom: 5rem;
+      padding-top: var(--sat);
+      padding-bottom: calc(4rem + var(--sab));
+      padding-left: var(--sal);
+      padding-right: var(--sar);
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+      touch-action: manipulation;
     }
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
+    
     .header {
       background: linear-gradient(180deg, #131b2e 0%, #090d16 100%);
       border-bottom: 1px solid var(--card-border);
-      padding: 2.5rem 1.5rem 2rem;
+      padding: 1.5rem 1rem 1.25rem;
+    }
+    @media (min-width: 640px) {
+      .header {
+        padding: 2.5rem 1.5rem 2rem;
+      }
     }
     .container {
       max-width: 1100px;
       margin: 0 auto;
       padding: 0 1rem;
     }
+    @media (max-width: 480px) {
+      .container {
+        padding: 0 0.75rem;
+      }
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .header-brand {
+      flex: 1 1 280px;
+    }
+    .header-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    @media (min-width: 640px) {
+      .header-actions {
+        width: auto;
+      }
+    }
+    .header-actions .btn {
+      flex: 1;
+      justify-content: center;
+      text-align: center;
+    }
+    @media (min-width: 640px) {
+      .header-actions .btn {
+        flex: 0 0 auto;
+      }
+    }
+
     .badge {
       display: inline-flex;
       align-items: center;
@@ -66,21 +133,30 @@ export function renderApiDocsHtml(): string {
     .nav-tabs {
       display: flex;
       gap: 0.5rem;
-      margin-top: 1.5rem;
+      margin-top: 1.25rem;
       overflow-x: auto;
       padding-bottom: 0.5rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .nav-tabs::-webkit-scrollbar {
+      display: none;
     }
     .nav-tab {
       background: #172136;
       border: 1px solid var(--card-border);
       color: var(--text-muted);
-      padding: 0.45rem 1rem;
+      padding: 0.45rem 0.85rem;
       border-radius: 0.5rem;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s ease;
       white-space: nowrap;
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      user-select: none;
     }
     .nav-tab:hover, .nav-tab.active {
       background: var(--accent);
@@ -108,34 +184,57 @@ export function renderApiDocsHtml(): string {
       border-color: #334155;
     }
     .endpoint-header {
-      padding: 1rem 1.25rem;
+      padding: 0.9rem 1rem;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.4rem;
       cursor: pointer;
       user-select: none;
       background: rgba(255, 255, 255, 0.015);
+      min-height: 44px; /* iOS Human Interface tap target guideline */
+    }
+    @media (min-width: 640px) {
+      .endpoint-header {
+        padding: 1rem 1.25rem;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
     }
     .endpoint-path {
       font-family: 'Fira Code', monospace;
       font-weight: 600;
-      font-size: 0.88rem;
+      font-size: 0.82rem;
       color: #e2e8f0;
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.5rem;
       flex-wrap: wrap;
+      word-break: break-all;
+    }
+    @media (min-width: 640px) {
+      .endpoint-path {
+        font-size: 0.88rem;
+        gap: 0.75rem;
+      }
     }
     .endpoint-summary {
       color: var(--text-muted);
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 500;
+      line-height: 1.4;
     }
     .endpoint-body {
-      padding: 1.25rem;
+      padding: 1rem;
       border-top: 1px solid var(--card-border);
       background: rgba(0, 0, 0, 0.2);
+    }
+    @media (min-width: 640px) {
+      .endpoint-body {
+        padding: 1.25rem;
+      }
     }
     .desc-text {
       font-size: 0.85rem;
@@ -164,42 +263,78 @@ export function renderApiDocsHtml(): string {
       border-radius: 0.375rem;
       color: #e2e8f0;
       font-family: 'Fira Code', monospace;
-      font-size: 0.8rem;
-      padding: 0.6rem 0.75rem;
+      font-size: 16px; /* Essential for iPhone/iOS Safari to prevent unwanted page auto-zoom */
+      padding: 0.65rem 0.75rem;
+      box-sizing: border-box;
+      -webkit-appearance: none;
+    }
+    @media (min-width: 640px) {
+      .input-text, .textarea-json {
+        font-size: 0.82rem;
+      }
     }
     .input-text:focus, .textarea-json:focus {
       outline: none;
       border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
     }
     .btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 0.5rem;
-      padding: 0.5rem 1rem;
+      padding: 0.55rem 1rem;
       border-radius: 0.375rem;
       font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
       border: none;
       transition: all 0.15s ease;
+      min-height: 40px;
+      user-select: none;
     }
     .btn-primary { background: #2563eb; color: white; }
     .btn-primary:hover { background: #1d4ed8; }
     .btn-secondary { background: #1e293b; color: #94a3b8; }
     .btn-secondary:hover { background: #334155; color: white; }
     
+    .btn-action-container {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn-action-container .btn {
+      flex: 1 1 calc(50% - 0.25rem);
+      min-width: 130px;
+    }
+    @media (max-width: 480px) {
+      .btn-action-container .btn {
+        flex: 1 1 100%;
+      }
+    }
+
     .response-box {
       margin-top: 1rem;
       background: var(--code-bg);
       border: 1px solid #1e293b;
       border-radius: 0.375rem;
-      padding: 1rem;
+      padding: 0.85rem;
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
       font-family: 'Fira Code', monospace;
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       color: #a7f3d0;
       white-space: pre-wrap;
+      word-break: break-all;
       max-height: 350px;
+    }
+    @media (min-width: 640px) {
+      .response-box {
+        padding: 1rem;
+        font-size: 0.78rem;
+      }
     }
     .response-header {
       display: flex;
@@ -208,25 +343,27 @@ export function renderApiDocsHtml(): string {
       margin-bottom: 0.5rem;
       font-size: 0.75rem;
       color: #94a3b8;
+      flex-wrap: wrap;
+      gap: 0.25rem;
     }
   </style>
 </head>
 <body>
   <div class="header">
     <div class="container">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;">
-        <div>
-          <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.4rem;">
+      <div class="header-top">
+        <div class="header-brand">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; flex-wrap:wrap;">
             <span style="background:#2563eb; color:white; font-size:0.75rem; font-weight:800; padding:0.2rem 0.5rem; border-radius:0.35rem;">SI-PATIR</span>
             <span style="font-size:0.75rem; color:#94a3b8; font-family:'Fira Code', monospace;">v${API_METADATA.version}</span>
             <span style="background:rgba(16,185,129,0.15); color:#34d399; font-size:0.7rem; padding:0.15rem 0.45rem; border-radius:0.3rem; border:1px solid rgba(16,185,129,0.3);">● Live API</span>
           </div>
-          <h1 style="font-size:1.6rem; font-weight:800; color:#fff;">Interactive REST API Explorer</h1>
-          <p style="color:#94a3b8; font-size:0.88rem; max-width:680px; margin-top:0.35rem;">
+          <h1 style="font-size:1.45rem; font-weight:800; color:#fff; line-height:1.2;">Interactive REST API Explorer</h1>
+          <p style="color:#94a3b8; font-size:0.85rem; max-width:680px; margin-top:0.35rem; line-height:1.5;">
             ${API_METADATA.description}
           </p>
         </div>
-        <div style="display:flex; gap:0.5rem; align-items:center;">
+        <div class="header-actions">
           <a href="http://localhost:3000/dashboard" class="btn btn-secondary">← Ke Web Dashboard</a>
           <a href="/api/v1/system/docs" target="_blank" class="btn btn-secondary">JSON OpenAPI</a>
         </div>
@@ -243,14 +380,14 @@ export function renderApiDocsHtml(): string {
           id="api-search-input"
           placeholder="Cari endpoint (misal: /tasks, PATCH, trello, status)..."
           class="input-text"
-          style="padding-left: 2.25rem; font-size: 0.85rem;"
+          style="padding-left: 2.25rem;"
         />
-        <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: #64748b; font-size: 0.85rem; pointer-events: none;">🔍</span>
+        <span style="position: absolute; left: 0.75rem; top: 0.65rem; color: #64748b; font-size: 0.85rem; pointer-events: none;">🔍</span>
       </div>
     </div>
   </div>
 
-  <div class="container" style="margin-top:1.5rem;">
+  <div class="container" style="margin-top:1.25rem;">
     <div id="endpoints-list">
       ${API_ENDPOINTS.map((endpoint, index) => {
         const badgeClass = `badge-${endpoint.method.toLowerCase()}`;
@@ -288,7 +425,7 @@ export function renderApiDocsHtml(): string {
               </div>
             ` : ''}
 
-            <div style="display:flex; gap:0.5rem; align-items:center; margin-top:1rem;">
+            <div class="btn-action-container">
               <button type="button" class="btn btn-primary btn-execute" data-index="${index}" data-method="${endpoint.method}" data-path="${endpoint.path}">
                 ⚡ Send Request
               </button>

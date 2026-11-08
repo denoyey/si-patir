@@ -57,5 +57,42 @@ export class ActivityLogRepository {
       created_at: timeStr,
     });
   }
+
+  public async recordIfNew(
+    eventType: 'PUSH_EVENT' | 'TASK_COMPLETED' | 'TRELLO_SYNC' | 'SYSTEM_ALERT',
+    author: string,
+    commitMsg: string,
+    taskCode: string = '',
+    status: 'SUCCESS' | 'FAILED' | 'WARNING' = 'SUCCESS',
+    createdAt?: string
+  ): Promise<boolean> {
+    if (this.db.isConnected() && this.db.getPool()) {
+      try {
+        const [existing]: any = await this.db.getPool()!.query(
+          'SELECT id FROM activity_logs WHERE commit_message = ? LIMIT 1',
+          [commitMsg]
+        );
+        if (existing && existing.length > 0) {
+          return false;
+        }
+
+        if (createdAt) {
+          await this.db.getPool()!.query(
+            'INSERT INTO activity_logs (event_type, author, commit_message, task_code, status, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+            [eventType, author, commitMsg, taskCode, status, new Date(createdAt)]
+          );
+        } else {
+          await this.db.getPool()!.query(
+            'INSERT INTO activity_logs (event_type, author, commit_message, task_code, status) VALUES (?, ?, ?, ?, ?)',
+            [eventType, author, commitMsg, taskCode, status]
+          );
+        }
+        return true;
+      } catch (err: any) {
+        console.error('[ActivityLogRepository] recordIfNew error:', err.message);
+      }
+    }
+    return false;
+  }
 }
 

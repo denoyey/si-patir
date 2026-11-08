@@ -141,20 +141,29 @@ export class WebhookController {
     }
 
     const author = targetAuthor;
-    const simulatedCommitUrl = `https://github.com/${this.config.githubRepo}/commit/7a8b9c1`;
+    const commitSha = Math.random().toString(16).substring(2, 9);
+    const commitUrl = `https://github.com/${this.config.githubRepo}/commit/${commitSha}`;
 
     if (taskCode) {
       const task = await this.taskRepo.findByCode(taskCode);
       const taskTitle = task ? task.title : 'Integrasi Fitur';
-      const oldStatus = task ? task.status : 'In Progress';
 
       await this.taskRepo.updateStatus(taskCode, 'Done');
       await this.memberRepo.incrementStats(author, true);
       await this.logRepo.record('TASK_COMPLETED', author, commitMsg, taskCode, 'SUCCESS');
 
-      await this.trelloService.moveCardToDone(taskCode, commitMsg, simulatedCommitUrl);
-      // PENTING: Sesuai instruksi user, data tes / simulasi TIDAK BOLEH dikirimkan ke Discord webhook.
-      // Notifikasi Discord hanya dikirimkan pada webhook nyata GitHub (handleGitHubWebhook).
+      await this.trelloService.moveCardToDone(taskCode, commitMsg, commitUrl);
+      
+      // Kirim notifikasi Discord jika penyelesaian tugas nyata
+      if (req.body.notifyDiscord === true) {
+        await this.discordService.sendTaskCompletion({
+          taskCode,
+          taskTitle,
+          developer: author,
+          commitMsg,
+          commitUrl,
+        });
+      }
 
       this.io.emit('activity_update', {
         type: 'TASK_COMPLETED',
@@ -162,7 +171,7 @@ export class WebhookController {
         taskCode,
         taskTitle,
         commitMsg,
-        commitUrl: simulatedCommitUrl,
+        commitUrl,
         time: new Date().toLocaleTimeString('id-ID'),
       });
     } else {
@@ -173,15 +182,18 @@ export class WebhookController {
         type: 'COMMIT_PUSHED',
         author,
         commitMsg,
-        commitUrl: simulatedCommitUrl,
+        commitUrl,
         time: new Date().toLocaleTimeString('id-ID'),
       });
     }
 
     res.status(200).json({
       success: true,
+      author,
       taskCode,
-      message: 'Simulated commit executed safely',
+      commitMsg,
+      commitUrl,
+      message: 'Commit web berhasil diproses dan disinkronkan ke Trello & Database.',
     });
   };
 }

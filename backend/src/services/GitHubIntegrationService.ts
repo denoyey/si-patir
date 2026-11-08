@@ -3,6 +3,7 @@ import { execSync } from 'child_process';
 import { EnvironmentConfig } from '../config/EnvironmentConfig.js';
 import { MemberRepository } from '../database/repositories/MemberRepository.js';
 import { TaskRepository } from '../database/repositories/TaskRepository.js';
+import { ActivityLogRepository } from '../database/repositories/ActivityLogRepository.js';
 
 export interface IGitHubContributor {
   login: string;
@@ -32,11 +33,13 @@ export class GitHubIntegrationService {
   private config: EnvironmentConfig;
   private memberRepo: MemberRepository;
   private taskRepo: TaskRepository;
+  private logRepo: ActivityLogRepository;
 
   constructor() {
     this.config = EnvironmentConfig.getInstance();
     this.memberRepo = new MemberRepository();
     this.taskRepo = new TaskRepository();
+    this.logRepo = new ActivityLogRepository();
   }
 
   /**
@@ -156,9 +159,89 @@ export class GitHubIntegrationService {
     // 5. Kalkulasi ulang jumlah tugas yang selesai (tasks_done) murni berdasarkan tabel tasks
     await this.memberRepo.recalculateTasksDone();
 
+    // 6. Sinkronisasikan riwayat commit nyata dari GitHub ke tabel activity_logs (Live Stream)
+    await this.syncRecentCommitsToLogs();
+
     console.log(
       `[GitHubIntegrationService] Berhasil menyinkronkan ${synced.length} kolaborator asli GitHub untuk ${this.config.githubRepo}`
     );
     return { success: true, count: synced.length, members: synced };
+  }
+
+  /**
+   * Mengambil riwayat commit terbaru dari GitHub API / git log lokal
+   */
+  public async fetchRecentCommits(): Promise<Array<{ sha: string; author: string; message: string; date: string }>> {
+    const repo = this.config.githubRepo;
+    try {
+      const response = await axios.get(`https://api.github.com/repos/${repo}/commits?per_page=15`, {
+        headers: {
+          'User-Agent': 'SI-PATIR-Integration-Engine',
+          Accept: 'application/vnd.github.v3+json',
+        },
+        timeout: 5000,
+      });
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        return response.data.map((c: any) => ({
+          sha: c.sha ? c.sha.substring(0, 7) : 'commit',
+          author: c.author?.login || c.commit?.author?.name || 'denoyey',
+          message: c.commit?.message?.split('\n')[0] || 'Git commit update',
+          date: c.commit?.author?.date || new Date().toISOString(),
+        }));
+      }
+    } catch {
+      // Fallback ke git log lokal jika API GitHub rate-limited
+    }
+
+    try {
+      const gitOutput = execSync('git log -n 15 --format="%h|%an|%s|%cI"', {
+        encoding: 'utf8',
+        timeout: 5000,
+      });
+      const commits = [];
+      for (const line of gitOutput.split('\n')) {
+        const parts = line.trim().split('|');
+        if (parts.length >= 3) {
+          commits.push({
+            sha: parts[0],
+            author: parts[1],
+            message: parts[2],
+            date: parts[3] || new Date().toISOString(),
+          });
+        }
+      }
+      return commits;
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Menyinkronkan commit terbaru ke tabel activity_logs jika belum ada
+   */
+  public async syncRecentCommitsToLogs(): Promise<number> {
+    try {
+      const commits = await this.fetchRecentCommits();
+      let insertedCount = 0;
+      for (const c of commits) {
+        const taskMatch = c.message.match(/\[done\s+#(TASK-\d+)\]/i) || c.message.match(/#(TASK-\d+)/i);
+        const taskCode = taskMatch ? taskMatch[1].toUpperCase() : '';
+        const eventType = taskCode ? 'TASK_COMPLETED' : 'PUSH_EVENT';
+
+        const ok = await this.logRepo.recordIfNew(
+          eventType,
+          c.author,
+          c.message,
+          taskCode,
+          'SUCCESS',
+          c.date
+        );
+        if (ok) insertedCount++;
+      }
+      return insertedCount;
+    } catch (err: any) {
+      console.warn('[GitHubIntegrationService] Gagal sinkronisasi commits ke log:', err.message);
+      return 0;
+    }
   }
 }
