@@ -233,8 +233,19 @@ export function renderApiDocsHtml(): string {
       </div>
 
       <div class="nav-tabs">
-        <button class="nav-tab active" onclick="filterCategory('ALL')">Semua Endpoint (${API_ENDPOINTS.length})</button>
-        ${categories.map((c) => `<button class="nav-tab" onclick="filterCategory('${c}')">${c} (${API_ENDPOINTS.filter((e) => e.category === c).length})</button>`).join('')}
+        <button type="button" class="nav-tab active" data-cat="ALL">Semua Endpoint (${API_ENDPOINTS.length})</button>
+        ${categories.map((c) => `<button type="button" class="nav-tab" data-cat="${c}">${c} (${API_ENDPOINTS.filter((e) => e.category === c).length})</button>`).join('')}
+      </div>
+
+      <div style="margin-top: 1rem; position: relative;">
+        <input
+          type="text"
+          id="api-search-input"
+          placeholder="Cari endpoint (misal: /tasks, PATCH, trello, status)..."
+          class="input-text"
+          style="padding-left: 2.25rem; font-size: 0.85rem;"
+        />
+        <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: #64748b; font-size: 0.85rem; pointer-events: none;">🔍</span>
       </div>
     </div>
   </div>
@@ -301,24 +312,52 @@ export function renderApiDocsHtml(): string {
   </div>
 
   <script>
-    function toggleCard(index) {
-      const el = document.getElementById('body-' + index);
-      if (el) {
-        el.style.display = el.style.display === 'none' ? 'block' : 'none';
-      }
-    }
+    let currentCategory = 'ALL';
+    let searchQuery = '';
 
-    function filterCategory(cat) {
-      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
-
+    function applyFilters() {
+      const q = searchQuery.toLowerCase().trim();
       document.querySelectorAll('.endpoint-card').forEach(card => {
-        if (cat === 'ALL' || card.getAttribute('data-category') === cat) {
+        const cat = card.getAttribute('data-category');
+        const text = card.textContent.toLowerCase();
+
+        const matchCat = currentCategory === 'ALL' || cat === currentCategory;
+        const matchSearch = !q || text.includes(q);
+
+        if (matchCat && matchSearch) {
           card.style.display = 'block';
         } else {
           card.style.display = 'none';
         }
       });
+    }
+
+    // Attach event listeners to category filter tabs
+    document.querySelectorAll('.nav-tab').forEach(button => {
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentCategory = this.getAttribute('data-cat') || 'ALL';
+        applyFilters();
+      });
+    });
+
+    // Attach event listener to search input
+    const searchInput = document.getElementById('api-search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        searchQuery = this.value;
+        applyFilters();
+      });
+    }
+
+    function toggleCard(index) {
+      const el = document.getElementById('body-' + index);
+      if (el) {
+        const isHidden = window.getComputedStyle(el).display === 'none';
+        el.style.display = isHidden ? 'block' : 'none';
+      }
     }
 
     async function executeApi(index, method, path) {
@@ -374,11 +413,12 @@ export function renderApiDocsHtml(): string {
       let curl = 'curl -X ' + method + ' "' + fullUrl + '"';
       const payloadEl = document.getElementById('payload-' + index);
       if (payloadEl && (method === 'POST' || method === 'PATCH')) {
-        curl += ' \\\n  -H "Content-Type: application/json" \\\n  -d \'' + payloadEl.value.replace(/\\n/g, '') + '\'';
+        const payloadClean = payloadEl.value.replace(/\s+/g, ' ').replace(/'/g, "");
+        curl += ' -H "Content-Type: application/json" -d \'' + payloadClean + '\'';
       }
 
       navigator.clipboard.writeText(curl);
-      alert('Perintah cURL berhasil disalin ke clipboard!\\n\\n' + curl);
+      alert('Perintah cURL berhasil disalin ke clipboard!\n\n' + curl);
     }
   </script>
 </body>
