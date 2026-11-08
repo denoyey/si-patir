@@ -168,5 +168,78 @@ export class TrelloIntegrationService {
       return { success: false, message: err.message };
     }
   }
+
+  public async createCard(
+    title: string,
+    taskCode: string,
+    status: 'To Do' | 'In Progress' | 'Done' = 'In Progress'
+  ): Promise<{ success: boolean; cardId?: string; message: string }> {
+    const { trelloApiKey: key, trelloToken: token, trelloBoardId: boardId, trelloDoneListId: doneListId } = this.config;
+    if (!key || !token || !boardId) {
+      return { success: true, message: 'Trello API tidak dikonfigurasi, skip create card.' };
+    }
+
+    try {
+      const lists = await this.fetchBoardLists();
+      let targetListId = '';
+
+      if (lists && lists.length > 0) {
+        if (status === 'Done') {
+          targetListId = lists.find((l) => l.name.toLowerCase().includes('done'))?.id || doneListId;
+        } else if (status === 'In Progress') {
+          targetListId = lists.find((l) => l.name.toLowerCase().includes('progress') || l.name.toLowerCase().includes('doing'))?.id || '';
+        } else {
+          targetListId = lists.find((l) => l.name.toLowerCase().includes('to do') || l.name.toLowerCase().includes('todo') || l.name.toLowerCase().includes('backlog'))?.id || '';
+        }
+      }
+
+      if (!targetListId) targetListId = lists?.[0]?.id || doneListId;
+
+      const cardName = `${title} [#${taskCode}]`;
+      const res = await axios.post(`https://api.trello.com/1/cards`, null, {
+        params: {
+          idList: targetListId,
+          name: cardName,
+          key,
+          token,
+        },
+        timeout: 5000,
+      });
+
+      return {
+        success: true,
+        cardId: res.data.id,
+        message: `Kartu ${taskCode} berhasil dibuat di Trello.`,
+      };
+    } catch (err: any) {
+      console.warn('[TrelloIntegrationService] Gagal buat kartu di Trello:', err.message);
+      return { success: false, message: err.message };
+    }
+  }
+
+  public async deleteCard(cardIdOrTaskCode: string): Promise<boolean> {
+    const { trelloApiKey: key, trelloToken: token, trelloBoardId: boardId } = this.config;
+    if (!key || !token || !boardId) return true;
+
+    try {
+      let cardId = cardIdOrTaskCode;
+      if (!/^[0-9a-fA-F]{24}$/.test(cardIdOrTaskCode)) {
+        const cards = await this.fetchBoardCards();
+        const targetCard = cards?.find((c: any) =>
+          c.name.toUpperCase().includes(cardIdOrTaskCode.toUpperCase())
+        );
+        if (!targetCard) return false;
+        cardId = targetCard.id;
+      }
+
+      await axios.delete(`https://api.trello.com/1/cards/${cardId}`, {
+        params: { key, token },
+        timeout: 5000,
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }
 

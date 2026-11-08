@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { LandingPage } from './pages/LandingPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { BackToTop } from './components/BackToTop';
+import { MotionTransition } from './components/MotionTransition';
 import { LenisScrollEngine } from './services/scroll/LenisScrollEngine';
 
 function ScrollToTopOnNavigate() {
@@ -38,6 +39,7 @@ export function App() {
     <ThemeProvider>
       <BrowserRouter>
         <ScrollToTopOnNavigate />
+        <MotionTransition />
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />

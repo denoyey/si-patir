@@ -217,16 +217,35 @@ export function DashboardPage() {
     socket.on('activity_update', (event) => {
       if (event.type === 'TASK_COMPLETED') {
         setActiveToast({
-          title: `Task #${event.taskCode} Completed`,
-          desc: `@${event.author} closed task via commit. Trello & Discord updated.`,
+          title: `Tugas #${event.taskCode} Selesai`,
+          desc: `@${event.author || 'tim'} menutup tugas via commit. Papan Trello & Discord terupdate.`,
         });
-      } else {
+        setTimeout(() => setActiveToast(null), 4500);
+      } else if (event.type === 'TASK_STATUS_UPDATED') {
         setActiveToast({
-          title: `Commit Received`,
+          title: `Status #${event.taskCode} Diperbarui`,
+          desc: `Status berhasil diubah ke "${event.status}" & tersinkronisasi ke Trello.`,
+        });
+        setTimeout(() => setActiveToast(null), 3500);
+      } else if (event.type === 'TRELLO_SYNCED') {
+        setActiveToast({
+          title: 'Sinkronisasi Trello Berhasil',
+          desc: `${event.count || 0} kartu dari papan Kanban Trello berhasil disinkronkan.`,
+        });
+        setTimeout(() => setActiveToast(null), 3500);
+      } else if (event.type === 'TASK_CREATED') {
+        setActiveToast({
+          title: `Tugas Baru #${event.taskCode}`,
+          desc: `"${event.title}" berhasil ditambahkan ke sistem.`,
+        });
+        setTimeout(() => setActiveToast(null), 3500);
+      } else if (event.author && event.commitMsg) {
+        setActiveToast({
+          title: 'Commit Baru Diterima',
           desc: `@${event.author}: "${event.commitMsg}"`,
         });
+        setTimeout(() => setActiveToast(null), 4000);
       }
-      setTimeout(() => setActiveToast(null), 5000);
       refreshData();
       streamContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
 

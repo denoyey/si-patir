@@ -57,6 +57,17 @@ export class TaskController {
         return;
       }
       const task = await this.taskRepo.createTask(taskCode, title, assignee, status);
+
+      // Sinkronisasi otomatis pembuatan kartu di papan Trello
+      try {
+        const trelloRes = await this.trelloService.createCard(title, taskCode, status);
+        if (trelloRes.cardId) {
+          await this.taskRepo.updateTrelloCardId(taskCode, trelloRes.cardId);
+        }
+      } catch (trelloErr: any) {
+        console.warn('[TaskController] Trello card creation notice:', trelloErr.message);
+      }
+
       if (this.io) {
         this.io.emit('activity_update', {
           type: 'TASK_CREATED',
@@ -137,6 +148,10 @@ export class TaskController {
     try {
       const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const id = parseInt(idParam, 10);
+      const existing = await this.taskRepo.findById(id);
+      if (existing?.trello_card_id) {
+        this.trelloService.deleteCard(existing.trello_card_id).catch(() => {});
+      }
       const success = await this.taskRepo.deleteTask(id);
       if (this.io) {
         this.io.emit('activity_update', { type: 'TASK_DELETED', id });
