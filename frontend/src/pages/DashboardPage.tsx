@@ -46,11 +46,11 @@ function AvatarWithFallback({ username, name }: { username: string; name: string
   const [error, setError] = useState(false);
   const initials = name
     ? name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase()
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase()
     : username.slice(0, 2).toUpperCase();
 
   if (error || !username) {
@@ -187,7 +187,7 @@ export function DashboardPage() {
     isOpen: false,
     title: '',
     description: '',
-    onConfirm: () => {},
+    onConfirm: () => { },
   });
 
   // Fetch initial system state
@@ -549,11 +549,10 @@ export function DashboardPage() {
 
       {/* TOP NAVBAR - FIXED & SMART SCROLL AUTO-HIDE */}
       <header
-        className={`fixed top-0 left-0 right-0 z-40 border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-[#0d1017]/90 backdrop-blur-md pt-[env(safe-area-inset-top,0px)] transition-transform duration-300 ease-in-out will-change-transform ${
-          isNavbarVisible
+        className={`fixed top-0 left-0 right-0 z-40 border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-[#0d1017]/90 backdrop-blur-md pt-[env(safe-area-inset-top,0px)] transition-transform duration-300 ease-in-out will-change-transform ${isNavbarVisible
             ? 'translate-y-0 shadow-xs pointer-events-auto'
             : '-translate-y-full shadow-none pointer-events-none'
-        }`}
+          }`}
       >
         <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 min-h-[3.25rem] sm:min-h-[3.5rem] py-1.5 sm:py-0 flex items-center justify-between gap-1.5 sm:gap-4">
           {/* Brand Logo & Back to Landing */}
@@ -613,17 +612,15 @@ export function DashboardPage() {
                 title="Pilihan sinkronisasi GitHub & Trello"
               >
                 <RefreshCw
-                  className={`w-3.5 h-3.5 ${
-                    isSyncingGitHub || isSyncingTrello
+                  className={`w-3.5 h-3.5 ${isSyncingGitHub || isSyncingTrello
                       ? 'animate-spin text-emerald-500'
                       : 'text-zinc-500 dark:text-zinc-400'
-                  }`}
+                    }`}
                 />
                 <span className="hidden sm:inline text-xs font-medium">Sync</span>
                 <ChevronDown
-                  className={`w-3 h-3 text-zinc-400 dark:text-zinc-500 transition-transform duration-150 ${
-                    isSyncMenuOpen ? 'rotate-180' : ''
-                  }`}
+                  className={`w-3 h-3 text-zinc-400 dark:text-zinc-500 transition-transform duration-150 ${isSyncMenuOpen ? 'rotate-180' : ''
+                    }`}
                 />
               </button>
 
@@ -934,24 +931,22 @@ export function DashboardPage() {
                             setSelectedAssignee((prev) => (prev?.toLowerCase() === member.github_username.toLowerCase() ? null : member.github_username));
                             setCurrentPage(1);
                           }}
-                          className={`hover:bg-zinc-100/60 dark:hover:bg-zinc-800/40 transition cursor-pointer ${
-                            isSelected
+                          className={`hover:bg-zinc-100/60 dark:hover:bg-zinc-800/40 transition cursor-pointer ${isSelected
                               ? 'bg-blue-50/80 dark:bg-blue-950/30'
                               : ''
-                          }`}
+                            }`}
                           title={`Klik untuk memfilter kartu tugas @${member.github_username}`}
                         >
                           <td className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">
                             <span
-                              className={`inline-flex items-center justify-center font-mono text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-md ${
-                                index === 0
+                              className={`inline-flex items-center justify-center font-mono text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-md ${index === 0
                                   ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 shadow-xs'
                                   : index === 1
-                                  ? 'bg-zinc-200 dark:bg-zinc-700/40 text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-600/50 shadow-xs'
-                                  : index === 2
-                                  ? 'bg-amber-900/15 text-amber-800 dark:text-amber-400 border border-amber-800/30 shadow-xs'
-                                  : 'text-zinc-500'
-                              }`}
+                                    ? 'bg-zinc-200 dark:bg-zinc-700/40 text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-600/50 shadow-xs'
+                                    : index === 2
+                                      ? 'bg-amber-900/15 text-amber-800 dark:text-amber-400 border border-amber-800/30 shadow-xs'
+                                      : 'text-zinc-500'
+                                }`}
                             >
                               #{index + 1}
                             </span>
@@ -1117,11 +1112,10 @@ export function DashboardPage() {
                           setStatusFilter(tab);
                           setCurrentPage(1);
                         }}
-                        className={`px-2.5 py-1 rounded-md text-[11px] sm:text-xs font-medium transition active:scale-95 cursor-pointer text-center truncate flex items-center justify-center gap-1 ${
-                          statusFilter === tab
+                        className={`px-2.5 py-1 rounded-md text-[11px] sm:text-xs font-medium transition active:scale-95 cursor-pointer text-center truncate flex items-center justify-center gap-1 ${statusFilter === tab
                             ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs border border-zinc-300 dark:border-zinc-700 font-semibold'
                             : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
-                        }`}
+                          }`}
                       >
                         <span>{tab === 'ALL' ? 'Semua' : tab}</span>
                         <span className="text-[10px] font-mono opacity-70">({count})</span>
@@ -1222,26 +1216,24 @@ export function DashboardPage() {
                                     handleUpdateTaskStatus(task.id, e.target.value as 'To Do' | 'In Progress' | 'Done')
                                   }
                                   aria-label={`Ubah status tugas #${task.task_code}`}
-                                  className={`appearance-none cursor-pointer text-[11px] font-semibold pl-6 pr-6 py-1 rounded-md border transition shadow-2xs focus:outline-hidden disabled:opacity-60 ${
-                                    isDone
+                                  className={`appearance-none cursor-pointer text-[11px] font-semibold pl-6 pr-6 py-1 rounded-md border transition shadow-2xs focus:outline-hidden disabled:opacity-60 ${isDone
                                       ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30'
                                       : isInProgress
-                                      ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30'
-                                      : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-300 dark:border-zinc-700'
-                                  }`}
+                                        ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/30'
+                                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-300 dark:border-zinc-700'
+                                    }`}
                                 >
                                   <option value="To Do" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">To Do</option>
                                   <option value="In Progress" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">In Progress</option>
                                   <option value="Done" className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">Done</option>
                                 </select>
                                 <span
-                                  className={`w-1.5 h-1.5 rounded-full absolute left-2.5 pointer-events-none ${
-                                    isDone
+                                  className={`w-1.5 h-1.5 rounded-full absolute left-2.5 pointer-events-none ${isDone
                                       ? 'bg-emerald-500 animate-pulse'
                                       : isInProgress
-                                      ? 'bg-amber-500'
-                                      : 'bg-zinc-400'
-                                  }`}
+                                        ? 'bg-amber-500'
+                                        : 'bg-zinc-400'
+                                    }`}
                                 />
                                 <ChevronDown className="w-3 h-3 absolute right-2 pointer-events-none text-current opacity-70" />
                               </div>
@@ -1323,11 +1315,10 @@ export function DashboardPage() {
                         key={pageNum}
                         type="button"
                         onClick={() => setCurrentPage(pageNum)}
-                        className={`h-8 w-8 rounded-md text-xs font-semibold flex items-center justify-center transition active:scale-95 cursor-pointer ${
-                          activePage === pageNum
+                        className={`h-8 w-8 rounded-md text-xs font-semibold flex items-center justify-center transition active:scale-95 cursor-pointer ${activePage === pageNum
                             ? 'bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 border border-zinc-900 dark:border-zinc-200 shadow-xs'
                             : 'bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700'
-                        }`}
+                          }`}
                       >
                         {pageNum}
                       </button>
@@ -1554,11 +1545,10 @@ export function DashboardPage() {
                       key={m.github_username}
                       type="button"
                       onClick={() => setNewTaskAssignee(m.github_username)}
-                      className={`text-[10px] font-mono px-2 py-0.5 rounded-md border transition cursor-pointer active:scale-95 touch-manipulation ${
-                        newTaskAssignee === m.github_username
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded-md border transition cursor-pointer active:scale-95 touch-manipulation ${newTaskAssignee === m.github_username
                           ? 'bg-blue-600 text-white border-blue-600 font-bold'
                           : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:border-zinc-400'
-                      }`}
+                        }`}
                     >
                       @{m.github_username}
                     </button>
