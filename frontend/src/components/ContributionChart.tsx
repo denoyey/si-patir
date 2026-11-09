@@ -153,18 +153,13 @@ export function ContributionChart({ members, tasks }: ContributionChartProps) {
           <div className="p-1.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
             <BarChart3 className="w-4 h-4" />
           </div>
-          <div>
-            <h2 className="text-xs sm:text-sm font-bold text-zinc-950 dark:text-white">
-              Visualisasi Analitik Sprint
-            </h2>
-            <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-              Perbandingan commit antar kontributor &amp; distribusi status penyelesaian tugas
-            </p>
-          </div>
+          <h2 className="text-xs sm:text-sm font-semibold text-zinc-950 dark:text-white">
+            Analitik Sprint
+          </h2>
         </div>
         <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700/80">
           <span>Total:</span>
-          <strong className="text-zinc-900 dark:text-white font-bold">{totalCommits} Commits</strong>
+          <strong className="text-zinc-900 dark:text-white font-bold">{totalCommits} Commit</strong>
         </span>
       </div>
 
@@ -175,7 +170,7 @@ export function ContributionChart({ members, tasks }: ContributionChartProps) {
             <div className="flex items-center gap-2">
               <Trophy className="w-4 h-4 text-amber-500" />
               <h3 className="text-xs font-semibold text-zinc-950 dark:text-white">
-                Rasio Kontribusi Commit per Developer
+                Kontribusi Commit
               </h3>
             </div>
             <span className="text-[10px] font-mono text-zinc-500">
@@ -236,18 +231,13 @@ export function ContributionChart({ members, tasks }: ContributionChartProps) {
                         }`}
                         style={{ width: `${barWidth}%` }}
                         data-target-width={`${barWidth}%`}
-                        title={`${member.name}: ${member.total_commits} commits (${commitRatio}%)`}
+                        title={`${member.name}: ${member.total_commits} commit (${commitRatio}%)`}
                       />
                     </div>
                   </div>
                 );
               })
             )}
-          </div>
-
-          <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-500 font-mono">
-            <span>Standar Git Sprint Leaderboard</span>
-            <span>Update Otomatis via Webhook</span>
           </div>
         </div>
 
@@ -257,11 +247,11 @@ export function ContributionChart({ members, tasks }: ContributionChartProps) {
             <div className="flex items-center gap-2">
               <PieChart className="w-4 h-4 text-emerald-500" />
               <h3 className="text-xs font-semibold text-zinc-950 dark:text-white">
-                Distribusi Status Tugas Kanban Sprint
+                Status Tugas
               </h3>
             </div>
             <span className="text-[10px] font-mono text-zinc-500">
-              {taskStats.total} Total Tugas
+              {taskStats.total} Tugas
             </span>
           </div>
 
@@ -345,7 +335,7 @@ export function ContributionChart({ members, tasks }: ContributionChartProps) {
                   Selesai
                 </span>
                 <span className="text-[9px] text-zinc-400 font-mono">
-                  {taskStats.done}/{taskStats.total} task
+                  {taskStats.done}/{taskStats.total}
                 </span>
               </div>
             </div>
@@ -359,7 +349,7 @@ export function ContributionChart({ members, tasks }: ContributionChartProps) {
                   <span className="font-semibold text-emerald-900 dark:text-emerald-300">Done</span>
                 </div>
                 <div className="flex items-center gap-2 font-mono">
-                  <span className="font-bold text-emerald-700 dark:text-emerald-400">{taskStats.done} tugas</span>
+                  <span className="font-bold text-emerald-700 dark:text-emerald-400">{taskStats.done}</span>
                   <span className="text-[11px] text-emerald-600/80 dark:text-emerald-400/80">({taskStats.donePercent}%)</span>
                 </div>
               </div>
@@ -371,7 +361,7 @@ export function ContributionChart({ members, tasks }: ContributionChartProps) {
                   <span className="font-semibold text-amber-900 dark:text-amber-300">In Progress</span>
                 </div>
                 <div className="flex items-center gap-2 font-mono">
-                  <span className="font-bold text-amber-700 dark:text-amber-400">{taskStats.inProgress} tugas</span>
+                  <span className="font-bold text-amber-700 dark:text-amber-400">{taskStats.inProgress}</span>
                   <span className="text-[11px] text-amber-600/80 dark:text-amber-400/80">({taskStats.inProgressPercent}%)</span>
                 </div>
               </div>
@@ -383,16 +373,11 @@ export function ContributionChart({ members, tasks }: ContributionChartProps) {
                   <span className="font-semibold text-zinc-800 dark:text-zinc-300">To Do</span>
                 </div>
                 <div className="flex items-center gap-2 font-mono">
-                  <span className="font-bold text-zinc-700 dark:text-zinc-300">{taskStats.todo} tugas</span>
+                  <span className="font-bold text-zinc-700 dark:text-zinc-300">{taskStats.todo}</span>
                   <span className="text-[11px] text-zinc-500">({taskStats.todoPercent}%)</span>
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-500 font-mono">
-            <span>Sinkronisasi Otomatis Trello Kanban</span>
-            <span>Rasio Sprint: {taskStats.donePercent}%</span>
           </div>
         </div>
       </div>

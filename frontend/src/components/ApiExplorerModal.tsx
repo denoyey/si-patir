@@ -173,7 +173,7 @@ export function ApiExplorerModal({ isOpen, onClose }: ApiExplorerModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-3 sm:p-5">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-3 sm:p-5">
       <div
         data-lenis-prevent
         className="bg-white dark:bg-[#0f131d] border border-zinc-200 dark:border-zinc-800 rounded-lg w-full max-w-4xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"

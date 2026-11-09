@@ -194,7 +194,7 @@ export function DashboardPage() {
   );
   const [isTerminalSubmitting, setIsTerminalSubmitting] = useState(false);
   const [terminalOutput, setTerminalOutput] = useState<string>(
-    'SI-PATIR Web Git Terminal Ready. Ketik perintah git commit di bawah & tekan Kirim.'
+    'Terminal siap. Ketik perintah commit di bawah.'
   );
 
   // Sync Dropdown State
@@ -709,7 +709,7 @@ export function DashboardPage() {
       });
 
       setTerminalOutput(
-        `[OK] Commit berhasil disimulasikan untuk @${effectiveAuthor}! ${taskCode ? `Task #${taskCode} selesai & Trello tersinkron.` : 'Push event tercatat di stream.'}`
+        `[OK] Commit @${effectiveAuthor}: ${taskCode ? `Task #${taskCode} selesai.` : 'Push event tercatat.'}`
       );
 
       setActiveToast({
@@ -777,14 +777,9 @@ export function DashboardPage() {
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-800 dark:to-zinc-900 border border-zinc-700 text-white flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-xs">
               SP
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              <span className="font-bold text-sm tracking-tight text-zinc-950 dark:text-white whitespace-nowrap">
-                SI-PATIR
-              </span>
-              <span className="hidden md:inline-flex text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700 shrink-0">
-                Live Monitoring
-              </span>
-            </div>
+            <span className="font-bold text-sm tracking-tight text-zinc-950 dark:text-white whitespace-nowrap">
+              SI-PATIR
+            </span>
           </div>
 
           {/* Action Buttons & Theme Switcher */}
@@ -830,10 +825,10 @@ export function DashboardPage() {
               type="button"
               onClick={handlePrint}
               className="no-print h-8 sm:h-8.5 px-2 sm:px-2.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs shrink-0"
-              title="Cetak dashboard ke format PDF untuk evaluasi dosen"
+              title="Cetak dashboard ke format PDF"
             >
               <Printer className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-300" />
-              <span className="hidden md:inline text-xs font-medium">Cetak PDF</span>
+              <span className="hidden md:inline text-xs font-medium">PDF</span>
             </button>
 
             {/* Theme Switcher Dropdown */}
@@ -980,32 +975,26 @@ export function DashboardPage() {
             </a>
           </div>
 
-          {/* Connection Status Badges - 2x2 grid on mobile, flex on sm+ */}
+          {/* Connection Status Badges */}
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
-            <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2 sm:px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs">
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs font-mono">
               <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-              <span className="text-zinc-500 dark:text-zinc-400">GitHub:</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-medium">Ready</span>
+              <span className="text-zinc-700 dark:text-zinc-300 font-medium">GitHub</span>
             </div>
 
-            <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2 sm:px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs">
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs font-mono">
               <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-              <span className="text-zinc-500 dark:text-zinc-400">Trello:</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-medium">Synced</span>
+              <span className="text-zinc-700 dark:text-zinc-300 font-medium">Trello</span>
             </div>
 
-            <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2 sm:px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs">
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs font-mono">
               <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-              <span className="text-zinc-500 dark:text-zinc-400">Discord:</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-medium">Active</span>
+              <span className="text-zinc-700 dark:text-zinc-300 font-medium">Discord</span>
             </div>
 
-            <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2 sm:px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs">
-              <Database className="w-3 h-3 text-blue-500 dark:text-blue-400 shrink-0" />
-              <span className="text-zinc-500 dark:text-zinc-400">MySQL:</span>
-              <span className={status.mysql ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-amber-600 dark:text-amber-400 font-medium'}>
-                {status.mysql ? 'Connected' : 'Memory Sync'}
-              </span>
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs font-mono">
+              <Database className={`w-3 h-3 ${status.mysql ? 'text-emerald-500' : 'text-amber-500'} shrink-0`} />
+              <span className="text-zinc-700 dark:text-zinc-300 font-medium">MySQL</span>
             </div>
           </div>
         </div>
@@ -1017,10 +1006,10 @@ export function DashboardPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div
             data-anim="stat-card"
-            className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-150 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
+            className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-150 rounded-lg p-3.5 sm:p-5 flex flex-col justify-between shadow-xs"
           >
             <div className="flex items-center justify-between text-xs">
-              <span className="font-medium text-zinc-500 dark:text-zinc-400">Total Commits</span>
+              <span className="font-medium text-zinc-500 dark:text-zinc-400">Total Commit</span>
               <div className="p-1.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 shrink-0">
                 <GitCommit className="w-4 h-4" />
               </div>
@@ -1028,16 +1017,11 @@ export function DashboardPage() {
             <div ref={totalCommitsRef} className="text-2xl sm:text-3xl font-bold font-mono text-zinc-950 dark:text-white tracking-tight mt-1">
               {metrics.totalCommits}
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0"></span>
-              <span className="hidden sm:inline">Tercatat di Git repositori</span>
-              <span className="sm:hidden">Tercatat di Git</span>
-            </div>
           </div>
 
           <div
             data-anim="stat-card"
-            className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-150 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
+            className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-150 rounded-lg p-3.5 sm:p-5 flex flex-col justify-between shadow-xs"
           >
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium text-zinc-500 dark:text-zinc-400">Tugas Selesai</span>
@@ -1049,24 +1033,19 @@ export function DashboardPage() {
               <span ref={totalDoneRef}>{metrics.totalDone}</span>
               <span className="text-zinc-400 text-sm font-normal">/ {tasks.length}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
-              <span className="hidden sm:inline">Status sinkron real-time Trello</span>
-              <span className="sm:hidden">Sinkron real-time</span>
-            </div>
           </div>
 
           <div
             data-anim="stat-card"
-            className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-150 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
+            className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-150 rounded-lg p-3.5 sm:p-5 flex flex-col justify-between shadow-xs"
           >
             <div className="flex items-center justify-between text-xs">
-              <span className="font-medium text-zinc-500 dark:text-zinc-400">Penyelesaian Sprint</span>
+              <span className="font-medium text-zinc-500 dark:text-zinc-400">Progress Sprint</span>
               <div className="p-1.5 rounded-md bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 shrink-0">
                 <Activity className="w-4 h-4" />
               </div>
             </div>
-            <div ref={completionRateRef} className="text-2xl sm:text-3xl font-bold font-mono text-zinc-950 dark:text-white tracking-tight mt-1">
+            <div ref={completionRateRef} className="text-2xl sm:text-3xl font-bold font-mono text-zinc-950 dark:text-white tracking-tight mt-1 mb-1.5">
               {metrics.completionRate}%
             </div>
             <div className="w-full bg-zinc-200 dark:bg-zinc-800/80 h-2 rounded-md overflow-hidden">
@@ -1080,21 +1059,16 @@ export function DashboardPage() {
 
           <div
             data-anim="stat-card"
-            className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-150 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
+            className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-150 rounded-lg p-3.5 sm:p-5 flex flex-col justify-between shadow-xs"
           >
             <div className="flex items-center justify-between text-xs">
-              <span className="font-medium text-zinc-500 dark:text-zinc-400">Proteksi Webhook</span>
+              <span className="font-medium text-zinc-500 dark:text-zinc-400">Keamanan Webhook</span>
               <div className="p-1.5 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-400 shrink-0">
                 <ShieldCheck className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-sm xs:text-base sm:text-xl font-bold font-mono text-emerald-600 dark:text-emerald-300 tracking-tight mt-0.5">
+            <div className="text-base sm:text-xl font-bold font-mono text-emerald-600 dark:text-emerald-300 tracking-tight mt-1">
               HMAC SHA-256
-            </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 shrink-0"></span>
-              <span className="hidden sm:inline">Anti-Timing Attack &amp; DoS Guard</span>
-              <span className="sm:hidden">Anti-Timing Attack</span>
             </div>
           </div>
         </div>
@@ -1108,31 +1082,27 @@ export function DashboardPage() {
           <div data-anim="content-grid" className="lg:col-span-2 space-y-5">
             {/* 1. KLASEMEN KONTRIBUSI ANGGOTA NYATA */}
             <section className="bg-white dark:bg-[#0e121b] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden shadow-xs">
-              <div className="px-3.5 sm:px-5 py-3 sm:py-3.5 min-h-[52px] border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#121623] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-2">
+              <div className="px-3.5 sm:px-5 py-3 sm:py-3.5 min-h-[52px] border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#121623] flex items-center justify-between gap-2.5 sm:gap-2">
                 <div className="flex items-center gap-2">
                   <div className="p-1 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
                     <Trophy className="w-4 h-4" />
                   </div>
-                  <div>
-                    <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-950 dark:text-white">
-                      Klasemen Kontribusi Anggota
-                    </h2>
-                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">{members.length} Developer Terdaftar</span>
-                  </div>
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-950 dark:text-white">
+                    Klasemen Tim
+                  </h2>
                 </div>
 
-                <div className="flex items-center gap-2 self-start sm:self-center">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={(e) => {
                       engine.animateButtonPress(e.currentTarget);
                       setShowAddMemberModal(true);
                     }}
                     className="h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
-                    title="Tambah anggota kelompok nyata"
+                    title="Tambah anggota kelompok"
                   >
                     <Plus className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                    <span className="hidden sm:inline">Tambah Anggota</span>
-                    <span className="sm:hidden">Tambah</span>
+                    <span>Tambah</span>
                   </button>
 
                   <button
@@ -1153,12 +1123,12 @@ export function DashboardPage() {
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100/60 dark:bg-[#0a0d14] text-zinc-500 dark:text-zinc-400 font-mono text-[11px]">
-                      <th className="py-2.5 sm:py-3 px-1.5 sm:px-4 w-10 sm:w-16 text-center">RANK</th>
-                      <th className="py-2.5 sm:py-3 px-1.5 sm:px-4">DEVELOPER</th>
-                      <th className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">COMMITS</th>
-                      <th className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">TASKS</th>
-                      <th className="hidden md:table-cell py-2.5 sm:py-3 px-4 text-right" title="Aktif jika memiliki minimal 1 commit di repositori">
-                        STATUS KERJA
+                      <th className="py-2.5 sm:py-3 px-1.5 sm:px-4 w-10 sm:w-16 text-center">Rank</th>
+                      <th className="py-2.5 sm:py-3 px-1.5 sm:px-4">Developer</th>
+                      <th className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">Commit</th>
+                      <th className="py-2.5 sm:py-3 px-1.5 sm:px-4 text-center">Tugas</th>
+                      <th className="hidden md:table-cell py-2.5 sm:py-3 px-4 text-right">
+                        Status
                       </th>
                     </tr>
                   </thead>
@@ -1213,7 +1183,7 @@ export function DashboardPage() {
                                     </span>
                                   )}
                                   {isActive && (
-                                    <span className="md:hidden w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" title="Aktif Berkontribusi"></span>
+                                    <span className="md:hidden w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" title="Aktif"></span>
                                   )}
                                 </div>
                                 <div className="flex items-center gap-2 mt-0.5">
@@ -1245,15 +1215,15 @@ export function DashboardPage() {
                               {isActive ? (
                                 <span
                                   className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-200 dark:border-emerald-500/20 text-xs font-medium"
-                                  title="Developer aktif: telah melakukan minimal 1 commit di repositori"
+                                  title="Developer aktif berkontribusi"
                                 >
                                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                  Aktif Berkontribusi
+                                  Aktif
                                 </span>
                               ) : (
                                 <span
                                   className="inline-flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/60 px-2.5 py-1 rounded-md border border-zinc-300 dark:border-zinc-700 text-xs"
-                                  title="Standby: belum ada riwayat commit di repositori"
+                                  title="Belum ada riwayat commit"
                                 >
                                   Standby
                                 </span>
@@ -1271,27 +1241,22 @@ export function DashboardPage() {
             {/* 2. DAFTAR TUGAS PROYEK - FILAMENT V5 DATA TABLE */}
             <section className="bg-white dark:bg-[#0e121b] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden shadow-xs">
               {/* Table Top Toolbar */}
-              <div className="p-3.5 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-[#121623] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="p-3.5 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-[#121623] flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5">
                   <div className="p-1.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0">
                     <CheckSquare className="w-4 h-4" />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-950 dark:text-white">
-                        Daftar Kartu Tugas
-                      </h2>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-200/80 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700">
-                        {totalResults} tugas
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                      Sinkronisasi otomatis dengan papan Trello &amp; GitHub
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-950 dark:text-white">
+                      Daftar Tugas
+                    </h2>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-200/80 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700">
+                      {totalResults}
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 self-start sm:self-center">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={(e) => {
@@ -1299,10 +1264,10 @@ export function DashboardPage() {
                       setShowAddTaskModal(true);
                     }}
                     className="h-8.5 px-3 rounded-md bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white active:scale-95 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
-                    title="Tambah kartu tugas baru"
+                    title="Tambah tugas baru"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>Tambah Tugas</span>
+                    <span>Tambah</span>
                   </button>
                 </div>
               </div>
@@ -1321,9 +1286,9 @@ export function DashboardPage() {
                       setSearchQuery(e.target.value);
                       setCurrentPage(1);
                     }}
-                    placeholder="Cari kode tugas (#TASK), judul, atau assignee..."
+                    placeholder="Cari tugas..."
                     autoComplete="off"
-                    aria-label="Cari kode tugas, judul, atau assignee"
+                    aria-label="Cari tugas"
                     className="w-full h-9 pl-9 pr-8 rounded-md bg-zinc-50 dark:bg-[#121624] border border-zinc-300 dark:border-zinc-800 text-xs text-zinc-900 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-hidden focus:border-blue-500 transition shadow-inner"
                   />
                   {searchQuery && (
@@ -1374,7 +1339,7 @@ export function DashboardPage() {
               {selectedAssignee && (
                 <div className="px-3.5 sm:px-4 py-2 bg-blue-50/80 dark:bg-blue-950/25 border-b border-blue-200 dark:border-blue-900/40 flex items-center justify-between text-xs text-blue-900 dark:text-blue-300">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span>Menyaring tugas untuk kontributor:</span>
+                    <span>Menyaring tugas:</span>
                     <span className="font-mono font-bold bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800">
                       @{selectedAssignee}
                     </span>
@@ -1388,7 +1353,7 @@ export function DashboardPage() {
                     className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 flex items-center gap-1 cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5" />
-                    <span>Hapus Filter</span>
+                    <span>Hapus</span>
                   </button>
                 </div>
               )}
@@ -1398,26 +1363,21 @@ export function DashboardPage() {
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-[#0a0d14] text-zinc-500 dark:text-zinc-400 font-mono text-[11px]">
-                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 w-28">KODE TUGAS</th>
-                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 min-w-[200px]">JUDUL TUGAS</th>
-                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 min-w-[140px]">ASSIGNEE</th>
-                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-center w-32">STATUS</th>
-                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right w-16">AKSI</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 w-28">Kode</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 min-w-[200px]">Judul</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 min-w-[140px]">Assignee</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-center w-32">Status</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right w-16">Aksi</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800/60">
                     {paginatedTasks.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="py-12 text-center text-xs text-zinc-500 dark:text-zinc-400">
-                          <div className="flex flex-col items-center justify-center gap-2">
-                            <CheckSquare className="w-8 h-8 text-zinc-300 dark:text-zinc-600" />
+                          <div className="flex flex-col items-center justify-center gap-1.5">
+                            <CheckSquare className="w-6 h-6 text-zinc-300 dark:text-zinc-600" />
                             <p className="font-medium text-zinc-700 dark:text-zinc-300">
-                              Tidak ada kartu tugas ditemukan.
-                            </p>
-                            <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
-                              {searchQuery || statusFilter !== 'ALL'
-                                ? 'Coba ubah kata kunci pencarian atau filter status.'
-                                : 'Klik tombol "Tambah Tugas" untuk membuat tugas baru.'}
+                              Tidak ada tugas
                             </p>
                           </div>
                         </td>
@@ -1521,14 +1481,13 @@ export function DashboardPage() {
 
               {/* Filament v5 Pagination Footer */}
               <div className="border-t border-zinc-200 dark:border-zinc-800 px-3.5 sm:px-5 py-3 bg-zinc-50/80 dark:bg-[#121623] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-                {/* Result count ("Show result") */}
-                <div className="text-zinc-600 dark:text-zinc-400 text-[11px] sm:text-xs text-center sm:text-left">
+                {/* Result count */}
+                <div className="text-zinc-600 dark:text-zinc-400 text-[11px] sm:text-xs text-center sm:text-left font-mono">
                   {totalResults === 0 ? (
-                    <span>Menampilkan 0 tugas</span>
+                    <span>0 tugas</span>
                   ) : (
                     <span>
-                      Menampilkan <span className="font-semibold text-zinc-900 dark:text-white">{startIndex + 1}</span> sampai{' '}
-                      <span className="font-semibold text-zinc-900 dark:text-white">{endIndex}</span> dari{' '}
+                      <span className="font-semibold text-zinc-900 dark:text-white">{startIndex + 1}–{endIndex}</span> dari{' '}
                       <span className="font-semibold text-zinc-900 dark:text-white">{totalResults}</span> tugas
                     </span>
                   )}
@@ -1610,7 +1569,7 @@ export function DashboardPage() {
                 <div className="flex items-center gap-2">
                   <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <h3 className="text-xs font-semibold text-zinc-950 dark:text-white">
-                    Live Webhook Stream
+                    Aktivitas Webhook
                   </h3>
                   <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-200/80 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
                     {filteredLogs.length}
@@ -1618,7 +1577,7 @@ export function DashboardPage() {
                 </div>
                 <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-medium">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                  <span>Listening</span>
+                  <span>Live</span>
                 </div>
               </div>
 
@@ -1630,7 +1589,7 @@ export function DashboardPage() {
                     type="text"
                     value={logSearchQuery}
                     onChange={(e) => setLogSearchQuery(e.target.value)}
-                    placeholder="Cari commit, #TASK, event..."
+                    placeholder="Cari log..."
                     className="w-full pl-8 pr-7 py-1.5 rounded-md bg-white dark:bg-[#090b10] border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 text-xs font-mono focus:outline-hidden focus:border-zinc-400 dark:focus:border-zinc-600 transition shadow-2xs"
                   />
                   {logSearchQuery && (
@@ -1687,7 +1646,7 @@ export function DashboardPage() {
               >
                 {filteredLogs.length === 0 ? (
                   <div className="text-center py-12 px-4 text-zinc-400 dark:text-zinc-600 text-xs space-y-2">
-                    <p>Tidak ada aktivitas webhook yang sesuai.</p>
+                    <p>Tidak ada aktivitas webhook.</p>
                     {(logSearchQuery || logAuthorFilter !== 'ALL') && (
                       <button
                         type="button"
@@ -1697,7 +1656,7 @@ export function DashboardPage() {
                         }}
                         className="text-blue-600 dark:text-blue-400 underline cursor-pointer text-[11px]"
                       >
-                        Reset filter stream
+                        Reset filter
                       </button>
                     )}
                   </div>
@@ -1739,7 +1698,7 @@ export function DashboardPage() {
                         {log.task_code && (
                           <div className="inline-flex items-center gap-1.5 text-[10.5px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-500/20">
                             <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                            <span>#{log.task_code} digeser ke Done &amp; Discord ternotifikasi</span>
+                            <span>#{log.task_code} selesai</span>
                           </div>
                         )}
                       </div>
@@ -1756,16 +1715,9 @@ export function DashboardPage() {
                     <div className="p-1.5 rounded-md bg-zinc-200/80 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 shrink-0">
                       <Terminal className="w-3.5 h-3.5" />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-semibold text-zinc-950 dark:text-white text-xs">
-                          Terminal Web Git
-                        </span>
-                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700">
-                          Direct Pipeline
-                        </span>
-                      </div>
-                    </div>
+                    <span className="font-semibold text-zinc-950 dark:text-white text-xs">
+                      Terminal Git
+                    </span>
                   </div>
 
                   <button
@@ -1773,13 +1725,13 @@ export function DashboardPage() {
                     onClick={() => {
                       navigator.clipboard.writeText(terminalCommand);
                       setActiveToast({
-                        title: 'Sintaks Berhasil Disalin',
-                        desc: 'Perintah commit telah disalin ke clipboard.',
+                        title: 'Tersalin',
+                        desc: 'Perintah disalin ke clipboard.',
                       });
                       setTimeout(() => setActiveToast(null), 3000);
                     }}
                     className="px-2 py-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 text-[11px] font-mono flex items-center gap-1 transition active:scale-95 cursor-pointer shadow-2xs shrink-0"
-                    title="Salin sintaks perintah saat ini"
+                    title="Salin sintaks perintah"
                   >
                     <Copy className="w-3 h-3" />
                     <span>Salin</span>
@@ -1790,7 +1742,7 @@ export function DashboardPage() {
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
                     <label htmlFor="terminal-author-select" className="block text-[10px] font-medium text-zinc-500 dark:text-zinc-400 mb-1">
-                      Author Kontributor
+                      Author
                     </label>
                     <select
                       id="terminal-author-select"
@@ -1808,7 +1760,7 @@ export function DashboardPage() {
 
                   <div>
                     <label htmlFor="terminal-task-select" className="block text-[10px] font-medium text-zinc-500 dark:text-zinc-400 mb-1">
-                      Template Tugas
+                      Template
                     </label>
                     <select
                       id="terminal-task-select"
@@ -1830,7 +1782,7 @@ export function DashboardPage() {
                       }}
                       className="w-full h-8 px-2 rounded-md bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 text-xs focus:outline-hidden focus:border-blue-500 transition cursor-pointer shadow-2xs"
                     >
-                      <option value="" disabled>Pilih Tugas (#TASK)...</option>
+                      <option value="" disabled>Pilih Tugas...</option>
                       {tasks.slice(0, 6).map((t) => (
                         <option key={t.id} value={t.task_code}>
                           #{t.task_code} - {t.title.slice(0, 22)}
@@ -1881,7 +1833,7 @@ export function DashboardPage() {
                 {/* Bottom Action Row (Spacious & Clean, Not Squeezed!) */}
                 <div className="flex items-center justify-between gap-2 pt-0.5 text-xs">
                   <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                    Tekan <kbd className="px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 font-mono text-[10px]">Enter ↵</kbd>
+                    <kbd className="px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 font-mono text-[10px]">Enter ↵</kbd>
                   </span>
 
                   <button
@@ -1889,14 +1841,14 @@ export function DashboardPage() {
                     disabled={isTerminalSubmitting}
                     onClick={(e) => handleExecuteTerminal(e)}
                     className="h-8 px-3 rounded-md bg-zinc-950 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-950 font-medium text-xs flex items-center gap-1.5 transition cursor-pointer active:scale-95 disabled:opacity-50 shadow-xs"
-                    title="Jalankan commit langsung di web"
+                    title="Jalankan commit"
                   >
                     {isTerminalSubmitting ? (
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                     ) : (
                       <Play className="w-3 h-3 fill-current" />
                     )}
-                    <span>{isTerminalSubmitting ? 'Memproses...' : 'Jalankan Commit'}</span>
+                    <span>{isTerminalSubmitting ? 'Memproses...' : 'Kirim ↵'}</span>
                   </button>
                 </div>
               </div>
@@ -1921,7 +1873,7 @@ export function DashboardPage() {
       {showAddTaskModal && (
         <div
           ref={modalTaskBackdropRef}
-          className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-3 sm:p-4"
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-3 sm:p-4"
         >
           <div
             ref={modalTaskRef}
@@ -1929,7 +1881,7 @@ export function DashboardPage() {
             className="bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto touch-scroll"
           >
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
-              <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">Tambah Kartu Tugas Nyata</h3>
+              <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">Tambah Tugas</h3>
               <button
                 onClick={() => setShowAddTaskModal(false)}
                 className="p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-white active:scale-95 transition cursor-pointer touch-manipulation"
@@ -1940,7 +1892,7 @@ export function DashboardPage() {
             <form onSubmit={handleCreateTask} className="space-y-3.5 mt-4 text-xs">
               <div>
                 <label htmlFor="new-task-code" className="block text-zinc-600 dark:text-zinc-400 mb-1">
-                  Kode Tugas (contoh: TASK-01, FEAT-AUTH)
+                  Kode Tugas (contoh: TASK-01)
                 </label>
                 <input
                   id="new-task-code"
@@ -1955,13 +1907,13 @@ export function DashboardPage() {
                 />
               </div>
               <div>
-                <label htmlFor="new-task-title" className="block text-zinc-600 dark:text-zinc-400 mb-1">Judul Tugas</label>
+                <label htmlFor="new-task-title" className="block text-zinc-600 dark:text-zinc-400 mb-1">Judul</label>
                 <input
                   id="new-task-title"
                   name="new_task_title"
                   type="text"
                   required
-                  placeholder="Contoh: Perancangan Arsitektur Database"
+                  placeholder="Judul tugas..."
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
                   autoComplete="off"
@@ -1969,7 +1921,7 @@ export function DashboardPage() {
                 />
               </div>
               <div>
-                <label htmlFor="new-task-assignee" className="block text-zinc-600 dark:text-zinc-400 mb-1">Assignee (Username GitHub Tim)</label>
+                <label htmlFor="new-task-assignee" className="block text-zinc-600 dark:text-zinc-400 mb-1">Assignee</label>
                 <div className="flex items-center gap-1.5 mb-2 flex-wrap">
                   {members.map((m) => (
                     <button
@@ -1997,7 +1949,7 @@ export function DashboardPage() {
                 />
               </div>
               <div>
-                <label htmlFor="new-task-status" className="block text-zinc-600 dark:text-zinc-400 mb-1">Status Awal</label>
+                <label htmlFor="new-task-status" className="block text-zinc-600 dark:text-zinc-400 mb-1">Status</label>
                 <select
                   id="new-task-status"
                   name="new_task_status"
@@ -2022,7 +1974,7 @@ export function DashboardPage() {
                   type="submit"
                   className="h-9 px-4 rounded-md bg-emerald-600 text-white font-semibold hover:bg-emerald-500 active:bg-emerald-700 active:scale-95 transition cursor-pointer touch-manipulation text-xs shadow-xs"
                 >
-                  Simpan Tugas
+                  Simpan
                 </button>
               </div>
             </form>
@@ -2034,7 +1986,7 @@ export function DashboardPage() {
       {showAddMemberModal && (
         <div
           ref={modalMemberBackdropRef}
-          className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-3 sm:p-4"
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-3 sm:p-4"
         >
           <div
             ref={modalMemberRef}
@@ -2042,7 +1994,7 @@ export function DashboardPage() {
             className="bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto touch-scroll"
           >
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
-              <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">Tambah Anggota Kelompok Nyata</h3>
+              <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">Tambah Anggota</h3>
               <button
                 onClick={() => setShowAddMemberModal(false)}
                 className="p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-white active:scale-95 transition cursor-pointer touch-manipulation"
@@ -2052,13 +2004,13 @@ export function DashboardPage() {
             </div>
             <form onSubmit={handleCreateMember} className="space-y-3.5 mt-4 text-xs">
               <div>
-                <label htmlFor="new-member-name" className="block text-zinc-600 dark:text-zinc-400 mb-1">Nama Lengkap</label>
+                <label htmlFor="new-member-name" className="block text-zinc-600 dark:text-zinc-400 mb-1">Nama</label>
                 <input
                   id="new-member-name"
                   name="member_name"
                   type="text"
                   required
-                  placeholder="Contoh: Dennis Pratama"
+                  placeholder="Dennis Pratama"
                   value={newMemberName}
                   onChange={(e) => setNewMemberName(e.target.value)}
                   autoComplete="name"
@@ -2066,7 +2018,7 @@ export function DashboardPage() {
                 />
               </div>
               <div>
-                <label htmlFor="new-member-username" className="block text-zinc-600 dark:text-zinc-400 mb-1">Username GitHub (tanpa @)</label>
+                <label htmlFor="new-member-username" className="block text-zinc-600 dark:text-zinc-400 mb-1">Username GitHub</label>
                 <input
                   id="new-member-username"
                   name="member_github_username"
@@ -2091,7 +2043,7 @@ export function DashboardPage() {
                   type="submit"
                   className="h-9 px-4 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-500 active:bg-blue-700 active:scale-95 transition cursor-pointer touch-manipulation text-xs shadow-xs"
                 >
-                  Daftarkan Anggota
+                  Simpan
                 </button>
               </div>
             </form>
