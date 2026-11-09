@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Monitor, Sun, Moon, ChevronDown, Check } from 'lucide-react';
+import { Monitor, Sun, Moon, Check } from 'lucide-react';
 import { useTheme, type ThemeMode } from '../context/ThemeContext';
 
 export function ThemeSwitcher() {
@@ -48,12 +48,10 @@ export function ThemeSwitcher() {
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-label={`Tema: ${currentOption.label}`}
-        title={`Tema tampilan: ${currentOption.label}`}
-        className="h-8 sm:h-8.5 px-2 sm:px-2.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs"
+        title={`Tema: ${currentOption.label}`}
+        className="h-8 w-8 sm:h-8.5 sm:w-8.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 flex items-center justify-center transition cursor-pointer touch-manipulation shadow-xs"
       >
         <CurrentIcon className="w-3.5 h-3.5 text-zinc-700 dark:text-zinc-200 shrink-0" />
-        <span className="hidden md:inline text-[11px] font-medium">{currentOption.label.split(' ')[0]}</span>
-        <ChevronDown className={`w-3 h-3 text-zinc-400 dark:text-zinc-500 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
