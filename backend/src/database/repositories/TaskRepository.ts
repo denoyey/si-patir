@@ -98,6 +98,43 @@ export class TaskRepository {
     return null;
   }
 
+  public async updateTaskDetails(
+    id: number,
+    data: {
+      title?: string;
+      assignee?: string;
+      status?: 'To Do' | 'In Progress' | 'Done';
+    }
+  ): Promise<ITask | null> {
+    const existing = await this.findById(id);
+    if (!existing) return null;
+
+    const newTitle = data.title !== undefined ? data.title.trim() : existing.title;
+    const newAssignee = data.assignee !== undefined ? data.assignee.trim().replace(/^@/, '') : existing.assignee;
+    const newStatus = data.status !== undefined ? data.status : existing.status;
+
+    if (this.db.isConnected() && this.db.getPool()) {
+      try {
+        await this.db.getPool()!.query(
+          'UPDATE tasks SET title = ?, assignee = ?, status = ? WHERE id = ?',
+          [newTitle, newAssignee, newStatus, id]
+        );
+        return this.findById(id);
+      } catch (err: any) {
+        console.error('[TaskRepository] updateTaskDetails error:', err.message);
+      }
+    }
+
+    const task = this.db.getMemoryTasks().find((t) => t.id === id);
+    if (task) {
+      task.title = newTitle;
+      task.assignee = newAssignee;
+      task.status = newStatus;
+      return task;
+    }
+    return null;
+  }
+
   public async updateTrelloCardId(taskCode: string, cardId: string): Promise<boolean> {
     const cleanCode = taskCode.trim().toUpperCase().replace(/^#/, '');
     if (this.db.isConnected() && this.db.getPool()) {

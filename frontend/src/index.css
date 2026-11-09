@@ -96,3 +96,42 @@ html.dark ::-webkit-scrollbar-thumb {
 html.dark ::-webkit-scrollbar-thumb:hover {
   background: #3f3f46;
 }
+
+/* Print / PDF Export Styling (Point 2.8) */
+@media print {
+  .no-print,
+  button,
+  footer,
+  aside,
+  [data-anim="hero-action"],
+  .terminal-box {
+    display: none !important;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+  }
+
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Prevent page breaks across critical data tables and chart cards */
+  .break-inside-avoid,
+  tr,
+  table,
+  section {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+

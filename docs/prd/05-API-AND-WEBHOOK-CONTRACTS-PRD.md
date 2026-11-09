@@ -113,13 +113,43 @@ Mengambil semua daftar tugas lokal/cache Trello.
 Menarik pembaruan kartu langsung dari board Trello publik/privat ke database lokal.
 
 * **Method:** `POST`
-* **Path:** `/tasks/sync`
+* **Path:** `/tasks/sync` (atau `/api/v1/tasks/sync-trello`)
 * **Success Response (200 OK):**
   ```json
   {
     "success": true,
     "message": "Berhasil sinkronisasi 5 kartu dari Trello",
     "count": 5
+  }
+  ```
+
+---
+
+### 2.4.1 Mutasi & Edit Kartu Tugas
+Memperbarui judul tugas, developer penanggung jawab (*assignee*), serta status siklus kerja (*To Do*, *In Progress*, *Done*).
+
+* **Method:** `PUT` / `PATCH`
+* **Path:** `/api/v1/tasks/:id` (atau `/api/tasks/:id`)
+* **Request Body:**
+  ```json
+  {
+    "title": "Implementasi Autentikasi JWT & Guard",
+    "assignee": "muhamadrafli16",
+    "status": "Done"
+  }
+  ```
+* **Success Response (200 OK):**
+  ```json
+  {
+    "success": true,
+    "message": "Tugas TASK-02 berhasil diperbarui.",
+    "task": {
+      "id": 2,
+      "task_code": "TASK-02",
+      "title": "Implementasi Autentikasi JWT & Guard",
+      "assignee": "muhamadrafli16",
+      "status": "Done"
+    }
   }
   ```
 

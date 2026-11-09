@@ -108,9 +108,13 @@ export class Application {
     this.app.get('/api/v1/tasks/:id', taskController.getTaskById);
     this.app.get('/api/tasks/:id', taskController.getTaskById);
 
-    // Create & Status Update
+    // Create & Update (Full & Status-only)
     this.app.post('/api/v1/tasks', taskController.createTask);
     this.app.post('/api/tasks', taskController.createTask);
+    this.app.put('/api/v1/tasks/:id', taskController.updateTask);
+    this.app.put('/api/tasks/:id', taskController.updateTask);
+    this.app.patch('/api/v1/tasks/:id', taskController.updateTask);
+    this.app.patch('/api/tasks/:id', taskController.updateTask);
     this.app.patch('/api/v1/tasks/:id/status', taskController.updateTaskStatus);
     this.app.patch('/api/tasks/:id/status', taskController.updateTaskStatus);
 

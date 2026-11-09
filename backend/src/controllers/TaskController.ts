@@ -83,6 +83,72 @@ export class TaskController {
     }
   };
 
+  public updateTask = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const { title, assignee, status } = req.body;
+
+      const numId = parseInt(idParam, 10);
+      const existingTask = !isNaN(numId)
+        ? await this.taskRepo.findById(numId)
+        : await this.taskRepo.findByCode(idParam);
+
+      if (!existingTask) {
+        res.status(404).json({ success: false, error: `Kartu tugas "${idParam}" tidak ditemukan.` });
+        return;
+      }
+
+      if (status && !['To Do', 'In Progress', 'Done'].includes(status)) {
+        res.status(400).json({
+          success: false,
+          error: 'Status tidak valid. Pilihan: "To Do", "In Progress", "Done"',
+        });
+        return;
+      }
+
+      const updatedTask = await this.taskRepo.updateTaskDetails(existingTask.id, {
+        title,
+        assignee,
+        status,
+      });
+
+      // Sinkronisasi status ke Trello jika status berubah
+      let trelloSyncNotice = '';
+      if (status && status !== existingTask.status) {
+        try {
+          const trelloResult = await this.trelloService.moveCardByStatus(
+            existingTask.trello_card_id || existingTask.task_code,
+            status
+          );
+          trelloSyncNotice = trelloResult.message;
+        } catch (trelloErr: any) {
+          trelloSyncNotice = `Trello sync skipped: ${trelloErr.message}`;
+        }
+      }
+
+      // Hitung ulang perolehan task selesai untuk anggota
+      await this.memberRepo.recalculateTasksDone();
+
+      // Broadcast pembaruan real-time via WebSocket
+      if (this.io) {
+        this.io.emit('activity_update', {
+          type: 'TASK_UPDATED',
+          taskCode: existingTask.task_code,
+          task: updatedTask || { ...existingTask, title: title || existingTask.title, assignee: assignee || existingTask.assignee, status: status || existingTask.status },
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: `Tugas ${existingTask.task_code} berhasil diperbarui.`,
+        trello_notice: trelloSyncNotice,
+        task: updatedTask || { ...existingTask, title: title || existingTask.title, assignee: assignee || existingTask.assignee, status: status || existingTask.status },
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  };
+
   public updateTaskStatus = async (req: Request, res: Response): Promise<void> => {
     try {
       const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;

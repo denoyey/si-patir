@@ -445,24 +445,24 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
   - [x] **2.5 Custom Dialog Konfirmasi & Toast Notifikasi**:
     - Buat komponen modal dialog konfirmasi kustom tanpa blur (`ConfirmDialog.tsx`).
     - Pasang notifikasi toast real-time yang menangani event tugas selesai, pembaruan status, commit, dan sinkronisasi Trello.
-  - [ ] **2.6 Visualisasi Grafik Analitik Kontribusi (Analytics Chart)**:
-    - Pasang library chart (misal `recharts` atau SVG kustom) pada dashboard.
+  - [x] **2.6 Visualisasi Grafik Analitik Kontribusi (Analytics Chart)**:
+    - Pasang visualisasi chart SVG presisi tinggi pada dashboard.
     - Tampilkan diagram batang perbandingan jumlah commit per anggota tim.
     - Tampilkan diagram donat (*donut chart*) persentase penyelesaian tugas sprint (*To Do*, *In Progress*, *Done*).
-  - [ ] **2.7 Modal Edit Tugas Interaktif**:
-    - Buat modal **Edit Tugas**: memungkinkan pengguna mengubah judul tugas, deskripsi, atau mengubah assignee developer langsung dari antarmuka web.
-  - [ ] **2.8 Fitur Export Laporan Sprint (PDF & CSV)**:
+  - [x] **2.7 Modal Edit Tugas Interaktif**:
+    - Buat modal **Edit Tugas**: memungkinkan pengguna mengubah judul tugas, status, atau mengubah assignee developer langsung dari antarmuka web.
+  - [x] **2.8 Fitur Export Laporan Sprint (PDF & CSV)**:
     - Tombol **Export CSV**: menghasilkan berkas `laporan-sprint-sipatir.csv` berisi rekap tugas, penanggung jawab, status, dan riwayat commit.
     - Opsi **Print / Export PDF**: styling `@media print` agar tampilan dashboard dapat dicetak bersih ke format PDF untuk diserahkan ke dosen pembimbing.
-  - [ ] **2.9 Fitur Pencarian & Filter pada Panel Stream**:
+  - [x] **2.9 Fitur Pencarian & Filter pada Panel Stream**:
     - Tambahkan kotak filter teks dan filter berdasarkan author pada panel *Live Webhook Stream*.
 - **Berkas Kerja Utama**:
   - `frontend/src/pages/DashboardPage.tsx`
   - `frontend/src/pages/LandingPage.tsx`
   - `frontend/src/components/ThemeSwitcher.tsx`
   - `frontend/src/components/ConfirmDialog.tsx`
-  - `frontend/src/components/ContributionChart.tsx` *(Pending)*
-  - `frontend/src/components/EditTaskModal.tsx` *(Pending)*
+  - `frontend/src/components/EditTaskModal.tsx`
+  - `frontend/src/components/ContributionChart.tsx`
 </details>
 
 <details open>

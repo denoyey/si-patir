@@ -336,7 +336,36 @@ Untuk memastikan pengalaman monitoring di perangkat seluler setara dengan deskto
 4. **Format Timestamp Log Bersih**: Timestamp ISO mentah (`2026-11-06T09:34:36.000Z`) diparsing menjadi format waktu ringkas yang nyaman dibaca (`HH:mm:ss` / `YYYY-MM-DD HH:mm`) pada layar ponsel sempit.
 5. **Tombol Salin Terminal Cepat**: Kotak terminal uji commit di bagian bawah panel log stream dilengkapi tombol salin satu-klik dengan notifikasi status visual berhasil.
 
+---
 
+## 17. Modal Edit Tugas Interaktif & Filter Stream Real-Time
 
+### 17.1 Modal Edit Tugas Interaktif (`EditTaskModal.tsx` — Modul 2.7)
+* **Tujuan Rekayasa**: Memungkinkan tim memutasi judul tugas, menugaskan ulang developer penanggung jawab (*assignee*), serta mengubah status siklus kerja (*To Do*, *In Progress*, *Done*) langsung dari antarmuka web tanpa menyentuh database manual.
+* **Elemen UI/UX**:
+  1. **Badge Kode Tugas (Read-Only)**: Kode unik `#TASK-XX` ditampilkan dalam format font monospace berbingkai `rounded-md` untuk integritas data.
+  2. **Input Judul Interaktif**: Input teks dengan penanganan validasi kosong.
+  3. **Pemilih Penanggung Jawab (Assignee Dropdown)**: Menampilkan seluruh anggota tim terdaftar dengan awalan `@username` dan nama asli.
+  4. **Trio Status Chips**: Tombol pilihan status bergaya segment chip dengan aksen warna alami (*Emerald* untuk Done, *Amber* untuk In Progress, *Blue* untuk To Do).
+  5. **Sinkronisasi Dua Arah**: Begitu status diubah, sistem secara otomatis menyelaraskan kartu di papan Trello dan menyiarkan pembaruan via Socket.io.
+  6. **Aksesibilitas & Anti-Lock**: Mendukung penutupan modal via tombol Escape dan klik backdrop di luar dialog.
 
+### 17.2 Fitur Pencarian & Filter Live Webhook Stream (`DashboardPage.tsx` — Modul 2.9)
+* **Tujuan Rekayasa**: Mempermudah pemantauan alur audit log secara granular saat puluhan commit masuk dari berbagai pengembang.
+* **Spesifikasi Antarmuka**:
+  1. **Search Bar Stream**: Kotak input pencarian teks instan di puncak panel stream dengan debounce dan tombol reset instan `(X)`. Mendukung pencarian pesan commit, kode tugas `#TASK`, author, maupun tipe event.
+  2. **Author Filter Pills**: Bilah gulir horizontal berisi chip filter per author (`Semua`, `@denoyey`, `@Patirparkerr`, `@muhamadrafli16`, `@AATTTRAWRRR`, dll) lengkap dengan counter jumlah aktivitas log per author.
+  3. **State Kosong Reaktif**: Bila pencarian tidak menemukan hasil, ditampilkan pesan informatif disertai tombol satu-klik *"Reset filter stream"*.
+
+---
+
+## 18. Visualisasi Analitik Kontribusi & Ekspor Laporan Sprint
+
+### 18.1 Komponen Visualisasi Analitik (`ContributionChart.tsx` — Modul 2.6)
+* **Diagram Batang (*Commit Bar Chart*)**: Mengukur proporsi kontribusi commit antar pengembang tim (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) dengan bar animasi gradien, avatar asli GitHub, persentase kontribusi, dan penanda kontributor teratas (*#1 Lead*).
+* **Diagram Donat (*Sprint Status Donut Chart*)**: Diagram donat berbasis SVG murni presisi tinggi yang memetakan sebaran tugas sprint (*Done*, *In Progress*, *To Do*) dengan persentase di pusat diagram dan kartu ringkasan status interaktif.
+
+### 18.2 Ekspor Laporan Sprint (CSV & PDF `@media print` — Modul 2.8)
+* **Ekspor CSV**: Menghasilkan berkas `laporan-sprint-sipatir-YYYY-MM-DD.csv` ber-encoding UTF-8 BOM yang memuat rekap anggota tim, daftar kartu tugas, dan riwayat stream secara terstruktur untuk dibuka langsung di Microsoft Excel.
+* **Cetak / Ekspor PDF**: Styling `@media print` yang mengeliminasi elemen navigasi dan tombol aksi, meratakan latar ke putih bersih, dan mencegah tabel terpotong canggung antar halaman cetak (*page-break-inside: avoid*).
 
