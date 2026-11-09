@@ -1619,64 +1619,59 @@ export function DashboardPage() {
                 </table>
               </div>
 
-              {/* Filament v5 Pagination Footer */}
-              <div className="border-t border-zinc-200 dark:border-zinc-800 px-3.5 sm:px-5 py-3 bg-zinc-50/80 dark:bg-[#121623] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+              {/* Pagination Footer */}
+              <div className="border-t border-zinc-200 dark:border-zinc-800 px-3.5 sm:px-5 py-2.5 bg-zinc-50/80 dark:bg-[#121623] flex items-center justify-between text-xs font-mono">
                 {/* Result count */}
-                <div className="text-zinc-600 dark:text-zinc-400 text-[11px] sm:text-xs text-center sm:text-left font-mono">
+                <div className="text-zinc-500 dark:text-zinc-400 text-[11px]">
                   {totalResults === 0 ? (
                     <span>0 tugas</span>
                   ) : (
                     <span>
-                      <span className="font-semibold text-zinc-900 dark:text-white">{startIndex + 1}–{endIndex}</span> dari{' '}
-                      <span className="font-semibold text-zinc-900 dark:text-white">{totalResults}</span> tugas
+                      <strong className="text-zinc-900 dark:text-white font-semibold">{startIndex + 1}–{endIndex}</strong> dari <strong className="text-zinc-900 dark:text-white font-semibold">{totalResults}</strong> tugas
                     </span>
                   )}
                 </div>
 
                 {/* Per Page & Page Navigation Controls */}
-                <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2.5">
-                  {/* Per Page Dropdown ("Page view") */}
-                  <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400">
-                    <label htmlFor="tasks-per-page" className="sr-only">Tugas per halaman</label>
-                    <select
-                      id="tasks-per-page"
-                      name="tasks_per_page"
-                      value={perPage}
-                      onChange={(e) => {
-                        setPerPage(Number(e.target.value));
-                        setCurrentPage(1);
-                      }}
-                      className="h-8 px-2 rounded-md bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-medium focus:outline-hidden focus:border-blue-500 transition cursor-pointer shadow-2xs"
-                    >
-                      <option value={5}>5 per hal</option>
-                      <option value={10}>10 per hal</option>
-                      <option value={25}>25 per hal</option>
-                    </select>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    id="tasks-per-page"
+                    name="tasks_per_page"
+                    value={perPage}
+                    onChange={(e) => {
+                      setPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    aria-label="Tugas per halaman"
+                    className="h-7 px-2 rounded-md bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-mono focus:outline-hidden cursor-pointer shadow-2xs"
+                  >
+                    <option value={5}>5 / hal</option>
+                    <option value={10}>10 / hal</option>
+                    <option value={25}>25 / hal</option>
+                  </select>
 
-                  {/* Page Navigation Buttons */}
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
                       disabled={activePage <= 1}
                       onClick={() => setCurrentPage(Math.max(1, activePage - 1))}
-                      className="h-8 px-2.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium flex items-center gap-1 transition active:scale-95 shadow-2xs cursor-pointer"
+                      className="h-7 w-7 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition active:scale-95 cursor-pointer shadow-2xs"
                       aria-label="Halaman sebelumnya"
+                      title="Sebelumnya"
                     >
                       <ChevronLeft className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Sebelumnya</span>
                     </button>
 
-                    {/* Page Numbers */}
                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
                       <button
                         key={pageNum}
                         type="button"
                         onClick={() => setCurrentPage(pageNum)}
-                        className={`h-8 w-8 rounded-md text-xs font-semibold flex items-center justify-center transition active:scale-95 cursor-pointer ${activePage === pageNum
-                            ? 'bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 border border-zinc-900 dark:border-zinc-200 shadow-xs'
-                            : 'bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700'
-                          }`}
+                        className={`h-7 w-7 rounded-md text-xs font-mono font-medium flex items-center justify-center transition active:scale-95 cursor-pointer ${
+                          activePage === pageNum
+                            ? 'bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 font-bold shadow-2xs'
+                            : 'bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700'
+                        }`}
                       >
                         {pageNum}
                       </button>
@@ -1686,10 +1681,10 @@ export function DashboardPage() {
                       type="button"
                       disabled={activePage >= totalPages}
                       onClick={() => setCurrentPage(Math.min(totalPages, activePage + 1))}
-                      className="h-8 px-2.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium flex items-center gap-1 transition active:scale-95 shadow-2xs cursor-pointer"
+                      className="h-7 w-7 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition active:scale-95 cursor-pointer shadow-2xs"
                       aria-label="Halaman selanjutnya"
+                      title="Selanjutnya"
                     >
-                      <span className="hidden sm:inline">Selanjutnya</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
