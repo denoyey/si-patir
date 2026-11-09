@@ -243,7 +243,7 @@ Sesuai spesifikasi tim proyek, seluruh anggota tim memiliki nama dan tanggung ja
 | Nama Anggota | Posisi / Spesialisasi | Akun GitHub Resmi | Fokus Pekerjaan Utama |
 | :--- | :--- | :--- | :--- |
 | **Deni** | Lead Architect & DevOps Integrator | `@denoyey` (Repo Owner) | Arsitektur integrasi sistem, ingestion webhook GitHub, validasi HMAC SHA-256, dan pipeline deployment. |
-| **Rafli** | Frontend UI & Data Visualization | `@muhamadrafli16` (Collaborator) | Antarmuka interaktif React 19, animasi GSAP OOP, smooth scroll Lenis, komponen tema, dan visualisasi klasemen kontributor. |
+| **Rafli** | Frontend UI & Data Visualization | `@muhamadrafli16` (Collaborator) | Antarmuka interaktif React 19, animasi GSAP OOP, smooth scroll Lenis, komponen tema, visualisasi analitik SVG (Bar & Donut Charts), modal interaktif edit tugas, filter stream live, dan ekspor laporan sprint (CSV/PDF). |
 | **Fatir** | Kanban Trello & Database Engineer | `@Patirparkerr` (Collaborator) | Integrasi REST API Trello untuk mutasi kartu otomatis, manajemen basis data MySQL, dan sinkronisasi tugas. |
 | **Fajri** | QA, Security Testing & Documentation | `@AATTTRAWRRR` (Collaborator / Fajrii) | Pengujian unit otomatis, audit ketahanan rate limiting & anti-DoS, diagram arsitektur UML, dan laporan akademik. |
 

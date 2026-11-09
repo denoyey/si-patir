@@ -58,9 +58,9 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 | 5 | **Sinkronisasi Commit GitHub ke Stream** | Riwayat commit asli GitHub otomatis diimpor ke stream live (`activity_logs`). | **SELESAI (DONE)** ✅ | Deni & Fatir |
 | 6 | **Deployment Publik (Public HTTPS URL)** | Backend masih berjalan lokal (`localhost:5000`). GitHub butuh webhook internet. | **PENDING (P1)** ⏳ | Deni |
 | 7 | **CI/CD Pipeline (GitHub Actions)** | Belum ada workflow `.github/workflows/ci.yml` untuk automated validation PR. | **PENDING (P2)** ⏳ | Deni |
-| 8 | **Visualisasi Grafik Kontribusi (Analytics Chart)** | Belum ada chart analitik velocity commit & status tugas per anggota. | **PENDING (P2)** ⏳ | Rafli |
-| 9 | **Modal Edit Tugas Lengkap** | Perubahan judul/deskripsi tugas belum ada modal tersendiri di tabel. | **PENDING (P2)** ⏳ | Rafli |
-| 10 | **Export Laporan Sprint (PDF / CSV)** | Belum ada tombol export data sprint untuk rekap evaluasi mingguan. | **PENDING (P2)** ⏳ | Rafli |
+| 8 | **Visualisasi Grafik Kontribusi (Analytics Chart)** | Tersedia diagram batang perbandingan commit & diagram donat status sprint berbasis SVG presisi tinggi. | **SELESAI (DONE)** ✅ | Rafli |
+| 9 | **Modal Edit Tugas Lengkap** | Modal interaktif (`EditTaskModal.tsx`) terintegrasi tabel untuk mutasi judul, assignee, dan status dengan sinkronisasi Trello. | **SELESAI (DONE)** ✅ | Rafli |
+| 10 | **Export Laporan Sprint (PDF / CSV)** | Dukungan export CSV dengan UTF-8 BOM dan pencetakan PDF bersih via styling `@media print`. | **SELESAI (DONE)** ✅ | Rafli |
 | 11 | **Trello Webhook Listener (Inbound)** | Belum ada listener webhook otomatis saat kartu digeser langsung di Trello.com. | **PENDING (P3)** ⏳ | Fatir |
 | 12 | **Automated Unit Testing (Vitest/Jest)** | Belum ada suite unit test otomatis untuk CommitParser dan WebhookSecurity. | **PENDING (P2)** ⏳ | Fajri |
 | 13 | **Security Penetration & Load Testing** | Belum ada tabel hasil uji batas rate limiter dan pengujian beban payload. | **PENDING (P2)** ⏳ | Fajri |
@@ -157,16 +157,16 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 - [x] **2.5 Custom Dialog Konfirmasi & Toast Notifikasi**:
   - Buat komponen modal dialog konfirmasi kustom tanpa blur (`ConfirmDialog.tsx`).
   - Pasang notifikasi toast real-time yang menangani event tugas selesai, pembaruan status, commit, dan sinkronisasi Trello.
-- [ ] **2.6 Visualisasi Grafik Analitik Kontribusi (Analytics Chart)**:
-  - Pasang library chart (misal `recharts` atau SVG kustom) pada dashboard.
+- [x] **2.6 Visualisasi Grafik Analitik Kontribusi (Analytics Chart)**:
+  - Pasang visualisasi chart SVG presisi tinggi pada dashboard.
   - Tampilkan diagram batang perbandingan jumlah commit per anggota tim.
   - Tampilkan diagram donat (*donut chart*) persentase penyelesaian tugas sprint (*To Do*, *In Progress*, *Done*).
-- [ ] **2.7 Modal Edit Tugas Interaktif**:
-  - Buat modal **Edit Tugas**: memungkinkan pengguna mengubah judul tugas, deskripsi, atau mengubah assignee developer langsung dari antarmuka web.
-- [ ] **2.8 Fitur Export Laporan Sprint (PDF & CSV)**:
+- [x] **2.7 Modal Edit Tugas Interaktif**:
+  - Buat modal **Edit Tugas**: memungkinkan pengguna mengubah judul tugas, status, atau mengubah assignee developer langsung dari antarmuka web.
+- [x] **2.8 Fitur Export Laporan Sprint (PDF & CSV)**:
   - Tombol **Export CSV**: menghasilkan berkas `laporan-sprint-sipatir.csv` berisi rekap tugas, penanggung jawab, status, dan riwayat commit.
   - Opsi **Print / Export PDF**: styling `@media print` agar tampilan dashboard dapat dicetak bersih ke format PDF untuk diserahkan ke dosen pembimbing.
-- [ ] **2.9 Fitur Pencarian & Filter pada Panel Stream**:
+- [x] **2.9 Fitur Pencarian & Filter pada Panel Stream**:
   - Tambahkan kotak filter teks dan filter berdasarkan author pada panel *Live Webhook Stream*.
 
 * **Berkas Kerja Utama:**
@@ -174,8 +174,8 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
   - `frontend/src/pages/LandingPage.tsx`
   - `frontend/src/components/ThemeSwitcher.tsx`
   - `frontend/src/components/ConfirmDialog.tsx`
-  - `frontend/src/components/ContributionChart.tsx` (Pending)
-  - `frontend/src/components/EditTaskModal.tsx` (Pending)
+  - `frontend/src/components/ContributionChart.tsx`
+  - `frontend/src/components/EditTaskModal.tsx`
 
 ---
 
@@ -273,7 +273,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 [ FASE 2: Fitur Lanjutan, Visualisasi & Pengujian ] ──> STATUS: SEDANG BERJALAN ⏳
   ├─ Deni   : Setup Public Webhook Gateway (Cloudflare Tunnel / VPS) & CI/CD Actions
   ├─ Fatir  : Trello Inbound Webhook Listener & Backup Maintenance Script
-  ├─ Rafli  : Grafik Analitik Kontribusi Tim, Modal Edit Tugas, & Export Laporan PDF/CSV
+  ├─ Rafli  : Grafik Analitik Kontribusi Tim, Modal Edit Tugas, & Export Laporan PDF/CSV [SELESAI ✅]
   └─ Fajri  : Automated Unit Testing (Vitest) & Security/Load Testing Report
 
 [ FASE 3: Penyusunan Laporan Akademik & Presentasi Demo ] ──> STATUS: MINGGU DEPAN 📅
