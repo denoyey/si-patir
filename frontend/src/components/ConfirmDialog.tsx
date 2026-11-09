@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { AlertTriangle, Trash2, Info, X } from 'lucide-react';
+import { useBodyScrollLock } from '../services/scroll/hooks/useBodyScrollLock';
 
 export interface ConfirmDialogProps {
   isOpen: boolean;
@@ -26,6 +27,9 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
 
+  // Lock body scroll and pause Lenis while confirm dialog is open
+  useBodyScrollLock(isOpen);
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -48,7 +52,14 @@ export function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-4 overscroll-contain"
+      data-lenis-prevent
+      onWheel={(e) => {
+        if (e.target === e.currentTarget) e.preventDefault();
+      }}
+      onTouchMove={(e) => {
+        if (e.target === e.currentTarget) e.preventDefault();
+      }}
       onClick={(e) => {
         if (e.target === e.currentTarget && !isLoading) {
           onCancel();
@@ -61,7 +72,8 @@ export function ConfirmDialog({
     >
       <div
         ref={dialogRef}
-        className="w-full max-w-md bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 sm:p-6 shadow-2xl relative transition-all animate-in fade-in zoom-in-95 duration-150"
+        data-lenis-prevent
+        className="w-full max-w-md bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 sm:p-6 shadow-2xl relative transition-all animate-in fade-in zoom-in-95 duration-150 overscroll-contain"
       >
         {/* Close Button Top Right */}
         <button

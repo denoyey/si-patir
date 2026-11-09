@@ -11,6 +11,7 @@ import {
   Trash2,
   Loader2,
 } from 'lucide-react';
+import { useBodyScrollLock } from '../services/scroll/hooks/useBodyScrollLock';
 
 export interface Project {
   id: number;
@@ -49,6 +50,9 @@ export function ProjectConfigModal({
   const [selectedProject, setSelectedProject] = useState<Project | null>(activeProject);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Lock body scroll and pause Lenis while modal is open
+  useBodyScrollLock(isOpen);
 
   // Form state for Create
   const [newName, setNewName] = useState('');
@@ -206,9 +210,25 @@ export function ProjectConfigModal({
   };
 
   return (
-    // Solid black overlay, strictly no blur
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-none">
-      <div className="relative w-full max-w-lg bg-white dark:bg-[#0c0f17] rounded-lg border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+    // Solid black overlay, strictly no blur, scroll locked and overscroll contained
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-none overscroll-contain"
+      data-lenis-prevent
+      onWheel={(e) => {
+        if (e.target === e.currentTarget) {
+          e.preventDefault();
+        }
+      }}
+      onTouchMove={(e) => {
+        if (e.target === e.currentTarget) {
+          e.preventDefault();
+        }
+      }}
+    >
+      <div
+        className="relative w-full max-w-lg bg-white dark:bg-[#0c0f17] rounded-lg border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] overscroll-contain"
+        data-lenis-prevent
+      >
         {/* Header */}
         <div className="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -285,7 +305,7 @@ export function ProjectConfigModal({
         )}
 
         {/* Body */}
-        <div className="p-4 overflow-y-auto space-y-3">
+        <div className="p-4 overflow-y-auto space-y-3 overscroll-contain touch-scroll" data-lenis-prevent>
           {/* TAB 1: LIST */}
           {activeTab === 'list' && (
             <div className="space-y-2">
@@ -382,39 +402,48 @@ export function ProjectConfigModal({
           {activeTab === 'edit' && selectedProject && (
             <form onSubmit={handleSaveEdit} className="space-y-2.5 text-xs">
               <div>
-                <label className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                <label htmlFor="edit-project-name" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                   Nama Proyek
                 </label>
                 <input
+                  id="edit-project-name"
+                  name="project_name"
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   required
+                  autoComplete="organization"
                   className="w-full h-8 px-2.5 rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  <label htmlFor="edit-github-repo" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                     Repository (`owner/repo`)
                   </label>
                   <input
+                    id="edit-github-repo"
+                    name="github_repo"
                     type="text"
                     value={editRepo}
                     onChange={(e) => setEditRepo(e.target.value)}
                     required
+                    autoComplete="off"
                     className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  <label htmlFor="edit-webhook-secret" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                     Webhook Secret
                   </label>
                   <input
+                    id="edit-webhook-secret"
+                    name="webhook_secret"
                     type="text"
                     value={editSecret}
                     onChange={(e) => setEditSecret(e.target.value)}
+                    autoComplete="off"
                     className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
                   />
                 </div>
@@ -422,38 +451,47 @@ export function ProjectConfigModal({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  <label htmlFor="edit-trello-board" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                     Trello Board ID
                   </label>
                   <input
+                    id="edit-trello-board"
+                    name="trello_board_id"
                     type="text"
                     value={editTrelloBoard}
                     onChange={(e) => setEditTrelloBoard(e.target.value)}
+                    autoComplete="off"
                     className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  <label htmlFor="edit-trello-donelist" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                     Trello Done List ID
                   </label>
                   <input
+                    id="edit-trello-donelist"
+                    name="trello_done_list_id"
                     type="text"
                     value={editTrelloDoneList}
                     onChange={(e) => setEditTrelloDoneList(e.target.value)}
+                    autoComplete="off"
                     className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                <label htmlFor="edit-discord-webhook" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                   Discord Webhook URL
                 </label>
                 <input
+                  id="edit-discord-webhook"
+                  name="discord_webhook_url"
                   type="url"
                   value={editDiscordWebhook}
                   onChange={(e) => setEditDiscordWebhook(e.target.value)}
                   placeholder="https://discord.com/api/webhooks/..."
+                  autoComplete="off"
                   className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
                 />
               </div>
@@ -482,41 +520,50 @@ export function ProjectConfigModal({
           {activeTab === 'create' && (
             <form onSubmit={handleCreateProject} className="space-y-2.5 text-xs">
               <div>
-                <label className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                <label htmlFor="create-project-name" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                   Nama Proyek
                 </label>
                 <input
+                  id="create-project-name"
+                  name="create_project_name"
                   type="text"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   required
                   placeholder="Contoh: Storefront App"
+                  autoComplete="organization"
                   className="w-full h-8 px-2.5 rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  <label htmlFor="create-github-repo" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                     Repository (`owner/repo`)
                   </label>
                   <input
+                    id="create-github-repo"
+                    name="create_github_repo"
                     type="text"
                     value={newRepo}
                     onChange={(e) => setNewRepo(e.target.value)}
                     required
                     placeholder="denoyey/storefront"
+                    autoComplete="off"
                     className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  <label htmlFor="create-webhook-secret" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                     Webhook Secret
                   </label>
                   <input
+                    id="create-webhook-secret"
+                    name="create_webhook_secret"
                     type="text"
                     value={newSecret}
                     onChange={(e) => setNewSecret(e.target.value)}
+                    autoComplete="off"
                     className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
                   />
                 </div>
@@ -524,40 +571,49 @@ export function ProjectConfigModal({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  <label htmlFor="create-trello-board" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                     Trello Board ID (Opsional)
                   </label>
                   <input
+                    id="create-trello-board"
+                    name="create_trello_board_id"
                     type="text"
                     value={newTrelloBoard}
                     onChange={(e) => setNewTrelloBoard(e.target.value)}
                     placeholder="Board ID"
+                    autoComplete="off"
                     className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                  <label htmlFor="create-trello-donelist" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                     Trello Done List ID (Opsional)
                   </label>
                   <input
+                    id="create-trello-donelist"
+                    name="create_trello_done_list_id"
                     type="text"
                     value={newTrelloDoneList}
                     onChange={(e) => setNewTrelloDoneList(e.target.value)}
                     placeholder="List ID Done"
+                    autoComplete="off"
                     className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                <label htmlFor="create-discord-webhook" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                   Discord Webhook URL (Opsional)
                 </label>
                 <input
+                  id="create-discord-webhook"
+                  name="create_discord_webhook_url"
                   type="url"
                   value={newDiscordWebhook}
                   onChange={(e) => setNewDiscordWebhook(e.target.value)}
                   placeholder="https://discord.com/api/webhooks/..."
+                  autoComplete="off"
                   className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
                 />
               </div>
@@ -566,6 +622,7 @@ export function ProjectConfigModal({
                 <input
                   type="checkbox"
                   id="active-checkbox"
+                  name="create_is_active"
                   checked={newSetAsActive}
                   onChange={(e) => setNewSetAsActive(e.target.checked)}
                   className="w-3.5 h-3.5 rounded text-zinc-900 dark:text-white"

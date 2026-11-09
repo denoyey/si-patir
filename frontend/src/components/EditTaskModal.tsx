@@ -1,5 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { X, CheckSquare, Save, Loader2, User, Tag } from 'lucide-react';
+import { useBodyScrollLock } from '../services/scroll/hooks/useBodyScrollLock';
 
 interface Member {
   id: number;
@@ -31,6 +32,9 @@ export function EditTaskModal({ isOpen, task, members, onClose, onSave }: EditTa
   const [status, setStatus] = useState<'To Do' | 'In Progress' | 'Done'>('In Progress');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Lock body scroll and pause Lenis while modal is open
+  useBodyScrollLock(isOpen);
 
   // Sync internal form state whenever task changes
   useEffect(() => {
@@ -85,7 +89,18 @@ export function EditTaskModal({ isOpen, task, members, onClose, onSave }: EditTa
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-3 sm:p-4"
+      className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-3 sm:p-4 overscroll-contain"
+      data-lenis-prevent
+      onWheel={(e) => {
+        if (e.target === e.currentTarget) {
+          e.preventDefault();
+        }
+      }}
+      onTouchMove={(e) => {
+        if (e.target === e.currentTarget) {
+          e.preventDefault();
+        }
+      }}
       onClick={(e) => {
         if (e.target === e.currentTarget && !isSubmitting) {
           onClose();
@@ -97,7 +112,7 @@ export function EditTaskModal({ isOpen, task, members, onClose, onSave }: EditTa
     >
       <div
         data-lenis-prevent
-        className="bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto touch-scroll space-y-4 text-zinc-900 dark:text-zinc-100"
+        className="bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto touch-scroll overscroll-contain space-y-4 text-zinc-900 dark:text-zinc-100"
       >
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
@@ -152,11 +167,13 @@ export function EditTaskModal({ isOpen, task, members, onClose, onSave }: EditTa
             </label>
             <input
               id="edit-task-title"
+              name="edit_task_title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Contoh: Implementasi modul autentikasi JWT"
               required
+              autoComplete="off"
               className="w-full px-3 py-2 rounded-md bg-zinc-50 dark:bg-[#0a0d14] border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-hidden focus:border-blue-500 transition shadow-2xs text-xs"
             />
           </div>
@@ -169,6 +186,7 @@ export function EditTaskModal({ isOpen, task, members, onClose, onSave }: EditTa
             <div className="relative">
               <select
                 id="edit-task-assignee"
+                name="edit_task_assignee"
                 value={assignee}
                 onChange={(e) => setAssignee(e.target.value)}
                 className="w-full pl-8 pr-3 py-2 rounded-md bg-zinc-50 dark:bg-[#0a0d14] border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 focus:outline-hidden focus:border-blue-500 transition cursor-pointer shadow-2xs text-xs font-mono"

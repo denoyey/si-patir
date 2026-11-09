@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { useNavbarVisibility } from '../services/scroll/hooks/useNavbarVisibility';
+import { useBodyScrollLock } from '../services/scroll/hooks/useBodyScrollLock';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { ApiExplorerModal } from '../components/ApiExplorerModal';
 import { EditTaskModal } from '../components/EditTaskModal';
@@ -222,6 +223,17 @@ export function DashboardPage() {
     description: '',
     onConfirm: () => { },
   });
+
+  // Lock body scroll and pause Lenis while any modal/overlay is open
+  const isAnyModalOpen =
+    showAddTaskModal ||
+    showAddMemberModal ||
+    showProjectModal ||
+    showApiModal ||
+    Boolean(editingTask) ||
+    confirmDialog.isOpen;
+
+  useBodyScrollLock(isAnyModalOpen);
 
   // Fetch initial system state
   const refreshData = async () => {
@@ -788,9 +800,6 @@ export function DashboardPage() {
 
             <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800 hidden sm:block"></div>
 
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-800 dark:to-zinc-900 border border-zinc-700 text-white flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-xs">
-              SP
-            </div>
             <span className="font-bold text-sm tracking-tight text-zinc-950 dark:text-white whitespace-nowrap">
               SI-PATIR
             </span>
@@ -1721,10 +1730,14 @@ export function DashboardPage() {
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
                   <input
+                    id="stream-log-search"
+                    name="stream_log_search"
                     type="text"
                     value={logSearchQuery}
                     onChange={(e) => setLogSearchQuery(e.target.value)}
                     placeholder="Cari log..."
+                    autoComplete="off"
+                    aria-label="Cari log stream"
                     className="w-full pl-8 pr-7 py-1.5 rounded-md bg-white dark:bg-[#090b10] border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 text-xs font-mono focus:outline-hidden focus:border-zinc-400 dark:focus:border-zinc-600 transition shadow-2xs"
                   />
                   {logSearchQuery && (
@@ -1881,6 +1894,7 @@ export function DashboardPage() {
                     </label>
                     <select
                       id="terminal-author-select"
+                      name="terminal_author"
                       value={selectedTerminalAuthor || (members[0]?.github_username ?? 'denoyey')}
                       onChange={(e) => setSelectedTerminalAuthor(e.target.value)}
                       className="w-full h-8 px-2 rounded-md bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 text-xs font-mono focus:outline-hidden focus:border-blue-500 transition cursor-pointer shadow-2xs"
@@ -1899,6 +1913,7 @@ export function DashboardPage() {
                     </label>
                     <select
                       id="terminal-task-select"
+                      name="terminal_task_template"
                       defaultValue=""
                       onChange={(e) => {
                         const val = e.target.value;
@@ -1955,10 +1970,14 @@ export function DashboardPage() {
                         @{selectedTerminalAuthor || (members[0]?.github_username ?? 'denoyey')} $
                       </span>
                       <input
+                        id="terminal-command-input"
+                        name="terminal_command"
                         type="text"
                         value={terminalCommand}
                         onChange={(e) => setTerminalCommand(e.target.value)}
                         placeholder='git commit -m "pesan [done #TASK-01]"'
+                        autoComplete="off"
+                        aria-label="Perintah git commit"
                         className="flex-1 bg-transparent border-none text-zinc-100 placeholder-zinc-600 font-mono text-xs focus:outline-hidden p-0"
                       />
                     </form>
@@ -2008,12 +2027,19 @@ export function DashboardPage() {
       {showAddTaskModal && (
         <div
           ref={modalTaskBackdropRef}
-          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-3 sm:p-4"
+          data-lenis-prevent
+          onWheel={(e) => {
+            if (e.target === e.currentTarget) e.preventDefault();
+          }}
+          onTouchMove={(e) => {
+            if (e.target === e.currentTarget) e.preventDefault();
+          }}
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-3 sm:p-4 overscroll-contain"
         >
           <div
             ref={modalTaskRef}
             data-lenis-prevent
-            className="bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto touch-scroll"
+            className="bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto touch-scroll overscroll-contain"
           >
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">Tambah Tugas</h3>
@@ -2121,12 +2147,19 @@ export function DashboardPage() {
       {showAddMemberModal && (
         <div
           ref={modalMemberBackdropRef}
-          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-3 sm:p-4"
+          data-lenis-prevent
+          onWheel={(e) => {
+            if (e.target === e.currentTarget) e.preventDefault();
+          }}
+          onTouchMove={(e) => {
+            if (e.target === e.currentTarget) e.preventDefault();
+          }}
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-3 sm:p-4 overscroll-contain"
         >
           <div
             ref={modalMemberRef}
             data-lenis-prevent
-            className="bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto touch-scroll"
+            className="bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto touch-scroll overscroll-contain"
           >
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">Tambah Anggota</h3>

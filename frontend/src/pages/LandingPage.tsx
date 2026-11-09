@@ -102,13 +102,10 @@ export function LandingPage() {
                 scrollToTop(1.0);
               }
             }}
-            className="flex items-center gap-2 sm:gap-3 group shrink-0"
+            className="flex items-center gap-2 group shrink-0"
           >
-            <div className="w-8 h-8 rounded-md bg-gradient-to-br from-zinc-800 to-zinc-950 dark:from-zinc-800 dark:to-zinc-900 border border-zinc-700 text-white flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-xs group-hover:scale-105 transition">
-              SP
-            </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="font-bold text-sm tracking-tight text-zinc-950 dark:text-white">SI-PATIR</span>
+              <span className="font-bold text-base sm:text-lg tracking-tight text-zinc-950 dark:text-white">SI-PATIR</span>
               <span className="hidden sm:inline-flex text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700">
                 v2.0
               </span>
@@ -420,8 +417,8 @@ export function LandingPage() {
                 className="group bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 sm:p-5 shadow-xs flex flex-col justify-between hover:border-zinc-400 dark:hover:border-zinc-700 hover:shadow-md transition-all duration-300"
               >
                 <div className="space-y-4">
-                  {/* Prominent Photo Frame - Compact on mobile */}
-                  <div className="relative w-full h-44 xs:h-52 sm:h-56 lg:h-auto lg:aspect-square rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 shadow-inner">
+                  {/* Prominent Photo Frame - 1:1 Aspect Ratio to prevent cropping */}
+                  <div className="relative w-full aspect-square rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 shadow-inner">
                     {member.avatar ? (
                       <img
                         src={member.avatar}
@@ -524,9 +521,6 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="w-5 h-5 rounded-md bg-zinc-900 dark:bg-zinc-800 text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
-                SP
-              </div>
               <span className="font-bold text-zinc-900 dark:text-white">SI-PATIR</span>
               <span className="text-zinc-400 dark:text-zinc-600 hidden sm:inline">•</span>
               <span className="text-[11px] text-zinc-500 leading-snug">

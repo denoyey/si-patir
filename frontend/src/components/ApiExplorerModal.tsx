@@ -10,6 +10,7 @@ import {
   Shield,
   Layers,
 } from 'lucide-react';
+import { useBodyScrollLock } from '../services/scroll/hooks/useBodyScrollLock';
 
 interface ApiExplorerModalProps {
   isOpen: boolean;
@@ -105,6 +106,9 @@ export function ApiExplorerModal({ isOpen, onClose }: ApiExplorerModalProps) {
     ENDPOINTS[0].defaultPayload ? JSON.stringify(ENDPOINTS[0].defaultPayload, null, 2) : ''
   );
   const [isLoading, setIsLoading] = useState(false);
+
+  // Lock body scroll and pause Lenis while modal is open
+  useBodyScrollLock(isOpen);
   const [responseResult, setResponseResult] = useState<{
     status: number;
     statusText: string;
@@ -173,10 +177,23 @@ export function ApiExplorerModal({ isOpen, onClose }: ApiExplorerModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-3 sm:p-5">
+    <div
+      className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-3 sm:p-5 overscroll-contain"
+      data-lenis-prevent
+      onWheel={(e) => {
+        if (e.target === e.currentTarget) {
+          e.preventDefault();
+        }
+      }}
+      onTouchMove={(e) => {
+        if (e.target === e.currentTarget) {
+          e.preventDefault();
+        }
+      }}
+    >
       <div
         data-lenis-prevent
-        className="bg-white dark:bg-[#0f131d] border border-zinc-200 dark:border-zinc-800 rounded-lg w-full max-w-4xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"
+        className="bg-white dark:bg-[#0f131d] border border-zinc-200 dark:border-zinc-800 rounded-lg w-full max-w-4xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden overscroll-contain"
       >
         {/* Header */}
         <div className="px-5 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-3 bg-zinc-50 dark:bg-[#121624] shrink-0">
@@ -328,6 +345,7 @@ export function ApiExplorerModal({ isOpen, onClose }: ApiExplorerModalProps) {
                       </label>
                       <textarea
                         id="api-payload-editor"
+                        name="api_payload"
                         rows={3}
                         value={payloadText}
                         onChange={(e) => setPayloadText(e.target.value)}
