@@ -56,7 +56,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 | 3 | **REST API v1 & Interactive API Explorer** | Endpoint modular v1 aktif, halaman `/api/docs` interaktif dan full support iPhone/mobile. | **SELESAI (DONE)** ✅ | Deni |
 | 4 | **Terminal Web Git di Dashboard** | Terminal langsung di web tanpa perlu buka terminal OS/laptop, otomatis geser Trello & catat riwayat. | **SELESAI (DONE)** ✅ | Rafli & Deni |
 | 5 | **Sinkronisasi Commit GitHub ke Stream** | Riwayat commit asli GitHub otomatis diimpor ke stream live (`activity_logs`). | **SELESAI (DONE)** ✅ | Deni & Fatir |
-| 6 | **Deployment Publik (Public HTTPS URL)** | Backend masih berjalan lokal (`localhost:5000`). GitHub butuh webhook internet. | **PENDING (P1)** ⏳ | Deni |
+| 6 | **Deployment Publik / Webhook Gateway (HTTPS URL)** | Skrip tunnel lintas platform aktif via `npm run tunnel` (LocalTunnel & Cloudflare), siap menghubungkan webhook GitHub.com ke backend lokal. | **SELESAI (DONE)** ✅ | Deni |
 | 7 | **CI/CD Pipeline (GitHub Actions)** | Belum ada workflow `.github/workflows/ci.yml` untuk automated validation PR. | **PENDING (P2)** ⏳ | Deni |
 | 8 | **Visualisasi Grafik Kontribusi (Analytics Chart)** | Tersedia diagram batang perbandingan commit & diagram donat status sprint berbasis SVG presisi tinggi. | **SELESAI (DONE)** ✅ | Rafli |
 | 9 | **Modal Edit Tugas Lengkap** | Modal interaktif (`EditTaskModal.tsx`) terintegrasi tabel untuk mutasi judul, assignee, dan status dengan sinkronisasi Trello. | **SELESAI (DONE)** ✅ | Rafli |
@@ -114,9 +114,9 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 - [x] **1.6 Skrip Otomasi Git & Keamanan Branch**:
   - Rancang skrip `auto-git-push` lintas platform (Linux `.sh` & Windows `.bat`) dengan auto pre-push quality gate.
   - Buat skrip pembersih branch usang `clean-merged-branches`.
-- [ ] **1.7 Setup Public Webhook Gateway (Cloudflare Tunnel / Cloud Deployment)**:
-  - Setup Cloudflare Tunnel (`cloudflared`) atau deploy backend ke cloud (Railway/Render/VPS) agar endpoint webhook dapat diakses langsung oleh internet publik GitHub.com.
-  - Pasang webhook resmi di GitHub repository setting (`Settings -> Webhooks -> Add Webhook`) mengarah ke domain publik.
+- [x] **1.7 Setup Public Webhook Gateway (Cloudflare Tunnel / LocalTunnel)**:
+  - Bangun skrip tunnel otomatis lintas platform (`scripts/setup-public-tunnel.sh` & `.bat`) dan perintah `npm run tunnel`.
+  - Hubungkan backend lokal port 5000 ke domain publik HTTPS agar webhook GitHub.com di internet dapat menembak server secara riil.
 - [ ] **1.8 Setup CI/CD Pipeline (GitHub Actions)**:
   - Buat berkas `.github/workflows/ci.yml` yang otomatis menjalankan:
     1. Backend `tsc --noEmit`
@@ -131,6 +131,8 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
   - `backend/src/docs/renderApiDocsHtml.ts`
   - `backend/src/services/GitHubIntegrationService.ts`
   - `backend/src/middlewares/SecurityMiddleware.ts`
+  - `scripts/setup-public-tunnel.sh`
+  - `scripts/setup-public-tunnel.bat`
   - `.github/workflows/ci.yml` (Pending)
 
 ---

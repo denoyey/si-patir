@@ -26,7 +26,7 @@ import {
   ChevronDown,
   Copy,
   Code2,
-  Send,
+  Play,
   Download,
   Printer,
 } from 'lucide-react';
@@ -48,7 +48,7 @@ function formatLogTime(timestamp: string): string {
   }
 }
 
-function AvatarWithFallback({ username, name }: { username: string; name: string }) {
+function AvatarWithFallback({ username, name, className }: { username: string; name?: string; className?: string }) {
   const [error, setError] = useState(false);
   const initials = name
     ? name
@@ -59,9 +59,11 @@ function AvatarWithFallback({ username, name }: { username: string; name: string
       .toUpperCase()
     : username.slice(0, 2).toUpperCase();
 
+  const defaultClasses = "w-8 h-8 sm:w-10 sm:h-10 rounded-md border border-zinc-300 dark:border-zinc-700 object-cover shrink-0 bg-zinc-200 dark:bg-zinc-800 shadow-xs";
+
   if (error || !username) {
     return (
-      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-md bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 flex items-center justify-center text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300 shrink-0 shadow-xs">
+      <div className={className || "w-8 h-8 sm:w-10 sm:h-10 rounded-md bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 flex items-center justify-center text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300 shrink-0 shadow-xs"}>
         {initials}
       </div>
     );
@@ -70,9 +72,9 @@ function AvatarWithFallback({ username, name }: { username: string; name: string
   return (
     <img
       src={`https://github.com/${username}.png?size=200`}
-      alt={name}
+      alt={name || username}
       onError={() => setError(true)}
-      className="w-8 h-8 sm:w-10 sm:h-10 rounded-md border border-zinc-300 dark:border-zinc-700 object-cover shrink-0 bg-zinc-200 dark:bg-zinc-800 shadow-xs"
+      className={className || defaultClasses}
       loading="lazy"
     />
   );
@@ -976,7 +978,7 @@ export function DashboardPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div
             data-anim="stat-card"
-            className="bg-white dark:bg-gradient-to-b dark:from-[#131726] dark:to-[#0e111a] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition duration-200 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
+            className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-150 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
           >
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium text-zinc-500 dark:text-zinc-400">Total Commits</span>
@@ -996,7 +998,7 @@ export function DashboardPage() {
 
           <div
             data-anim="stat-card"
-            className="bg-white dark:bg-gradient-to-b dark:from-[#131726] dark:to-[#0e111a] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition duration-200 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
+            className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-150 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
           >
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium text-zinc-500 dark:text-zinc-400">Tugas Selesai</span>
@@ -1017,7 +1019,7 @@ export function DashboardPage() {
 
           <div
             data-anim="stat-card"
-            className="bg-white dark:bg-gradient-to-b dark:from-[#131726] dark:to-[#0e111a] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition duration-200 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
+            className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-150 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
           >
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium text-zinc-500 dark:text-zinc-400">Penyelesaian Sprint</span>
@@ -1031,7 +1033,7 @@ export function DashboardPage() {
             <div className="w-full bg-zinc-200 dark:bg-zinc-800/80 h-2 rounded-md overflow-hidden">
               <div
                 ref={progressBarRef}
-                className="bg-gradient-to-r from-blue-500 to-emerald-400 h-full rounded-md transition-all duration-300"
+                className="bg-blue-600 dark:bg-blue-500 h-full rounded-md transition-all duration-300"
                 style={{ width: `${metrics.completionRate}%` }}
               ></div>
             </div>
@@ -1039,7 +1041,7 @@ export function DashboardPage() {
 
           <div
             data-anim="stat-card"
-            className="bg-white dark:bg-gradient-to-b dark:from-[#131726] dark:to-[#0e111a] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition duration-200 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
+            className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-150 rounded-lg p-3.5 sm:p-5 min-h-[120px] sm:min-h-[132px] flex flex-col justify-between shadow-xs"
           >
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium text-zinc-500 dark:text-zinc-400">Proteksi Webhook</span>
@@ -1558,36 +1560,39 @@ export function DashboardPage() {
             </section>
           </div>
 
-          {/* RIGHT 1 COLUMN: LIVE WEBHOOK AUDIT STREAM & DEVELOPER COMMIT GUIDE */}
+          {/* RIGHT 1 COLUMN: LIVE WEBHOOK AUDIT STREAM & WEB GIT TERMINAL */}
           <aside className="space-y-4 lg:sticky lg:top-[4.5rem] lg:self-start z-20">
             <div
               data-anim="content-grid"
-              className="bg-white dark:bg-[#0e121b] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[580px] sm:h-[660px] lg:h-[calc(100vh-5.5rem)] lg:max-h-[850px] lg:min-h-[580px] shadow-xs"
+              className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[580px] sm:h-[660px] lg:h-[calc(100vh-5.5rem)] lg:max-h-[860px] lg:min-h-[580px] shadow-xs"
             >
               {/* Header */}
-              <div className="px-4 py-3 min-h-[46px] border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-[#121623] shrink-0">
+              <div className="px-4 py-3 min-h-[46px] border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/80 dark:bg-[#0e121b] shrink-0">
                 <div className="flex items-center gap-2">
-                  <Terminal className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <h3 className="text-xs font-semibold text-zinc-900 dark:text-white">
+                  <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                  <h3 className="text-xs font-semibold text-zinc-950 dark:text-white">
                     Live Webhook Stream
                   </h3>
+                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-200/80 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                    {filteredLogs.length}
+                  </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs font-mono text-emerald-600 dark:text-emerald-400">
+                <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-medium">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                   <span>Listening</span>
                 </div>
               </div>
 
-              {/* Stream Search & Author Filter Bar (Point 2.9) */}
-              <div className="p-2.5 bg-zinc-50/90 dark:bg-[#121623] border-b border-zinc-200 dark:border-zinc-800 space-y-2 shrink-0">
+              {/* Stream Search & Author Filter Bar */}
+              <div className="p-2.5 bg-zinc-50/50 dark:bg-[#0e121b]/60 border-b border-zinc-200 dark:border-zinc-800 space-y-2 shrink-0">
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
                   <input
                     type="text"
                     value={logSearchQuery}
                     onChange={(e) => setLogSearchQuery(e.target.value)}
-                    placeholder="Cari pesan commit, #TASK, event..."
-                    className="w-full pl-8 pr-7 py-1.5 rounded-md bg-white dark:bg-[#0a0d14] border border-zinc-200 dark:border-zinc-700/80 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 text-[11px] font-mono focus:outline-hidden focus:border-emerald-500 transition shadow-2xs"
+                    placeholder="Cari commit, #TASK, event..."
+                    className="w-full pl-8 pr-7 py-1.5 rounded-md bg-white dark:bg-[#090b10] border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 text-xs font-mono focus:outline-hidden focus:border-zinc-400 dark:focus:border-zinc-600 transition shadow-2xs"
                   />
                   {logSearchQuery && (
                     <button
@@ -1601,16 +1606,15 @@ export function DashboardPage() {
                   )}
                 </div>
 
-                {/* Author filter pill chips */}
+                {/* Author filter horizontal bar */}
                 <div className="flex items-center gap-1 overflow-x-auto touch-scroll py-0.5 text-[10px] font-mono scrollbar-none">
-                  <span className="text-zinc-500 text-[10px] shrink-0 font-sans">Author:</span>
                   <button
                     type="button"
                     onClick={() => setLogAuthorFilter('ALL')}
                     className={`px-2 py-0.5 rounded-md transition cursor-pointer shrink-0 border ${
                       logAuthorFilter === 'ALL'
-                        ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 font-bold border-zinc-900 dark:border-zinc-100'
-                        : 'bg-white dark:bg-[#090b10] text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-800 hover:border-zinc-400'
+                        ? 'bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 font-semibold border-zinc-950 dark:border-white shadow-2xs'
+                        : 'bg-white dark:bg-[#090b10] text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300'
                     }`}
                   >
                     Semua ({logs.length})
@@ -1625,8 +1629,8 @@ export function DashboardPage() {
                         onClick={() => setLogAuthorFilter(isSelected ? 'ALL' : author)}
                         className={`px-2 py-0.5 rounded-md transition cursor-pointer shrink-0 border ${
                           isSelected
-                            ? 'bg-emerald-600 text-white font-bold border-emerald-600 shadow-2xs'
-                            : 'bg-white dark:bg-[#090b10] text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-800 hover:border-zinc-400'
+                            ? 'bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 font-semibold border-zinc-950 dark:border-white shadow-2xs'
+                            : 'bg-white dark:bg-[#090b10] text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300'
                         }`}
                       >
                         @{author} ({count})
@@ -1636,15 +1640,15 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              {/* Streaming Output Body (Properly isolated scrollable list with min-h-0) */}
+              {/* Streaming Output Body - Clean Activity Feed (No nested cards in cards!) */}
               <div
                 ref={streamContainerRef}
                 data-lenis-prevent
-                className="flex-1 min-h-0 bg-zinc-100/70 dark:bg-[#090b10] p-4 font-mono text-xs overflow-y-auto touch-scroll space-y-3"
+                className="flex-1 min-h-0 bg-white dark:bg-[#0c0f17] divide-y divide-zinc-100 dark:divide-zinc-800/60 overflow-y-auto touch-scroll"
               >
                 {filteredLogs.length === 0 ? (
-                  <div className="text-center py-10 text-zinc-400 dark:text-zinc-600 text-[11px] space-y-2">
-                    <p>Tidak ada aktivitas webhook yang sesuai dengan filter.</p>
+                  <div className="text-center py-12 px-4 text-zinc-400 dark:text-zinc-600 text-xs space-y-2">
+                    <p>Tidak ada aktivitas webhook yang sesuai.</p>
                     {(logSearchQuery || logAuthorFilter !== 'ALL') && (
                       <button
                         type="button"
@@ -1652,7 +1656,7 @@ export function DashboardPage() {
                           setLogSearchQuery('');
                           setLogAuthorFilter('ALL');
                         }}
-                        className="text-emerald-600 dark:text-emerald-400 underline cursor-pointer text-[10px]"
+                        className="text-blue-600 dark:text-blue-400 underline cursor-pointer text-[11px]"
                       >
                         Reset filter stream
                       </button>
@@ -1663,50 +1667,63 @@ export function DashboardPage() {
                     <div
                       key={log.id}
                       ref={index === 0 ? topLogRef : undefined}
-                      className="p-3 rounded-md bg-white dark:bg-[#111522] border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700/80 transition shadow-xs space-y-2"
+                      className="p-3 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/30 transition-colors flex items-start gap-2.5"
                     >
-                      <div className="flex items-center justify-between text-[11px] gap-2 flex-wrap">
-                        <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
-                          <span className="font-mono font-bold text-[10px] px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/30 shrink-0">
-                            {log.event_type}
+                      <AvatarWithFallback
+                        username={log.author}
+                        name={log.author}
+                        className="w-7 h-7 rounded-md border border-zinc-200 dark:border-zinc-700 shrink-0 mt-0.5 object-cover"
+                      />
+                      <div className="flex-1 min-w-0 space-y-1">
+                        <div className="flex items-center justify-between gap-1 text-[11px]">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <span className="font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+                              @{log.author}
+                            </span>
+                            <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded font-medium ${
+                              log.event_type === 'TASK_COMPLETED'
+                                ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20'
+                                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700'
+                            }`}>
+                              {log.event_type === 'TASK_COMPLETED' ? 'TASK' : 'PUSH'}
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500 shrink-0" title={log.created_at}>
+                            {formatLogTime(log.created_at)}
                           </span>
-                          <span className="font-semibold text-zinc-800 dark:text-zinc-300 truncate">@{log.author}</span>
                         </div>
-                        <span className="text-zinc-500 font-mono text-[10px] shrink-0" title={log.created_at}>
-                          {formatLogTime(log.created_at)}
-                        </span>
-                      </div>
 
-                      <div className="p-2 rounded-md bg-zinc-50 dark:bg-[#090b10] border border-zinc-200 dark:border-zinc-800/80 text-zinc-800 dark:text-zinc-200 text-xs italic break-words">
-                        "{log.commit_message}"
-                      </div>
+                        <p className="text-xs font-mono text-zinc-800 dark:text-zinc-200 leading-snug break-words">
+                          {log.commit_message}
+                        </p>
 
-                      {log.task_code && (
-                        <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 text-[10px] bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-200 dark:border-emerald-500/20 font-medium">
-                          <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                          <span>Trello card #{log.task_code} digeser ke Done &amp; Discord ternotifikasi</span>
-                        </div>
-                      )}
+                        {log.task_code && (
+                          <div className="inline-flex items-center gap-1.5 text-[10.5px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-500/20">
+                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                            <span>#{log.task_code} digeser ke Done &amp; Discord ternotifikasi</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))
                 )}
               </div>
 
-              {/* Terminal Web Git Terintegrasi (Bukan Simulator - Langsung di Web) */}
-              <div className="p-3.5 sm:p-4 bg-zinc-50 dark:bg-[#121623] border-t border-zinc-200 dark:border-zinc-800 text-xs space-y-3 shrink-0">
+              {/* Terminal Web Git Terintegrasi (Human-Crafted Developer Tool) */}
+              <div className="p-3.5 sm:p-4 bg-zinc-50/90 dark:bg-[#0e121b] border-t border-zinc-200 dark:border-zinc-800 text-xs space-y-3 shrink-0">
                 {/* Header Terminal Web */}
                 <div className="flex items-center justify-between gap-2 border-b border-zinc-200 dark:border-zinc-800/80 pb-2.5">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                    <div className="p-1.5 rounded-md bg-zinc-200/80 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 shrink-0">
                       <Terminal className="w-3.5 h-3.5" />
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-zinc-950 dark:text-white text-xs">
+                        <span className="font-semibold text-zinc-950 dark:text-white text-xs">
                           Terminal Web Git
                         </span>
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800">
-                          ● Langsung di Web
+                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700">
+                          Direct Pipeline
                         </span>
                       </div>
                     </div>
@@ -1730,107 +1747,118 @@ export function DashboardPage() {
                   </button>
                 </div>
 
-                <div className="space-y-2.5">
-                  {/* Author selection chips */}
-                  {members.length > 0 && (
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-[10px] text-zinc-500 dark:text-zinc-400">
-                        <span>Pilih Author / Kontributor:</span>
-                        <span className="font-mono text-emerald-600 dark:text-emerald-400 font-medium">
-                          @{selectedTerminalAuthor || members[0]?.github_username}
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {members.map((m) => {
-                          const isSelected = (selectedTerminalAuthor || members[0]?.github_username) === m.github_username;
-                          return (
-                            <button
-                              key={m.id}
-                              type="button"
-                              onClick={() => setSelectedTerminalAuthor(m.github_username)}
-                              className={`px-2 py-0.5 rounded-md font-mono text-[10px] transition cursor-pointer border ${
-                                isSelected
-                                  ? 'bg-blue-600 text-white border-blue-600 shadow-2xs'
-                                  : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700'
-                              }`}
-                            >
-                              @{m.github_username} ({m.total_commits}c)
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
+                {/* Form Selectors: Author & Quick Task Template */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <label htmlFor="terminal-author-select" className="block text-[10px] font-medium text-zinc-500 dark:text-zinc-400 mb-1">
+                      Author Kontributor
+                    </label>
+                    <select
+                      id="terminal-author-select"
+                      value={selectedTerminalAuthor || (members[0]?.github_username ?? 'denoyey')}
+                      onChange={(e) => setSelectedTerminalAuthor(e.target.value)}
+                      className="w-full h-8 px-2 rounded-md bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 text-xs font-mono focus:outline-hidden focus:border-blue-500 transition cursor-pointer shadow-2xs"
+                    >
+                      {members.map((m) => (
+                        <option key={m.id} value={m.github_username}>
+                          @{m.github_username} ({m.total_commits}c)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                  {/* Quick Task Selection Chips */}
-                  {tasks.length > 0 && (
-                    <div className="space-y-1">
-                      <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
-                        Pilih Cepat Tugas:
-                      </span>
-                      <div className="flex flex-wrap gap-1">
-                        {tasks.slice(0, 5).map((t) => (
-                          <button
-                            key={t.id}
-                            type="button"
-                            onClick={() => {
-                              setTerminalCommand(`git commit -m "Selesaikan ${t.title.slice(0, 24)} [done #${t.task_code}]"`);
-                              if (t.assignee) {
-                                setSelectedTerminalAuthor(t.assignee);
-                              }
-                            }}
-                            className="px-1.5 py-0.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 font-mono text-[10px] transition cursor-pointer active:scale-95 shadow-2xs"
-                            title={`Pilih cepat untuk #${t.task_code}`}
-                          >
-                            #{t.task_code}
-                          </button>
-                        ))}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setTerminalCommand('git commit -m "Update konfigurasi sistem dan refactor kode"');
-                          }}
-                          className="px-1.5 py-0.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700 font-mono text-[10px] transition cursor-pointer"
-                        >
-                          Umum
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  <div>
+                    <label htmlFor="terminal-task-select" className="block text-[10px] font-medium text-zinc-500 dark:text-zinc-400 mb-1">
+                      Template Tugas
+                    </label>
+                    <select
+                      id="terminal-task-select"
+                      defaultValue=""
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (!val) return;
+                        if (val === 'CUSTOM') {
+                          setTerminalCommand('git commit -m "refactor(core): update konfigurasi dan penyesuaian sistem"');
+                        } else {
+                          const matchedTask = tasks.find((t) => t.task_code === val);
+                          if (matchedTask) {
+                            setTerminalCommand(`git commit -m "Selesaikan ${matchedTask.title.slice(0, 24)} [done #${matchedTask.task_code}]"`);
+                            if (matchedTask.assignee) {
+                              setSelectedTerminalAuthor(matchedTask.assignee);
+                            }
+                          }
+                        }
+                      }}
+                      className="w-full h-8 px-2 rounded-md bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 text-xs focus:outline-hidden focus:border-blue-500 transition cursor-pointer shadow-2xs"
+                    >
+                      <option value="" disabled>Pilih Tugas (#TASK)...</option>
+                      {tasks.slice(0, 6).map((t) => (
+                        <option key={t.id} value={t.task_code}>
+                          #{t.task_code} - {t.title.slice(0, 22)}
+                        </option>
+                      ))}
+                      <option value="CUSTOM">Commit Umum / Refactor</option>
+                    </select>
+                  </div>
+                </div>
 
-                  {/* Terminal Input Screen */}
-                  <div className="p-2.5 rounded-lg bg-[#07090e] border border-zinc-800 font-mono shadow-inner space-y-2">
-                    <div className="text-[10px] text-zinc-400 leading-relaxed border-b border-zinc-800/80 pb-1.5 line-clamp-2">
-                      {terminalOutput}
+                {/* macOS / Modern Developer Shell Console */}
+                <div className="rounded-md border border-zinc-300 dark:border-zinc-800 overflow-hidden bg-zinc-950 font-mono shadow-inner">
+                  {/* Console Top Window Bar */}
+                  <div className="px-3 py-1.5 bg-zinc-900/90 border-b border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-400 select-none">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-red-500/80" />
+                      <span className="w-2 h-2 rounded-full bg-amber-500/80" />
+                      <span className="w-2 h-2 rounded-full bg-emerald-500/80" />
+                      <span className="ml-1 text-zinc-400">si-patir ~/workspace</span>
                     </div>
+                    <span className="text-zinc-500">bash</span>
+                  </div>
+
+                  {/* Console Body */}
+                  <div className="p-3 space-y-2">
+                    {terminalOutput && (
+                      <div className="text-[11px] text-zinc-400 border-b border-zinc-800/60 pb-1.5 leading-relaxed break-words">
+                        <span className="text-emerald-400 mr-1.5">➜</span>
+                        {terminalOutput}
+                      </div>
+                    )}
 
                     <form onSubmit={handleExecuteTerminal} className="flex items-center gap-1.5">
-                      <span className="text-emerald-400 text-[11px] font-bold select-none shrink-0">
-                        @{selectedTerminalAuthor || (members.length > 0 ? members[0].github_username : 'denoyey')} $
+                      <span className="text-emerald-400 text-xs font-bold select-none shrink-0">
+                        @{selectedTerminalAuthor || (members[0]?.github_username ?? 'denoyey')} $
                       </span>
                       <input
                         type="text"
                         value={terminalCommand}
                         onChange={(e) => setTerminalCommand(e.target.value)}
                         placeholder='git commit -m "pesan [done #TASK-01]"'
-                        className="flex-1 bg-transparent border-0 text-emerald-300 font-mono text-[11px] focus:outline-none focus:ring-0 p-0 selection:bg-emerald-800"
+                        className="flex-1 bg-transparent border-none text-zinc-100 placeholder-zinc-600 font-mono text-xs focus:outline-hidden p-0"
                       />
-                      <button
-                        type="submit"
-                        disabled={isTerminalSubmitting}
-                        className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-medium text-[10px] flex items-center gap-1 transition cursor-pointer disabled:opacity-50 shrink-0 shadow-2xs"
-                        title="Eksekusi commit langsung di web"
-                      >
-                        <span>{isTerminalSubmitting ? '...' : 'Kirim'}</span>
-                        <Send className="w-2.5 h-2.5" />
-                      </button>
                     </form>
                   </div>
+                </div>
 
-                  <div className="text-[10px] text-zinc-500 dark:text-zinc-400 border-t border-zinc-200 dark:border-zinc-800/80 pt-2 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
-                    <span>Commit web otomatis memindahkan kartu Trello &amp; menyinkronkan live stream.</span>
-                  </div>
+                {/* Bottom Action Row (Spacious & Clean, Not Squeezed!) */}
+                <div className="flex items-center justify-between gap-2 pt-0.5 text-xs">
+                  <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                    Tekan <kbd className="px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 font-mono text-[10px]">Enter ↵</kbd>
+                  </span>
+
+                  <button
+                    type="button"
+                    disabled={isTerminalSubmitting}
+                    onClick={(e) => handleExecuteTerminal(e)}
+                    className="h-8 px-3 rounded-md bg-zinc-950 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-950 font-medium text-xs flex items-center gap-1.5 transition cursor-pointer active:scale-95 disabled:opacity-50 shadow-xs"
+                    title="Jalankan commit langsung di web"
+                  >
+                    {isTerminalSubmitting ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Play className="w-3 h-3 fill-current" />
+                    )}
+                    <span>{isTerminalSubmitting ? 'Memproses...' : 'Jalankan Commit'}</span>
+                  </button>
                 </div>
               </div>
             </div>

@@ -207,6 +207,7 @@ Tersedia perintah ringkas dari root folder untuk kebutuhan operasional developer
 | `npm run typecheck` | Menjalankan validasi tipe TypeScript (`tsc --noEmit`) pada backend dan frontend |
 | `npm run lint` | Menjalankan audit linter cepat (`oxlint`) pada kode sumber frontend |
 | `npm run clean:branches` | Membersihkan branch lokal & remote yang sudah selesai di-merge ke `main` secara otomatis |
+| `npm run tunnel` | Menjalankan public HTTPS tunnel (LocalTunnel / Cloudflare) agar webhook GitHub.com terhubung ke localhost:5000 |
 
 ---
 
@@ -216,6 +217,7 @@ Mendukung eksekusi lintas sistem operasi secara penuh (**Linux, macOS, dan Windo
 
 | Utilitas | Linux / macOS | Windows (CMD / PowerShell) | Deskripsi |
 | :------- | :------------ | :------------------------- | :-------- |
+| **Public Webhook Tunnel** | `./scripts/setup-public-tunnel.sh` (atau `npm run tunnel`) | `scripts\setup-public-tunnel.bat` (atau `npm run tunnel`) | Membuka public HTTPS URL ke port 5000 untuk pendaftaran webhook di GitHub.com |
 | **Auto Git Push** | `./scripts/auto-git-push.sh feat my-feat ui "msg"` | `scripts\auto-git-push.bat feat my-feat ui "msg"` | Quality gate otomatis (typecheck + build), checkout branch, commit conventional, dan push ke GitHub |
 | **Clean Merged Branches** | `./scripts/clean-merged-branches.sh` (atau `npm run clean:branches`) | `scripts\clean-merged-branches.bat` (atau `npm run clean:branches`) | Menghapus branch lokal & remote yang sudah di-merge ke `main` agar repo tetap bersih |
 | **Setup Local Git Hook** | `./scripts/setup-local-git-hook.sh /path/repo` | `./scripts/setup-local-git-hook.sh /path/repo` (Git Bash) | Memasang post-commit hook lokal agar commit otomatis memicu webhook SI-PATIR |
@@ -366,7 +368,7 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
 | 3 | **REST API v1 & Interactive API Explorer** | Endpoint modular v1 aktif, halaman `/api/docs` interaktif dan full support iPhone/mobile. | **SELESAI (DONE)** ✅ | Deni |
 | 4 | **Terminal Web Git di Dashboard** | Terminal langsung di web tanpa perlu buka terminal OS/laptop, otomatis geser Trello & catat riwayat. | **SELESAI (DONE)** ✅ | Rafli & Deni |
 | 5 | **Sinkronisasi Commit GitHub ke Stream** | Riwayat commit asli GitHub otomatis diimpor ke stream live (`activity_logs`). | **SELESAI (DONE)** ✅ | Deni & Fatir |
-| 6 | **Deployment Publik (Public HTTPS URL)** | Backend masih berjalan lokal (`localhost:5000`). GitHub butuh webhook internet. | **PENDING (P1)** ⏳ | Deni |
+| 6 | **Deployment Publik / Webhook Gateway (HTTPS URL)** | Skrip tunnel lintas platform aktif via `npm run tunnel` (LocalTunnel & Cloudflare), siap menghubungkan webhook GitHub.com ke backend lokal. | **SELESAI (DONE)** ✅ | Deni |
 | 7 | **CI/CD Pipeline (GitHub Actions)** | Belum ada workflow `.github/workflows/ci.yml` untuk automated validation PR. | **PENDING (P2)** ⏳ | Deni |
 | 8 | **Visualisasi Grafik Kontribusi (Analytics Chart)** | Tersedia diagram batang perbandingan commit & diagram donat status sprint berbasis SVG presisi tinggi. | **SELESAI (DONE)** ✅ | Rafli |
 | 9 | **Modal Edit Tugas Lengkap** | Modal interaktif (`EditTaskModal.tsx`) terintegrasi tabel untuk mutasi judul, assignee, dan status dengan sinkronisasi Trello. | **SELESAI (DONE)** ✅ | Rafli |
@@ -404,9 +406,9 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
   - [x] **1.6 Skrip Otomasi Git & Keamanan Branch**:
     - Rancang skrip `auto-git-push` lintas platform (Linux `.sh` & Windows `.bat`) dengan auto pre-push quality gate.
     - Buat skrip pembersih branch usang `clean-merged-branches`.
-  - [ ] **1.7 Setup Public Webhook Gateway (Cloudflare Tunnel / Cloud Deployment)**:
-    - Setup Cloudflare Tunnel (`cloudflared`) atau deploy backend ke cloud (Railway/Render/VPS) agar endpoint webhook dapat diakses langsung oleh internet publik GitHub.com.
-    - Pasang webhook resmi di GitHub repository setting (`Settings -> Webhooks -> Add Webhook`) mengarah ke domain publik.
+  - [x] **1.7 Setup Public Webhook Gateway (Cloudflare Tunnel / LocalTunnel)**:
+    - Bangun skrip tunnel otomatis lintas platform (`scripts/setup-public-tunnel.sh` & `.bat`) dan perintah `npm run tunnel`.
+    - Hubungkan backend lokal port 5000 ke domain publik HTTPS agar webhook GitHub.com di internet dapat menembak server secara riil.
   - [ ] **1.8 Setup CI/CD Pipeline (GitHub Actions)**:
     - Buat berkas `.github/workflows/ci.yml` yang otomatis menjalankan:
       1. Backend `tsc --noEmit`
@@ -420,6 +422,8 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
   - `backend/src/docs/renderApiDocsHtml.ts`
   - `backend/src/services/GitHubIntegrationService.ts`
   - `backend/src/middlewares/SecurityMiddleware.ts`
+  - `scripts/setup-public-tunnel.sh`
+  - `scripts/setup-public-tunnel.bat`
   - `.github/workflows/ci.yml` *(Pending)*
 </details>
 
