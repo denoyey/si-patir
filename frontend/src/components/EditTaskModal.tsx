@@ -85,7 +85,7 @@ export function EditTaskModal({ isOpen, task, members, onClose, onSave }: EditTa
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
+      className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-3 sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget && !isSubmitting) {
           onClose();
