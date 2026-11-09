@@ -82,3 +82,18 @@ export interface ITaskNotificationDTO {
   newStatus?: string;
 }
 
+export interface IProject {
+  id: number;
+  name: string;
+  slug: string;
+  github_repo: string;
+  github_webhook_secret?: string;
+  trello_board_id?: string;
+  trello_done_list_id?: string;
+  discord_webhook_url?: string;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+

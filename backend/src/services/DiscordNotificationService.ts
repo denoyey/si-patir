@@ -9,8 +9,8 @@ export class DiscordNotificationService {
     this.config = EnvironmentConfig.getInstance();
   }
 
-  public async sendTaskCompletion(dto: ITaskNotificationDTO): Promise<boolean> {
-    const webhookUrl = this.config.discordWebhookUrl;
+  public async sendTaskCompletion(dto: ITaskNotificationDTO, overrideWebhookUrl?: string): Promise<boolean> {
+    const webhookUrl = overrideWebhookUrl || this.config.discordWebhookUrl;
 
     if (!webhookUrl || !webhookUrl.startsWith('https://discord.com/api/webhooks/')) {
       console.log('[DiscordNotificationService] Webhook URL belum diisi. Lewati dispatch.');

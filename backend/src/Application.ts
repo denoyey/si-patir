@@ -8,6 +8,7 @@ import { WebhookController } from './controllers/WebhookController.js';
 import { TaskController } from './controllers/TaskController.js';
 import { MemberController } from './controllers/MemberController.js';
 import { SystemController } from './controllers/SystemController.js';
+import { ProjectController } from './controllers/ProjectController.js';
 import { GitHubIntegrationService } from './services/GitHubIntegrationService.js';
 
 export class Application {
@@ -61,6 +62,7 @@ export class Application {
     const taskController = new TaskController(this.io);
     const memberController = new MemberController();
     const systemController = new SystemController();
+    const projectController = new ProjectController(this.io);
 
     // ==========================================
     // 1. Root Discovery & Interactive API Docs
@@ -146,7 +148,29 @@ export class Application {
     this.app.post('/api/members/clear-dummy', memberController.clearDummy);
 
     // ==========================================
-    // 5. System API (Health, Logs, Specs)
+    // 5. Projects API (Dynamic Multi-Repo Configuration)
+    // ==========================================
+    this.app.get('/api/v1/projects', projectController.getAllProjects);
+    this.app.get('/api/projects', projectController.getAllProjects);
+    this.app.get('/api/v1/projects/active', projectController.getActiveProject);
+    this.app.get('/api/projects/active', projectController.getActiveProject);
+    this.app.get('/api/v1/projects/:id', projectController.getProjectById);
+    this.app.get('/api/projects/:id', projectController.getProjectById);
+
+    this.app.post('/api/v1/projects', projectController.createProject);
+    this.app.post('/api/projects', projectController.createProject);
+    this.app.put('/api/v1/projects/:id', projectController.updateProject);
+    this.app.put('/api/projects/:id', projectController.updateProject);
+    this.app.patch('/api/v1/projects/:id', projectController.updateProject);
+    this.app.patch('/api/projects/:id', projectController.updateProject);
+
+    this.app.post('/api/v1/projects/:id/activate', projectController.setActiveProject);
+    this.app.post('/api/projects/:id/activate', projectController.setActiveProject);
+    this.app.delete('/api/v1/projects/:id', projectController.deleteProject);
+    this.app.delete('/api/projects/:id', projectController.deleteProject);
+
+    // ==========================================
+    // 6. System API (Health, Logs, Specs)
     // ==========================================
     this.app.get('/api/v1/system/status', systemController.getStatus);
     this.app.get('/api/status', systemController.getStatus);

@@ -1,6 +1,6 @@
 import mysql, { Pool, PoolConnection } from 'mysql2/promise';
 import { EnvironmentConfig } from '../config/EnvironmentConfig.js';
-import { IMember, ITask, IActivityLog } from '../types/interfaces.js';
+import { IMember, ITask, IActivityLog, IProject } from '../types/interfaces.js';
 
 export class DatabaseService {
   private static instance: DatabaseService;
@@ -9,6 +9,8 @@ export class DatabaseService {
   private config: EnvironmentConfig;
 
   // In-memory persistent fallback if MySQL is offline or not yet configured
+  private memoryProjects: IProject[] = [];
+
   private memoryMembers: IMember[] = [
     { id: 1, name: 'Deni', github_username: 'denoyey', total_commits: 42, tasks_done: 2 },
     { id: 2, name: 'Fatir', github_username: 'Patirparkerr', total_commits: 2, tasks_done: 1 },
@@ -38,6 +40,20 @@ export class DatabaseService {
 
   private constructor() {
     this.config = EnvironmentConfig.getInstance();
+    this.memoryProjects = [
+      {
+        id: 1,
+        name: 'SI-PATIR (DevOps Lite)',
+        slug: 'si-patir',
+        github_repo: this.config.githubRepo || 'denoyey/si-patir',
+        github_webhook_secret: this.config.githubWebhookSecret || 'sipatir_secret_123',
+        trello_board_id: this.config.trelloBoardId || '',
+        trello_done_list_id: this.config.trelloDoneListId || '',
+        discord_webhook_url: this.config.discordWebhookUrl || '',
+        is_active: true,
+        created_at: new Date().toISOString(),
+      },
+    ];
   }
 
   public static getInstance(): DatabaseService {
@@ -127,6 +143,42 @@ export class DatabaseService {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
+    await this.pool.query(`
+      CREATE TABLE IF NOT EXISTS projects (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        slug VARCHAR(100) NOT NULL UNIQUE,
+        github_repo VARCHAR(150) NOT NULL,
+        github_webhook_secret VARCHAR(150),
+        trello_board_id VARCHAR(100),
+        trello_done_list_id VARCHAR(100),
+        discord_webhook_url TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_slug (slug),
+        INDEX idx_repo (github_repo)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    // Seed defaults if empty
+    const [projectCount]: any = await this.pool.query('SELECT COUNT(*) as count FROM projects');
+    if (projectCount[0].count === 0) {
+      await this.pool.query(
+        `INSERT INTO projects (id, name, slug, github_repo, github_webhook_secret, trello_board_id, trello_done_list_id, discord_webhook_url, is_active)
+         VALUES (1, ?, 'si-patir', ?, ?, ?, ?, ?, TRUE)
+         ON DUPLICATE KEY UPDATE github_repo = VALUES(github_repo)`,
+        [
+          'SI-PATIR (DevOps Lite)',
+          this.config.githubRepo || 'denoyey/si-patir',
+          this.config.githubWebhookSecret || 'sipatir_secret_123',
+          this.config.trelloBoardId || '',
+          this.config.trelloDoneListId || '',
+          this.config.discordWebhookUrl || '',
+        ]
+      );
+    }
+
     // Seed defaults if empty
     const [memberCount]: any = await this.pool.query('SELECT COUNT(*) as count FROM members');
     if (memberCount[0].count === 0) {
@@ -172,6 +224,14 @@ export class DatabaseService {
 
   public getMemoryLogs(): IActivityLog[] {
     return this.memoryLogs;
+  }
+
+  public getMemoryProjects(): IProject[] {
+    return this.memoryProjects;
+  }
+
+  public setMemoryProjects(projects: IProject[]): void {
+    this.memoryProjects = projects;
   }
 }
 

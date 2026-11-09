@@ -44,6 +44,11 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
    - Starter Scripts: `start.sh` (Linux/macOS) & `start.bat` (Windows).
    - Auto-Push Scripts: `scripts/auto-git-push.sh` & `scripts/auto-git-push.bat` dengan quality gate otomatis (`tsc` + `vite build`).
    - Repository Hygiene: `scripts/clean-merged-branches.sh` & `scripts/clean-merged-branches.bat` (`npm run clean:branches`).
+8. **Konfigurasi Profil Proyek Dinamis & Multi-Repo Workspace (Dynamic Project & Multi-Tenant)**:
+   - **Isolasi Penuh 3-Sistem**: Integrasi repositori GitHub, board Trello, dan webhook Discord dibundel menjadi satu kesatuan profil proyek mandiri untuk mencegah kontaminasi data (*cross-pollution*).
+   - **Tabel `projects` & REST API v1 (`/api/v1/projects`)**: CRUD profil proyek lengkap dengan proteksi proyek default ID 1 (SI-PATIR).
+   - **Project Switcher & Configuration Modal di Dashboard**: Modal interaktif di frontend untuk beralih proyek aktif, mengedit kredensial integrasi, dan mendaftarkan proyek baru secara live.
+   - **Webhook Routing Cerdas**: Backend secara otomatis mencocokkan repo GitHub pada payload webhook untuk menggerakkan kartu Trello dan mengirim notifikasi Discord ke proyek yang tepat.
 
 ---
 
@@ -66,6 +71,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 | 13 | **Security Penetration & Load Testing** | Belum ada tabel hasil uji batas rate limiter dan pengujian beban payload. | **PENDING (P2)** ⏳ | Fajri |
 | 14 | **Laporan Akademik Formal (Bab 1–5 & UML)** | Dokumen laporan formal skripsi/tugas besar & diagram arsitektur UML belum selesai. | **PENDING (P1)** ⏳ | Fajri |
 | 15 | **Slide Presentasi & Skenario Demo Dosen** | Bahan tayang presentasi Canva/PPT dan runbook naskah demo belum dibuat. | **PENDING (P1)** ⏳ | Fajri |
+| 16 | **Konfigurasi Profil Proyek Dinamis & Multi-Repo** | Multi-repo terisolasi, modal switcher, per-project Trello board & Discord webhook. | **SELESAI (DONE)** ✅ | Deni & Rafli |
 
 ---
 
@@ -117,17 +123,23 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 - [x] **1.7 Setup Public Webhook Gateway (Cloudflare Tunnel / LocalTunnel)**:
   - Bangun skrip tunnel otomatis lintas platform (`scripts/setup-public-tunnel.sh` & `.bat`) dan perintah `npm run tunnel`.
   - Hubungkan backend lokal port 5000 ke domain publik HTTPS agar webhook GitHub.com di internet dapat menembak server secara riil.
-- [ ] **1.8 Setup CI/CD Pipeline (GitHub Actions)**:
+- [x] **1.8 Arsitektur Backend Multi-Repo & Dynamic Project Configuration Gateway**:
+  - Rancang entitas `IProject` dan migrasi tabel `projects` di MySQL dengan fallback in-memory dan proteksi default project ID 1.
+  - Implementasikan REST API modular `/api/v1/projects` (List, Active, Create, Update, Activate, Delete) dengan alias `/api/projects`.
+  - Hubungkan `WebhookController`, `TrelloIntegrationService`, dan `DiscordNotificationService` untuk isolasi per-proyek (*anti cross-pollution*).
+- [ ] **1.9 Setup CI/CD Pipeline (GitHub Actions)**:
   - Buat berkas `.github/workflows/ci.yml` yang otomatis menjalankan:
     1. Backend `tsc --noEmit`
     2. Frontend `npm run build`
     3. Linter & Test otomatis pada setiap Pull Request ke branch `main`.
-- [ ] **1.9 Code Review & Branch Governance**:
+- [ ] **1.10 Code Review & Branch Governance**:
   - Tinjau setiap Pull Request dari rekan tim (Rafli, Fatir, Fajri) sebelum di-merge ke branch `main`.
 
 * **Berkas Kerja Utama:**
   - `backend/src/Application.ts`
   - `backend/src/controllers/WebhookController.ts`
+  - `backend/src/controllers/ProjectController.ts`
+  - `backend/src/database/repositories/ProjectRepository.ts`
   - `backend/src/docs/renderApiDocsHtml.ts`
   - `backend/src/services/GitHubIntegrationService.ts`
   - `backend/src/middlewares/SecurityMiddleware.ts`
@@ -170,6 +182,9 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
   - Opsi **Print / Export PDF**: styling `@media print` agar tampilan dashboard dapat dicetak bersih ke format PDF untuk diserahkan ke dosen pembimbing.
 - [x] **2.9 Fitur Pencarian & Filter pada Panel Stream**:
   - Tambahkan kotak filter teks dan filter berdasarkan author pada panel *Live Webhook Stream*.
+- [x] **2.10 Komponen Modal Profil Proyek Dinamis & Multi-Repo Switcher (`ProjectConfigModal.tsx`)**:
+  - Buat komponen modal human-crafted dengan 3 tab: *Daftar Proyek & Switcher*, *Edit Konfigurasi Aktif*, dan *Tambah Proyek Baru*.
+  - Pasang tombol pemilih proyek interaktif di header dashboard dengan live project name badge.
 
 * **Berkas Kerja Utama:**
   - `frontend/src/pages/DashboardPage.tsx`
@@ -178,6 +193,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
   - `frontend/src/components/ConfirmDialog.tsx`
   - `frontend/src/components/ContributionChart.tsx`
   - `frontend/src/components/EditTaskModal.tsx`
+  - `frontend/src/components/ProjectConfigModal.tsx`
 
 ---
 

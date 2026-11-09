@@ -8,6 +8,7 @@ import { TrelloIntegrationService } from '../services/TrelloIntegrationService.j
 import { MemberRepository } from '../database/repositories/MemberRepository.js';
 import { TaskRepository } from '../database/repositories/TaskRepository.js';
 import { ActivityLogRepository } from '../database/repositories/ActivityLogRepository.js';
+import { ProjectRepository } from '../database/repositories/ProjectRepository.js';
 
 export class WebhookController {
   private config: EnvironmentConfig;
@@ -18,6 +19,7 @@ export class WebhookController {
   private memberRepo: MemberRepository;
   private taskRepo: TaskRepository;
   private logRepo: ActivityLogRepository;
+  private projectRepo: ProjectRepository;
   private io: SocketServer;
 
   constructor(io: SocketServer) {
@@ -29,6 +31,7 @@ export class WebhookController {
     this.memberRepo = new MemberRepository();
     this.taskRepo = new TaskRepository();
     this.logRepo = new ActivityLogRepository();
+    this.projectRepo = new ProjectRepository();
     this.io = io;
   }
 
@@ -51,6 +54,19 @@ export class WebhookController {
       return;
     }
 
+    // Identify project by payload repo or active project fallback
+    const repoFullName = payload.repository?.full_name;
+    let targetProject = repoFullName ? await this.projectRepo.findByRepo(repoFullName) : null;
+    if (!targetProject) {
+      targetProject = await this.projectRepo.findActive();
+    }
+
+    const trelloConfig = {
+      boardId: targetProject?.trello_board_id,
+      doneListId: targetProject?.trello_done_list_id,
+    };
+    const discordWebhookUrl = targetProject?.discord_webhook_url;
+
     for (const commit of commits) {
       const rawMsg = commit.message || '';
       const rawAuthor = commit.author?.username || commit.author?.name || payload.pusher?.name || 'unknown_dev';
@@ -72,8 +88,8 @@ export class WebhookController {
         await this.memberRepo.incrementStats(author, true);
         await this.logRepo.record('TASK_COMPLETED', author, commitMsg, taskCode, 'SUCCESS');
 
-        // External System Integrations (Trello & Discord)
-        await this.trelloService.moveCardToDone(taskCode, commitMsg, commitUrl);
+        // External System Integrations (Trello & Discord per Project)
+        await this.trelloService.moveCardToDone(taskCode, commitMsg, commitUrl, trelloConfig);
         await this.discordService.sendTaskCompletion({
           developer: author,
           taskCode,
@@ -82,7 +98,7 @@ export class WebhookController {
           commitUrl,
           oldStatus,
           newStatus: 'Done',
-        });
+        }, discordWebhookUrl);
 
         // Real-time Event to Frontend Dashboard
         this.io.emit('activity_update', {
@@ -117,11 +133,19 @@ export class WebhookController {
   };
 
   public handleSimulate = async (req: Request, res: Response): Promise<void> => {
-    const defaultDev = this.config.githubRepo.split('/')[0] || 'denoyey';
+    const activeProject = await this.projectRepo.findActive();
+    const currentRepo = activeProject?.github_repo || this.config.githubRepo;
+    const defaultDev = currentRepo.split('/')[0] || 'denoyey';
     const { developer, message = 'Fix bug tombol login [done #TASK-02]' } = req.body;
 
     const commitMsg = this.parserService.sanitizeCommitMessage(message);
     const taskCode = this.parserService.extractTaskCode(commitMsg);
+
+    const trelloConfig = {
+      boardId: activeProject?.trello_board_id,
+      doneListId: activeProject?.trello_done_list_id,
+    };
+    const discordWebhookUrl = activeProject?.discord_webhook_url;
 
     // Syarat penentuan author penguji commit:
     // 1. Jika developer dikirim eksplisit oleh klien/UI
@@ -142,7 +166,7 @@ export class WebhookController {
 
     const author = targetAuthor;
     const commitSha = Math.random().toString(16).substring(2, 9);
-    const commitUrl = `https://github.com/${this.config.githubRepo}/commit/${commitSha}`;
+    const commitUrl = `https://github.com/${currentRepo}/commit/${commitSha}`;
 
     if (taskCode) {
       const task = await this.taskRepo.findByCode(taskCode);
@@ -152,7 +176,7 @@ export class WebhookController {
       await this.memberRepo.incrementStats(author, true);
       await this.logRepo.record('TASK_COMPLETED', author, commitMsg, taskCode, 'SUCCESS');
 
-      await this.trelloService.moveCardToDone(taskCode, commitMsg, commitUrl);
+      await this.trelloService.moveCardToDone(taskCode, commitMsg, commitUrl, trelloConfig);
       
       // Kirim notifikasi Discord jika penyelesaian tugas nyata
       if (req.body.notifyDiscord === true) {
@@ -162,7 +186,7 @@ export class WebhookController {
           developer: author,
           commitMsg,
           commitUrl,
-        });
+        }, discordWebhookUrl);
       }
 
       this.io.emit('activity_update', {

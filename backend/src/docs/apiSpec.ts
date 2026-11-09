@@ -4,9 +4,9 @@
  */
 
 export interface IApiEndpointSpec {
-  method: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   path: string;
-  category: 'Tasks' | 'Members' | 'Webhooks' | 'System';
+  category: 'Tasks' | 'Members' | 'Webhooks' | 'System' | 'Projects';
   summary: string;
   description: string;
   headers?: { name: string; value: string; required?: boolean }[];
@@ -382,6 +382,125 @@ export const API_ENDPOINTS: IApiEndpointSpec[] = [
         name: 'SI-PATIR REST API',
         version: '1.2.0',
         endpoints: '...',
+      },
+    },
+  },
+
+  // PROJECTS (Dynamic Multi-Repo Configuration)
+  {
+    method: 'GET',
+    path: '/api/v1/projects',
+    category: 'Projects',
+    summary: 'Daftar Seluruh Proyek Terdaftar',
+    description: 'Mengambil daftar semua profil proyek beserta status aktif dan kredensial integrasi masing-masing.',
+    exampleResponse: {
+      status: 200,
+      body: {
+        success: true,
+        projects: [
+          {
+            id: 1,
+            name: 'SI-PATIR (DevOps Lite)',
+            slug: 'si-patir',
+            github_repo: 'denoyey/si-patir',
+            trello_board_id: '672b1444d3725b816ba7b830',
+            is_active: true,
+          },
+        ],
+      },
+    },
+  },
+  {
+    method: 'GET',
+    path: '/api/v1/projects/active',
+    category: 'Projects',
+    summary: 'Ambil Profil Proyek yang Sedang Aktif',
+    description: 'Mengambil detail konfigurasi proyek yang saat ini sedang aktif digunakan oleh dashboard dan pemrosesan commit.',
+    exampleResponse: {
+      status: 200,
+      body: {
+        success: true,
+        project: {
+          id: 1,
+          name: 'SI-PATIR (DevOps Lite)',
+          slug: 'si-patir',
+          github_repo: 'denoyey/si-patir',
+          is_active: true,
+        },
+      },
+    },
+  },
+  {
+    method: 'POST',
+    path: '/api/v1/projects',
+    category: 'Projects',
+    summary: 'Daftarkan Proyek / Repositori Baru',
+    description: 'Menambahkan profil repositori baru lengkap dengan konfigurasi Trello Board dan Discord Webhook terisolasi.',
+    headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
+    body: {
+      name: 'E-Commerce Microservice',
+      github_repo: 'denoyey/ecommerce-app',
+      trello_board_id: '672b1444d3725b816ba7b899',
+      trello_done_list_id: '672b14589d81373e3bf8e299',
+      discord_webhook_url: 'https://discord.com/api/webhooks/123/xyz',
+      is_active: false,
+    },
+    exampleResponse: {
+      status: 201,
+      body: {
+        success: true,
+        message: 'Proyek "E-Commerce Microservice" berhasil didaftarkan.',
+      },
+    },
+  },
+  {
+    method: 'PUT',
+    path: '/api/v1/projects/:id',
+    category: 'Projects',
+    summary: 'Perbarui Konfigurasi Proyek',
+    description: 'Mengubah pengaturan repositori GitHub, board Trello, atau webhook Discord untuk proyek tertentu.',
+    params: [{ name: 'id', type: 'number', description: 'ID profil proyek', required: true }],
+    headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
+    body: {
+      name: 'SI-PATIR 2.0 Extended',
+      github_repo: 'denoyey/si-patir-v2',
+      discord_webhook_url: 'https://discord.com/api/webhooks/xxx/yyy',
+    },
+    exampleResponse: {
+      status: 200,
+      body: {
+        success: true,
+        message: 'Konfigurasi proyek berhasil diperbarui.',
+      },
+    },
+  },
+  {
+    method: 'POST',
+    path: '/api/v1/projects/:id/activate',
+    category: 'Projects',
+    summary: 'Alihkan Proyek Aktif',
+    description: 'Mengaktifkan profil proyek tertentu sehingga seluruh aktivitas dashboard dan sinkronisasi beralih ke proyek tersebut.',
+    params: [{ name: 'id', type: 'number', description: 'ID profil proyek yang akan diaktifkan', required: true }],
+    exampleResponse: {
+      status: 200,
+      body: {
+        success: true,
+        message: 'Proyek aktif berhasil dialihkan.',
+      },
+    },
+  },
+  {
+    method: 'DELETE',
+    path: '/api/v1/projects/:id',
+    category: 'Projects',
+    summary: 'Hapus Profil Proyek',
+    description: 'Menghapus profil proyek tambahan. Proyek default ID: 1 dilindungi dan tidak dapat dihapus.',
+    params: [{ name: 'id', type: 'number', description: 'ID profil proyek', required: true }],
+    exampleResponse: {
+      status: 200,
+      body: {
+        success: true,
+        message: 'Proyek berhasil dihapus.',
       },
     },
   },

@@ -1,6 +1,13 @@
 import axios from 'axios';
 import { EnvironmentConfig } from '../config/EnvironmentConfig.js';
 
+export interface ITrelloCustomConfig {
+  boardId?: string;
+  doneListId?: string;
+  apiKey?: string;
+  token?: string;
+}
+
 export class TrelloIntegrationService {
   private config: EnvironmentConfig;
 
@@ -11,9 +18,13 @@ export class TrelloIntegrationService {
   public async moveCardToDone(
     taskCode: string,
     commitMsg: string,
-    commitUrl?: string
+    commitUrl?: string,
+    customConfig?: ITrelloCustomConfig
   ): Promise<{ success: boolean; message: string }> {
-    const { trelloApiKey: key, trelloToken: token, trelloDoneListId: doneListId, trelloBoardId: boardId } = this.config;
+    const key = customConfig?.apiKey || this.config.trelloApiKey;
+    const token = customConfig?.token || this.config.trelloToken;
+    const doneListId = customConfig?.doneListId || this.config.trelloDoneListId;
+    const boardId = customConfig?.boardId || this.config.trelloBoardId;
 
     // Graceful fallback jika token belum diset saat demo offline
     if (!key || !token || !doneListId) {
@@ -68,8 +79,10 @@ export class TrelloIntegrationService {
     }
   }
 
-  public async fetchBoardCards(): Promise<any[] | null> {
-    const { trelloApiKey: key, trelloToken: token, trelloBoardId: boardId } = this.config;
+  public async fetchBoardCards(customConfig?: ITrelloCustomConfig): Promise<any[] | null> {
+    const key = customConfig?.apiKey || this.config.trelloApiKey;
+    const token = customConfig?.token || this.config.trelloToken;
+    const boardId = customConfig?.boardId || this.config.trelloBoardId;
     if (!key || !token || !boardId) return null;
 
     try {
@@ -83,8 +96,10 @@ export class TrelloIntegrationService {
     }
   }
 
-  public async fetchBoardLists(): Promise<{ id: string; name: string }[] | null> {
-    const { trelloApiKey: key, trelloToken: token, trelloBoardId: boardId } = this.config;
+  public async fetchBoardLists(customConfig?: ITrelloCustomConfig): Promise<{ id: string; name: string }[] | null> {
+    const key = customConfig?.apiKey || this.config.trelloApiKey;
+    const token = customConfig?.token || this.config.trelloToken;
+    const boardId = customConfig?.boardId || this.config.trelloBoardId;
     if (!key || !token || !boardId) return null;
 
     try {
@@ -101,9 +116,13 @@ export class TrelloIntegrationService {
 
   public async moveCardByStatus(
     cardIdOrTaskCode: string,
-    targetStatus: 'To Do' | 'In Progress' | 'Done'
+    targetStatus: 'To Do' | 'In Progress' | 'Done',
+    customConfig?: ITrelloCustomConfig
   ): Promise<{ success: boolean; message: string; targetListId?: string }> {
-    const { trelloApiKey: key, trelloToken: token, trelloBoardId: boardId, trelloDoneListId: doneListId } = this.config;
+    const key = customConfig?.apiKey || this.config.trelloApiKey;
+    const token = customConfig?.token || this.config.trelloToken;
+    const boardId = customConfig?.boardId || this.config.trelloBoardId;
+    const doneListId = customConfig?.doneListId || this.config.trelloDoneListId;
 
     // Graceful fallback jika token belum diset
     if (!key || !token || !boardId) {
@@ -115,7 +134,7 @@ export class TrelloIntegrationService {
     }
 
     try {
-      const lists = await this.fetchBoardLists();
+      const lists = await this.fetchBoardLists(customConfig);
       let targetListId = '';
 
       if (lists && lists.length > 0) {
@@ -139,7 +158,7 @@ export class TrelloIntegrationService {
       let cardId = cardIdOrTaskCode;
       // Jika bukan 24 karakter hex Trello ID, cari kartu berdasarkan nama/kode
       if (!/^[0-9a-fA-F]{24}$/.test(cardIdOrTaskCode)) {
-        const cards = await this.fetchBoardCards();
+        const cards = await this.fetchBoardCards(customConfig);
         const targetCard = cards?.find((c: any) =>
           c.name.toUpperCase().includes(cardIdOrTaskCode.toUpperCase())
         );
@@ -172,15 +191,19 @@ export class TrelloIntegrationService {
   public async createCard(
     title: string,
     taskCode: string,
-    status: 'To Do' | 'In Progress' | 'Done' = 'In Progress'
+    status: 'To Do' | 'In Progress' | 'Done' = 'In Progress',
+    customConfig?: ITrelloCustomConfig
   ): Promise<{ success: boolean; cardId?: string; message: string }> {
-    const { trelloApiKey: key, trelloToken: token, trelloBoardId: boardId, trelloDoneListId: doneListId } = this.config;
+    const key = customConfig?.apiKey || this.config.trelloApiKey;
+    const token = customConfig?.token || this.config.trelloToken;
+    const boardId = customConfig?.boardId || this.config.trelloBoardId;
+    const doneListId = customConfig?.doneListId || this.config.trelloDoneListId;
     if (!key || !token || !boardId) {
       return { success: true, message: 'Trello API tidak dikonfigurasi, skip create card.' };
     }
 
     try {
-      const lists = await this.fetchBoardLists();
+      const lists = await this.fetchBoardLists(customConfig);
       let targetListId = '';
 
       if (lists && lists.length > 0) {
@@ -217,14 +240,16 @@ export class TrelloIntegrationService {
     }
   }
 
-  public async deleteCard(cardIdOrTaskCode: string): Promise<boolean> {
-    const { trelloApiKey: key, trelloToken: token, trelloBoardId: boardId } = this.config;
+  public async deleteCard(cardIdOrTaskCode: string, customConfig?: ITrelloCustomConfig): Promise<boolean> {
+    const key = customConfig?.apiKey || this.config.trelloApiKey;
+    const token = customConfig?.token || this.config.trelloToken;
+    const boardId = customConfig?.boardId || this.config.trelloBoardId;
     if (!key || !token || !boardId) return true;
 
     try {
       let cardId = cardIdOrTaskCode;
       if (!/^[0-9a-fA-F]{24}$/.test(cardIdOrTaskCode)) {
-        const cards = await this.fetchBoardCards();
+        const cards = await this.fetchBoardCards(customConfig);
         const targetCard = cards?.find((c: any) =>
           c.name.toUpperCase().includes(cardIdOrTaskCode.toUpperCase())
         );

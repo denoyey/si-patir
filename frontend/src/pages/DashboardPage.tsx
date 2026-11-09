@@ -29,6 +29,7 @@ import {
   Play,
   Download,
   Printer,
+  FolderGit2,
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { useNavbarVisibility } from '../services/scroll/hooks/useNavbarVisibility';
@@ -36,6 +37,7 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 import { ApiExplorerModal } from '../components/ApiExplorerModal';
 import { EditTaskModal } from '../components/EditTaskModal';
 import { ContributionChart } from '../components/ContributionChart';
+import { ProjectConfigModal, type Project } from '../components/ProjectConfigModal';
 
 function formatLogTime(timestamp: string): string {
   if (!timestamp) return '';
@@ -163,6 +165,9 @@ export function DashboardPage() {
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [showApiModal, setShowApiModal] = useState(false);
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   // Live Webhook Stream Search & Filter State (Point 2.9)
@@ -216,19 +221,35 @@ export function DashboardPage() {
   // Fetch initial system state
   const refreshData = async () => {
     try {
-      const [membersRes, tasksRes, logsRes, statusRes] = await Promise.all([
+      const [membersRes, tasksRes, logsRes, statusRes, projectsRes, activeProjRes] = await Promise.all([
         axios.get('/api/members'),
         axios.get('/api/tasks'),
         axios.get('/api/logs'),
         axios.get('/api/status'),
+        axios.get('/api/v1/projects').catch(() => ({ data: { projects: [] } })),
+        axios.get('/api/v1/projects/active').catch(() => ({ data: { project: null } })),
       ]);
       setMembers(membersRes.data);
       setTasks(tasksRes.data);
       setLogs(logsRes.data);
       setStatus(statusRes.data);
+      if (projectsRes.data?.projects) {
+        setProjects(projectsRes.data.projects);
+      }
+      if (activeProjRes.data?.project) {
+        setActiveProject(activeProjRes.data.project);
+      }
     } catch (err) {
       console.error('[SI-PATIR Client] Sync Failure:', err);
     }
+  };
+
+  const handleShowToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setActiveToast({
+      title: type === 'error' ? 'Kesalahan Proyek' : 'Konfigurasi Proyek',
+      desc: message,
+    });
+    setTimeout(() => setActiveToast(null), 4000);
   };
 
   useEffect(() => {
@@ -236,6 +257,10 @@ export function DashboardPage() {
 
     // WebSocket real-time subscription
     const socket = io();
+
+    socket.on('project_updated', () => {
+      refreshData();
+    });
 
     socket.on('activity_update', (event) => {
       if (event.type === 'TASK_COMPLETED') {
@@ -764,6 +789,20 @@ export function DashboardPage() {
 
           {/* Action Buttons & Theme Switcher */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Project Switcher & Config Button */}
+            <button
+              type="button"
+              onClick={() => setShowProjectModal(true)}
+              className="h-8 sm:h-8.5 px-2 sm:px-2.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs shrink-0"
+              title="Manajemen Profil Proyek, Multi-Repo & Kredensial Trello / Discord"
+            >
+              <FolderGit2 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              <span className="hidden lg:inline text-xs font-medium max-w-[130px] truncate">
+                {activeProject?.name || 'SI-PATIR'}
+              </span>
+              <span className="lg:hidden text-xs font-medium">Proyek</span>
+            </button>
+
             {/* API Explorer & Webhooks Trigger Button */}
             <button
               type="button"
@@ -2086,6 +2125,16 @@ export function DashboardPage() {
         members={members}
         onClose={() => setEditingTask(null)}
         onSave={handleSaveEditTask}
+      />
+
+      {/* DYNAMIC PROJECT CONFIG & MULTI-REPO MODAL */}
+      <ProjectConfigModal
+        isOpen={showProjectModal}
+        projects={projects}
+        activeProject={activeProject}
+        onClose={() => setShowProjectModal(false)}
+        onRefresh={refreshData}
+        onShowToast={handleShowToast}
       />
     </div>
   );
