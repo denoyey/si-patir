@@ -176,3 +176,11 @@ Untuk melindungi repositori dan workspace lokal pengembang dari kerusakan akibat
 5. **Automatic Rebase Abort**: Jika terjadi bentrok baris kode (*content conflict*), skrip **seketika mengeksekusi `git rebase --abort` secara otomatis** agar workspace pengembang tidak terjebak dalam mode interaktif dan kode lokal tetap utuh dan aman.
 6. **Uncommitted Changes Guard**: Skrip pembersihan branch memeriksa status perubahan (`git diff --quiet`) sebelum berpindah ke branch `main` untuk mencegah hilangnya pekerjaan yang belum disimpan.
 
+---
+
+### 5.8 CI/CD Pipeline Otomatis (GitHub Actions)
+Selain pre-push gate lokal, setiap Pull Request dan push ke branch `main` divalidasi secara otomatis di cloud melalui workflow `.github/workflows/ci.yml` dengan dua job paralel pada **Node.js 22**:
+1. **Job `backend`**: Menjalankan `npm ci`, `npx tsc --noEmit`, `npm run build`, dan `npm test --if-present` di direktori `backend/`.
+2. **Job `frontend`**: Menjalankan `npm ci`, `npm run lint` (`oxlint`), `npx tsc --noEmit`, `npm run build` (`tsc -b && vite build`), dan `npm test --if-present` di direktori `frontend/`.
+3. **Concurrency Guard**: Run lama pada ref/PR yang sama otomatis dibatalkan (`cancel-in-progress: true`) saat commit baru di-push agar antrean CI tetap cepat.
+

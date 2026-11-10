@@ -370,7 +370,7 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
 | 4 | **Terminal Web Git di Dashboard** | Terminal langsung di web tanpa perlu buka terminal OS/laptop, otomatis geser Trello & catat riwayat. | **SELESAI (DONE)** ✅ | Rafli & Deni |
 | 5 | **Sinkronisasi Commit GitHub ke Stream** | Riwayat commit asli GitHub otomatis diimpor ke stream live (`activity_logs`). | **SELESAI (DONE)** ✅ | Deni & Fatir |
 | 6 | **Deployment Publik / Webhook Gateway (HTTPS URL)** | Skrip tunnel lintas platform aktif via `npm run tunnel` (LocalTunnel & Cloudflare), siap menghubungkan webhook GitHub.com ke backend lokal. | **SELESAI (DONE)** ✅ | Deni |
-| 7 | **CI/CD Pipeline (GitHub Actions)** | Belum ada workflow `.github/workflows/ci.yml` untuk automated validation PR. | **PENDING (P2)** ⏳ | Deni |
+| 7 | **CI/CD Pipeline (GitHub Actions)** | Workflow `.github/workflows/ci.yml` aktif memvalidasi `tsc --noEmit`, `oxlint`, Vite build, dan automated tests saat PR/push ke `main`. | **SELESAI (DONE)** ✅ | Deni |
 | 8 | **Visualisasi Grafik Kontribusi (Analytics Chart)** | Tersedia diagram batang perbandingan commit & diagram donat status sprint berbasis SVG presisi tinggi. | **SELESAI (DONE)** ✅ | Rafli |
 | 9 | **Modal Edit Tugas Lengkap** | Modal interaktif (`EditTaskModal.tsx`) terintegrasi tabel untuk mutasi judul, assignee, dan status dengan sinkronisasi Trello. | **SELESAI (DONE)** ✅ | Rafli |
 | 10 | **Export Laporan Sprint (PDF / CSV)** | Dukungan export CSV dengan UTF-8 BOM dan pencetakan PDF bersih via styling `@media print`. | **SELESAI (DONE)** ✅ | Rafli |
@@ -410,22 +410,27 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
   - [x] **1.7 Setup Public Webhook Gateway (Cloudflare Tunnel / LocalTunnel)**:
     - Bangun skrip tunnel otomatis lintas platform (`scripts/setup-public-tunnel.sh` & `.bat`) dan perintah `npm run tunnel`.
     - Hubungkan backend lokal port 5000 ke domain publik HTTPS agar webhook GitHub.com di internet dapat menembak server secara riil.
-  - [ ] **1.8 Setup CI/CD Pipeline (GitHub Actions)**:
+  - [x] **1.8 Arsitektur Backend Multi-Repo & Dynamic Project Configuration Gateway**:
+    - Rancang entitas `IProject` dan migrasi tabel `projects` di MySQL dengan fallback in-memory serta isolasi per-proyek (*anti cross-pollution*).
+    - Implementasikan REST API modular `/api/v1/projects` dengan alias `/api/projects`.
+  - [x] **1.9 Setup CI/CD Pipeline (GitHub Actions)**:
     - Buat berkas `.github/workflows/ci.yml` yang otomatis menjalankan:
-      1. Backend `tsc --noEmit`
-      2. Frontend `npm run build`
-      3. Linter & Test otomatis pada setiap Pull Request ke branch `main`.
-  - [ ] **1.9 Code Review & Branch Governance**:
+      1. Backend `tsc --noEmit` & `npm run build`
+      2. Frontend `oxlint`, `tsc --noEmit`, & `npm run build`
+      3. Automated test gate (`npm test --if-present`) pada setiap Pull Request & push ke branch `main`.
+  - [ ] **1.10 Code Review & Branch Governance**:
     - Tinjau setiap Pull Request dari rekan tim (Rafli, Fatir, Fajri) sebelum di-merge ke branch `main`.
 - **Berkas Kerja Utama**:
   - `backend/src/Application.ts`
   - `backend/src/controllers/WebhookController.ts`
+  - `backend/src/controllers/ProjectController.ts`
+  - `backend/src/database/repositories/ProjectRepository.ts`
   - `backend/src/docs/renderApiDocsHtml.ts`
   - `backend/src/services/GitHubIntegrationService.ts`
   - `backend/src/middlewares/SecurityMiddleware.ts`
   - `scripts/setup-public-tunnel.sh`
   - `scripts/setup-public-tunnel.bat`
-  - `.github/workflows/ci.yml` *(Pending)*
+  - `.github/workflows/ci.yml`
 </details>
 
 <details open>
@@ -560,7 +565,7 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
   └─ Fajri  : Quality Gate Pre-push & Validasi Alur Integrasi
 
 [ FASE 2: Fitur Lanjutan, Visualisasi & Pengujian ] ──> STATUS: SEDANG BERJALAN ⏳
-  ├─ Deni   : Setup Public Webhook Gateway (Cloudflare Tunnel / VPS) & CI/CD Actions
+  ├─ Deni   : Setup Public Webhook Gateway (Cloudflare Tunnel / LocalTunnel) & CI/CD Actions [SELESAI ✅]
   ├─ Fatir  : Trello Inbound Webhook Listener & Backup Maintenance Script
   ├─ Rafli  : Grafik Analitik Kontribusi Tim, Modal Edit Tugas, & Export Laporan PDF/CSV [SELESAI ✅]
   └─ Fajri  : Automated Unit Testing (Vitest) & Security/Load Testing Report
