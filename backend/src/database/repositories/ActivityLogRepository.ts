@@ -32,7 +32,7 @@ export class ActivityLogRepository {
     taskCode: string = '',
     status: 'SUCCESS' | 'FAILED' | 'WARNING' = 'SUCCESS'
   ): Promise<void> {
-    const timeStr = new Date().toLocaleTimeString('id-ID');
+    const timeStr = new Date().toISOString();
 
     if (this.db.isConnected() && this.db.getPool()) {
       try {

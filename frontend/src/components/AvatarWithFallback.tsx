@@ -47,3 +47,4 @@ export function AvatarWithFallback({ username, name, className }: AvatarWithFall
     />
   );
 }
+

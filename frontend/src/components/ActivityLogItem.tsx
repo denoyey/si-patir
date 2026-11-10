@@ -1,7 +1,7 @@
 import type { Ref } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { AvatarWithFallback } from './AvatarWithFallback';
-import { type ActivityLog, formatLogTime, formatLogDateTime } from '../utils/logFormatters';
+import { type ActivityLog, formatLogTime, formatLogDateTime, formatLogFullTitle } from '../utils/logFormatters';
 
 interface ActivityLogItemProps {
   log: ActivityLog;
@@ -57,7 +57,7 @@ export function ActivityLogItem({
 
           <span
             className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500 shrink-0"
-            title={log.created_at}
+            title={formatLogFullTitle(log.created_at)}
           >
             {formattedTime}
           </span>
@@ -94,3 +94,4 @@ export function ActivityLogItem({
     </div>
   );
 }
+

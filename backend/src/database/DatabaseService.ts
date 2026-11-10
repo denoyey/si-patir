@@ -34,7 +34,7 @@ export class DatabaseService {
       commit_message: 'SI-PATIR Secure Subsystem Initialized',
       task_code: '',
       status: 'SUCCESS',
-      created_at: new Date().toLocaleTimeString('id-ID'),
+      created_at: new Date().toISOString(),
     },
   ];
 
