@@ -12,6 +12,8 @@
     "build:frontend": "cd frontend && npm run build",
     "lint": "cd frontend && npm run lint",
     "typecheck": "cd backend && npx tsc --noEmit && cd ../frontend && npx tsc --noEmit",
+    "test": "cd backend && npm test",
+    "test:backend": "cd backend && npm test",
     "clean:branches": "bash ./scripts/clean-merged-branches.sh",
     "tunnel": "bash ./scripts/setup-public-tunnel.sh"
   }

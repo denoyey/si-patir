@@ -23,8 +23,8 @@ export class CommitParserService {
     if (!message) return '';
     return message
       .replace(/<[^>]*>?/gm, '') // Strip HTML tags (anti-XSS)
-      .slice(0, 500)
-      .trim();
+      .trim()
+      .slice(0, 500);
   }
 
   public sanitizeAuthor(author: string): string {
