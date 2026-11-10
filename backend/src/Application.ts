@@ -101,6 +101,14 @@ export class Application {
     this.app.post('/api/v1/webhooks/simulate', webhookController.handleSimulate);
     this.app.post('/api/simulate-commit', webhookController.handleSimulate);
 
+    // Trello Inbound Webhook Listener (Task 3.7)
+    this.app.head('/api/v1/webhooks/trello', webhookController.handleTrelloWebhookValidation);
+    this.app.get('/api/v1/webhooks/trello', webhookController.handleTrelloWebhookValidation);
+    this.app.post('/api/v1/webhooks/trello', webhookController.handleTrelloWebhook);
+    this.app.head('/api/webhooks/trello', webhookController.handleTrelloWebhookValidation);
+    this.app.get('/api/webhooks/trello', webhookController.handleTrelloWebhookValidation);
+    this.app.post('/api/webhooks/trello', webhookController.handleTrelloWebhook);
+
     // ==========================================
     // 3. Tasks API (CRUD, Status Update, Sync)
     // ==========================================

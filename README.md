@@ -509,10 +509,10 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
     - Buat mekanisme in-memory fallback agar aplikasi tidak crash jika koneksi MySQL terputus.
   - [x] **3.6 Database Seeder Kolaborator Resmi**:
     - Daftarkan 4 anggota resmi (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) ke dalam database.
-  - [ ] **3.7 Trello Inbound Webhook Listener**:
-    - Rancang endpoint webhook inbound dari Trello (`/api/v1/webhooks/trello`) agar jika ada anggota yang menggeser kartu langsung di website Trello.com, status di MySQL dan dashboard otomatis ikut terupdate secara real-time.
-  - [ ] **3.8 Database Backup & Maintenance Script**:
-    - Buat script otomatisasi backup dump basis data MySQL (`backup_db.sh` / `backup_db.bat`).
+  - [x] **3.7 Trello Inbound Webhook Listener**:
+    - Rancang endpoint webhook inbound dari Trello (`/api/v1/webhooks/trello` dan `/api/webhooks/trello`) agar jika ada anggota yang menggeser kartu langsung di website Trello.com, status di MySQL dan dashboard otomatis ikut terupdate secara real-time.
+  - [x] **3.8 Database Backup & Maintenance Script**:
+    - Buat script otomatisasi backup dump basis data MySQL (`backup_db.sh` / `backup_db.bat` / `backup_helper.js`).
     - Lakukan tuning indeks query untuk performa pencatatan ribuan log aktivitas.
 - **Berkas Kerja Utama**:
   - `backend/src/services/TrelloIntegrationService.ts`

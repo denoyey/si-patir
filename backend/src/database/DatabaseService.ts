@@ -139,9 +139,34 @@ export class DatabaseService {
         task_code VARCHAR(50),
         status VARCHAR(50) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        INDEX idx_created (created_at DESC)
+        INDEX idx_created (created_at DESC),
+        INDEX idx_task_created (task_code, created_at DESC),
+        INDEX idx_author_created (author, created_at DESC),
+        INDEX idx_event_status (event_type, status),
+        INDEX idx_commit_msg (commit_message(100))
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
+
+    // Tuning Indeks Query untuk performa pencatatan ribuan log aktivitas (Task 3.8)
+    try {
+      const [existingIndexes]: any = await this.pool.query('SHOW INDEX FROM activity_logs');
+      const indexNames = existingIndexes.map((i: any) => i.Key_name);
+
+      if (!indexNames.includes('idx_task_created')) {
+        await this.pool.query('CREATE INDEX idx_task_created ON activity_logs (task_code, created_at DESC)');
+      }
+      if (!indexNames.includes('idx_author_created')) {
+        await this.pool.query('CREATE INDEX idx_author_created ON activity_logs (author, created_at DESC)');
+      }
+      if (!indexNames.includes('idx_event_status')) {
+        await this.pool.query('CREATE INDEX idx_event_status ON activity_logs (event_type, status)');
+      }
+      if (!indexNames.includes('idx_commit_msg')) {
+        await this.pool.query('CREATE INDEX idx_commit_msg ON activity_logs (commit_message(100))');
+      }
+    } catch (idxErr: any) {
+      console.warn('[DatabaseService] Notice on activity_logs index tuning:', idxErr.message);
+    }
 
     await this.pool.query(`
       CREATE TABLE IF NOT EXISTS projects (

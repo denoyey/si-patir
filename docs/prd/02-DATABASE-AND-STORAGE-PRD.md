@@ -129,3 +129,22 @@ Pada saat inisialisasi pertama kali (`DatabaseService.initialize()`), sistem men
 * **In-Memory Fallback Persistence**: Menyediakan data fallback yang diselaraskan dengan identitas kontributor aktif (`denoyey`) jika MySQL berada dalam mode simulasi sementara.
 * **Database Seeder Resmi (`seed_team.sql`)**: Tersedia berkas seeder mandiri di `backend/database/seed_team.sql` untuk inisialisasi basis data MySQL terpadu berisi 4 anggota tim kolaborator (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) dan 5 tugas sprint awal.
 
+---
+
+## 6. Automasi Backup Basis Data & Tuning Indeks (Task 3.8)
+
+### 6.1 Automasi Backup Basis Data
+Tersedia tool backup terotomasi untuk mencadangkan struktur dan data MySQL secara berkala ke folder `backups/`:
+* **Windows**: `scripts/backup_db.bat`
+* **Linux / macOS**: `scripts/backup_db.sh`
+* **Node.js Engine**: `scripts/backup_helper.js` (dapat dijalankan via `npm run db:backup`)
+* **Karakteristik**: Menghasilkan dump SQL berstempel waktu (`backup_sipatir_db_YYYYMMDD_HHMMSS.sql`), mengunci tabel secara transaksional (`LOCK TABLES`), memecah query INSERT per blok (50 baris), dan mendukung fallback in-memory jika MySQL sedang dalam pemeliharaan offline.
+
+### 6.2 Tuning Indeks untuk Skalabilitas Log Ribuan Aktivitas
+Tabel `activity_logs` telah dioptimasi dengan indeks komposit:
+* `idx_created (created_at DESC)`: Akses cepat limit log terbaru.
+* `idx_task_created (task_code, created_at DESC)`: Filter cepat kronologi tugas tertentu.
+* `idx_author_created (author, created_at DESC)`: Analisis audit per kontributor.
+* `idx_event_status (event_type, status)`: Rekapitulasi metrik keberhasilan event webhook.
+* `idx_commit_msg (commit_message(100))`: Pencarian teks cepat dan pencegahan duplikasi audit.
+

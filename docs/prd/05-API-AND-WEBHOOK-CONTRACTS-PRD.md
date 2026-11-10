@@ -57,6 +57,45 @@ Menangkap event push dari GitHub atau Local Git Hook.
 
 ---
 
+### 2.1.2 Trello Inbound Webhook Listener
+Menerima webhook langsung dari Trello.com saat kartu digeser atau dimodifikasi oleh anggota tim di antarmuka Trello.
+
+* **Handshake Verification Method:** `HEAD` / `GET`
+* **Event Receiver Method:** `POST`
+* **Path:** `/api/v1/webhooks/trello` (dan `/api/webhooks/trello`)
+* **Handshake Response:** `200 OK` (Body: `OK`)
+* **Payload Contoh (Action `updateCard`):**
+  ```json
+  {
+    "action": {
+      "type": "updateCard",
+      "data": {
+        "card": {
+          "id": "6aeda6d293f584ec047b6396",
+          "name": "Integrasi Papan Kanban Trello [#TASK-02]"
+        },
+        "listBefore": { "id": "list-prog", "name": "in progress" },
+        "listAfter": { "id": "list-done", "name": "Done" }
+      },
+      "memberCreator": {
+        "username": "patirparkerr",
+        "fullName": "Fatir"
+      }
+    }
+  }
+  ```
+* **Success Response (200 OK):**
+  ```json
+  {
+    "success": true,
+    "message": "Status tugas TASK-02 berhasil diperbarui ke \"Done\" dari Trello inbound webhook.",
+    "taskCode": "TASK-02",
+    "status": "Done"
+  }
+  ```
+
+---
+
 ### 2.2 Instant Commit Simulator
 Memicu automasi tugas secara instan tanpa perlu git push fisik (sangat berguna untuk demo cepat).
 
