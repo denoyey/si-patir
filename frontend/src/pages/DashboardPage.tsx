@@ -24,6 +24,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  ChevronUp,
   Copy,
   Code2,
   Play,
@@ -31,6 +32,7 @@ import {
   Printer,
   FolderGit2,
   MoreVertical,
+  Maximize2,
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { useNavbarVisibility } from '../services/scroll/hooks/useNavbarVisibility';
@@ -40,49 +42,10 @@ import { ApiExplorerModal } from '../components/ApiExplorerModal';
 import { EditTaskModal } from '../components/EditTaskModal';
 import { ContributionChart } from '../components/ContributionChart';
 import { ProjectConfigModal, type Project } from '../components/ProjectConfigModal';
-
-function formatLogTime(timestamp: string): string {
-  if (!timestamp) return '';
-  try {
-    const d = new Date(timestamp);
-    if (isNaN(d.getTime())) return timestamp;
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-  } catch {
-    return timestamp;
-  }
-}
-
-function AvatarWithFallback({ username, name, className }: { username: string; name?: string; className?: string }) {
-  const [error, setError] = useState(false);
-  const initials = name
-    ? name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase()
-    : username.slice(0, 2).toUpperCase();
-
-  const defaultClasses = "w-8 h-8 sm:w-10 sm:h-10 rounded-md border border-zinc-300 dark:border-zinc-700 object-cover shrink-0 bg-zinc-200 dark:bg-zinc-800 shadow-xs";
-
-  if (error || !username) {
-    return (
-      <div className={className || "w-8 h-8 sm:w-10 sm:h-10 rounded-md bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 flex items-center justify-center text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300 shrink-0 shadow-xs"}>
-        {initials}
-      </div>
-    );
-  }
-
-  return (
-    <img
-      src={`https://github.com/${username}.png?size=200`}
-      alt={name || username}
-      onError={() => setError(true)}
-      className={className || defaultClasses}
-      loading="lazy"
-    />
-  );
-}
+import { AvatarWithFallback } from '../components/AvatarWithFallback';
+import { ActivityLogItem } from '../components/ActivityLogItem';
+import { ActivityLogsModal } from '../components/ActivityLogsModal';
+import type { ActivityLog } from '../utils/logFormatters';
 
 interface Member {
   id: number;
@@ -98,16 +61,6 @@ interface Task {
   title: string;
   status: 'To Do' | 'In Progress' | 'Done';
   assignee: string;
-}
-
-interface ActivityLog {
-  id: number;
-  event_type: string;
-  author: string;
-  commit_message: string;
-  task_code?: string;
-  status: string;
-  created_at: string;
 }
 
 interface SystemStatus {
@@ -172,9 +125,12 @@ export function DashboardPage() {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  // Live Webhook Stream Search & Filter State (Point 2.9)
+  // Live Webhook Stream Search, Filter & Progressive Display State (Point 2.9)
   const [logSearchQuery, setLogSearchQuery] = useState('');
   const [logAuthorFilter, setLogAuthorFilter] = useState<string>('ALL');
+  const [visibleLogCount, setVisibleLogCount] = useState<number>(5);
+  const [showAllLogsModal, setShowAllLogsModal] = useState(false);
+  const [expandedLogIds, setExpandedLogIds] = useState<Record<number, boolean>>({});
 
   // Active filter for developer in Leaderboard
   const [selectedAssignee, setSelectedAssignee] = useState<string | null>(null);
@@ -230,6 +186,7 @@ export function DashboardPage() {
     showAddMemberModal ||
     showProjectModal ||
     showApiModal ||
+    showAllLogsModal ||
     Boolean(editingTask) ||
     confirmDialog.isOpen;
 
@@ -352,13 +309,22 @@ export function DashboardPage() {
     return filteredTasks.slice(startIndex, startIndex + perPage);
   }, [filteredTasks, startIndex, perPage]);
 
-  // Unique authors for Live Stream filtering (Point 2.9)
+  // Unique authors & counts for Live Stream filtering (Point 2.9)
   const logAuthors = useMemo(() => {
     const set = new Set<string>();
     members.forEach((m) => set.add(m.github_username));
     logs.forEach((l) => set.add(l.author));
     return Array.from(set).filter(Boolean);
   }, [members, logs]);
+
+  const logAuthorCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    logs.forEach((l) => {
+      const key = l.author.toLowerCase();
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    });
+    return counts;
+  }, [logs]);
 
   // Filtered Live Webhook Activity Stream (Point 2.9)
   const filteredLogs = useMemo(() => {
@@ -377,6 +343,19 @@ export function DashboardPage() {
       return matchSearch && matchAuthor;
     });
   }, [logs, logSearchQuery, logAuthorFilter]);
+
+  const displayedLogs = useMemo(() => {
+    return filteredLogs.slice(0, visibleLogCount);
+  }, [filteredLogs, visibleLogCount]);
+
+  const remainingLogsCount = Math.max(0, filteredLogs.length - displayedLogs.length);
+
+  const toggleLogExpanded = (logId: number) => {
+    setExpandedLogIds((prev) => ({
+      ...prev,
+      [logId]: !prev[logId],
+    }));
+  };
 
   // Save edited task details (Point 2.7)
   const handleSaveEditTask = async (
@@ -1696,26 +1675,38 @@ export function DashboardPage() {
             </section>
           </div>
 
-          {/* RIGHT 1 COLUMN: LIVE WEBHOOK AUDIT STREAM & WEB GIT TERMINAL */}
-          <aside className="space-y-4 lg:sticky lg:top-[4.5rem] lg:self-start z-20">
-            <div
-              data-anim="content-grid"
-              className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden flex flex-col h-[580px] sm:h-[660px] lg:h-[calc(100vh-5.5rem)] lg:max-h-[860px] lg:min-h-[580px] shadow-xs"
-            >
+          {/* RIGHT 1 COLUMN: SEPARATE WEBHOOK STREAM & TERMINAL GIT CARDS */}
+          <aside data-anim="content-grid" className="space-y-5 lg:self-start">
+            {/* CARD 1: AKTIVITAS WEBHOOK (PROGRESSIVE FEED, NO CRAMPED SCROLL) */}
+            <section className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden flex flex-col shadow-xs">
               {/* Header */}
-              <div className="px-4 py-3 min-h-[46px] border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/80 dark:bg-[#0e121b] shrink-0">
-                <div className="flex items-center gap-2">
+              <div className="px-4 py-3 min-h-[46px] border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2 bg-zinc-50/80 dark:bg-[#0e121b] shrink-0">
+                <div className="flex items-center gap-2 min-w-0">
                   <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                  <h3 className="text-xs font-semibold text-zinc-950 dark:text-white">
+                  <h3 className="text-xs font-semibold text-zinc-950 dark:text-white truncate">
                     Aktivitas Webhook
                   </h3>
-                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-200/80 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
+                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-200/80 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 shrink-0">
                     {filteredLogs.length}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-medium">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                  <span>Live</span>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-medium">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                    <span>Live</span>
+                  </div>
+                  {logs.length > 5 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowAllLogsModal(true)}
+                      className="p-1 rounded-md text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-200/70 dark:hover:bg-zinc-800 transition cursor-pointer"
+                      title="Buka riwayat log lengkap"
+                      aria-label="Buka riwayat log lengkap"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -1728,7 +1719,10 @@ export function DashboardPage() {
                     name="stream_log_search"
                     type="text"
                     value={logSearchQuery}
-                    onChange={(e) => setLogSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                      setLogSearchQuery(e.target.value);
+                      setVisibleLogCount(5);
+                    }}
                     placeholder="Cari log..."
                     autoComplete="off"
                     aria-label="Cari log stream"
@@ -1737,9 +1731,13 @@ export function DashboardPage() {
                   {logSearchQuery && (
                     <button
                       type="button"
-                      onClick={() => setLogSearchQuery('')}
+                      onClick={() => {
+                        setLogSearchQuery('');
+                        setVisibleLogCount(5);
+                      }}
                       className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-0.5 cursor-pointer"
                       title="Hapus pencarian stream"
+                      aria-label="Hapus pencarian stream"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -1750,7 +1748,10 @@ export function DashboardPage() {
                 <div className="flex items-center gap-1 overflow-x-auto touch-scroll py-0.5 text-[10px] font-mono scrollbar-none">
                   <button
                     type="button"
-                    onClick={() => setLogAuthorFilter('ALL')}
+                    onClick={() => {
+                      setLogAuthorFilter('ALL');
+                      setVisibleLogCount(5);
+                    }}
                     className={`px-2 py-0.5 rounded-md transition cursor-pointer shrink-0 border ${
                       logAuthorFilter === 'ALL'
                         ? 'bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 font-semibold border-zinc-950 dark:border-white shadow-2xs'
@@ -1761,12 +1762,15 @@ export function DashboardPage() {
                   </button>
                   {logAuthors.map((author) => {
                     const isSelected = logAuthorFilter.toLowerCase() === author.toLowerCase();
-                    const count = logs.filter((l) => l.author.toLowerCase() === author.toLowerCase()).length;
+                    const count = logAuthorCounts.get(author.toLowerCase()) ?? 0;
                     return (
                       <button
                         key={author}
                         type="button"
-                        onClick={() => setLogAuthorFilter(isSelected ? 'ALL' : author)}
+                        onClick={() => {
+                          setLogAuthorFilter(isSelected ? 'ALL' : author);
+                          setVisibleLogCount(5);
+                        }}
                         className={`px-2 py-0.5 rounded-md transition cursor-pointer shrink-0 border ${
                           isSelected
                             ? 'bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 font-semibold border-zinc-950 dark:border-white shadow-2xs'
@@ -1780,14 +1784,18 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              {/* Streaming Output Body - Clean Activity Feed (No nested cards in cards!) */}
+              {/* Streaming Output Body - Bounded only after expanding beyond 5 items */}
               <div
                 ref={streamContainerRef}
                 data-lenis-prevent
-                className="flex-1 min-h-0 bg-white dark:bg-[#0c0f17] divide-y divide-zinc-100 dark:divide-zinc-800/60 overflow-y-auto touch-scroll"
+                className={`bg-white dark:bg-[#0c0f17] divide-y divide-zinc-100 dark:divide-zinc-800/60 ${
+                  visibleLogCount > 5
+                    ? 'max-h-[460px] overflow-y-auto touch-scroll overscroll-contain'
+                    : ''
+                }`}
               >
-                {filteredLogs.length === 0 ? (
-                  <div className="text-center py-12 px-4 text-zinc-400 dark:text-zinc-600 text-xs space-y-2">
+                {displayedLogs.length === 0 ? (
+                  <div className="text-center py-10 px-4 text-zinc-400 dark:text-zinc-600 text-xs space-y-2">
                     <p>Tidak ada aktivitas webhook.</p>
                     {(logSearchQuery || logAuthorFilter !== 'ALL') && (
                       <button
@@ -1795,6 +1803,7 @@ export function DashboardPage() {
                         onClick={() => {
                           setLogSearchQuery('');
                           setLogAuthorFilter('ALL');
+                          setVisibleLogCount(5);
                         }}
                         className="text-blue-600 dark:text-blue-400 underline cursor-pointer text-[11px]"
                       >
@@ -1803,83 +1812,89 @@ export function DashboardPage() {
                     )}
                   </div>
                 ) : (
-                  filteredLogs.map((log, index) => (
-                    <div
+                  displayedLogs.map((log, index) => (
+                    <ActivityLogItem
                       key={log.id}
-                      ref={index === 0 ? topLogRef : undefined}
-                      className="p-3 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/30 transition-colors flex items-start gap-2.5"
-                    >
-                      <AvatarWithFallback
-                        username={log.author}
-                        name={log.author}
-                        className="w-7 h-7 rounded-md border border-zinc-200 dark:border-zinc-700 shrink-0 mt-0.5 object-cover"
-                      />
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <div className="flex items-center justify-between gap-1 text-[11px]">
-                          <div className="flex items-center gap-1.5 min-w-0">
-                            <span className="font-semibold text-zinc-900 dark:text-zinc-100 truncate">
-                              @{log.author}
-                            </span>
-                            <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded font-medium ${
-                              log.event_type === 'TASK_COMPLETED'
-                                ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20'
-                                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700'
-                            }`}>
-                              {log.event_type === 'TASK_COMPLETED' ? 'TASK' : 'PUSH'}
-                            </span>
-                          </div>
-                          <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500 shrink-0" title={log.created_at}>
-                            {formatLogTime(log.created_at)}
-                          </span>
-                        </div>
-
-                        <p className="text-xs font-mono text-zinc-800 dark:text-zinc-200 leading-snug break-words">
-                          {log.commit_message}
-                        </p>
-
-                        {log.task_code && (
-                          <div className="inline-flex items-center gap-1.5 text-[10.5px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50/80 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-500/20">
-                            <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                            <span>#{log.task_code} selesai</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                      log={log}
+                      compact
+                      isExpanded={Boolean(expandedLogIds[log.id])}
+                      onToggleExpand={() => toggleLogExpanded(log.id)}
+                      itemRef={index === 0 ? topLogRef : undefined}
+                    />
                   ))
                 )}
               </div>
 
-              {/* Terminal Web Git Terintegrasi (Human-Crafted Developer Tool) */}
-              <div className="p-3.5 sm:p-4 bg-zinc-50/90 dark:bg-[#0e121b] border-t border-zinc-200 dark:border-zinc-800 text-xs space-y-3 shrink-0">
-                {/* Header Terminal Web */}
-                <div className="flex items-center justify-between gap-2 border-b border-zinc-200 dark:border-zinc-800/80 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-md bg-zinc-200/80 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 shrink-0">
-                      <Terminal className="w-3.5 h-3.5" />
-                    </div>
-                    <span className="font-semibold text-zinc-950 dark:text-white text-xs">
-                      Terminal Git
-                    </span>
+              {/* Progressive Disclosure Footer */}
+              {(filteredLogs.length > 5 || visibleLogCount > 5) && (
+                <div className="px-3 py-2 bg-zinc-50/80 dark:bg-[#0e121b] border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2 text-[11px] font-mono shrink-0">
+                  <div className="flex items-center gap-1.5">
+                    {remainingLogsCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setVisibleLogCount((prev) => prev + 10)}
+                        className="px-2.5 py-1 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700 transition active:scale-95 cursor-pointer shadow-2xs"
+                      >
+                        Muat {Math.min(10, remainingLogsCount)} lagi
+                      </button>
+                    )}
+                    {visibleLogCount > 5 && (
+                      <button
+                        type="button"
+                        onClick={() => setVisibleLogCount(5)}
+                        className="px-2 py-1 rounded-md text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-800 flex items-center gap-1 transition cursor-pointer"
+                        title="Kembalikan ke 5 log terbaru"
+                      >
+                        <ChevronUp className="w-3 h-3" />
+                        <span>Ringkas</span>
+                      </button>
+                    )}
                   </div>
 
                   <button
                     type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(terminalCommand);
-                      setActiveToast({
-                        title: 'Tersalin',
-                        desc: 'Perintah disalin ke clipboard.',
-                      });
-                      setTimeout(() => setActiveToast(null), 3000);
-                    }}
-                    className="px-2 py-1 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 text-[11px] font-mono flex items-center gap-1 transition active:scale-95 cursor-pointer shadow-2xs shrink-0"
-                    title="Salin sintaks perintah"
+                    onClick={() => setShowAllLogsModal(true)}
+                    className="px-2 py-1 rounded-md text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-800 flex items-center gap-1 transition cursor-pointer"
                   >
-                    <Copy className="w-3 h-3" />
-                    <span>Salin</span>
+                    <Maximize2 className="w-3 h-3" />
+                    <span>Semua ({filteredLogs.length})</span>
                   </button>
                 </div>
+              )}
+            </section>
 
+            {/* CARD 2: TERMINAL GIT STANDALONE */}
+            <section className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden shadow-xs text-xs">
+              {/* Header Terminal Git */}
+              <div className="px-4 py-3 min-h-[46px] border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2 bg-zinc-50/80 dark:bg-[#0e121b]">
+                <div className="flex items-center gap-2">
+                  <div className="p-1 rounded-md bg-zinc-200/80 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 shrink-0">
+                    <Terminal className="w-3.5 h-3.5" />
+                  </div>
+                  <h3 className="font-semibold text-zinc-950 dark:text-white text-xs">
+                    Terminal Git
+                  </h3>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(terminalCommand);
+                    setActiveToast({
+                      title: 'Tersalin',
+                      desc: 'Perintah disalin ke clipboard.',
+                    });
+                    setTimeout(() => setActiveToast(null), 3000);
+                  }}
+                  className="px-2 py-1 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 text-[11px] font-mono flex items-center gap-1 transition active:scale-95 cursor-pointer shadow-2xs shrink-0"
+                  title="Salin sintaks perintah"
+                >
+                  <Copy className="w-3 h-3" />
+                  <span>Salin</span>
+                </button>
+              </div>
+
+              <div className="p-3.5 sm:p-4 space-y-3">
                 {/* Form Selectors: Author & Quick Task Template */}
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
@@ -1978,7 +1993,7 @@ export function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Bottom Action Row (Spacious & Clean, Not Squeezed!) */}
+                {/* Bottom Action Row */}
                 <div className="flex items-center justify-between gap-2 pt-0.5 text-xs">
                   <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
                     <kbd className="px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 font-mono text-[10px]">Enter ↵</kbd>
@@ -2000,7 +2015,7 @@ export function DashboardPage() {
                   </button>
                 </div>
               </div>
-            </div>
+            </section>
           </aside>
         </div>
       </main>
@@ -2249,6 +2264,16 @@ export function DashboardPage() {
         onClose={() => setShowProjectModal(false)}
         onRefresh={refreshData}
         onShowToast={handleShowToast}
+      />
+
+      {/* FULL WEBHOOK ACTIVITY HISTORY MODAL */}
+      <ActivityLogsModal
+        isOpen={showAllLogsModal}
+        logs={logs}
+        authors={logAuthors}
+        initialSearchQuery={logSearchQuery}
+        initialAuthorFilter={logAuthorFilter}
+        onClose={() => setShowAllLogsModal(false)}
       />
     </div>
   );
