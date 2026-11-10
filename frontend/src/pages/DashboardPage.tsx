@@ -1282,7 +1282,6 @@ export function DashboardPage() {
                   </thead>
                   <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800/60">
                     {members.map((member, index) => {
-                      const isTop = index === 0;
                       // Developer dinyatakan aktif murni berdasarkan jumlah commit (> 0)
                       const isActive = member.total_commits > 0;
                       const isSelected = selectedAssignee?.toLowerCase() === member.github_username.toLowerCase();
@@ -1323,11 +1322,6 @@ export function DashboardPage() {
                                   {isSelected && (
                                     <span className="text-[10px] bg-blue-600 text-white px-1.5 py-0.2 rounded-md font-mono font-medium">
                                       Difilter
-                                    </span>
-                                  )}
-                                  {isTop && (
-                                    <span className="text-[10px] bg-amber-500/15 text-amber-700 dark:text-amber-300 px-1.5 py-0.2 rounded-md border border-amber-500/30 font-mono font-medium">
-                                      Lead
                                     </span>
                                   )}
                                   {isActive && (
