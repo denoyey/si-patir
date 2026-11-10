@@ -526,7 +526,7 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
     - Uji kepatuhan header CSP Helmet dan pastikan tidak ada kebocoran stack trace error pada production mode.
   - [x] **4.3 Pengujian Alur Webhook Nyata**:
     - Validasi alur pengiriman pesan Discord dan sinkronisasi kartu Trello saat webhook dijalankan.
-  - [ ] **4.4 Automated Unit Testing Suite (Vitest / Jest)**:
+  - [x] **4.4 Automated Unit Testing Suite (Vitest / Jest)**:
     - Buat pengujian otomatis pada folder `backend/tests/`:
       1. `CommitParserService.test.ts`: Uji parsing regex pesan commit (`[done #TASK-01]`, `fix: #TASK-02`, casing variatif).
       2. `WebhookSecurityService.test.ts`: Uji validasi HMAC SHA-256 (payload valid, signature palsu, payload tanpa header signature).
