@@ -26,7 +26,7 @@ fi
 # Fetch remote metadata dan prune branch yang sudah dihapus di GitHub
 echo "🔄 [2/3] Mengambil pembaruan dari origin/main..."
 git fetch origin --prune --quiet
-git pull origin main --quiet || true
+git pull --rebase origin main --quiet || true
 
 echo "🧹 [3/3] Memeriksa branch yang sudah di-merge ke origin/main..."
 

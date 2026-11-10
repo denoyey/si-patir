@@ -40,7 +40,7 @@ if not "%CURRENT_BRANCH%"=="main" (
 
 echo [2/3] Mengambil metadata ^& pembaruan dari origin/main...
 git fetch origin --prune --quiet
-git pull origin main --quiet
+git pull --rebase origin main --quiet
 
 echo [3/3] Memeriksa branch yang sudah di-merge ke origin/main...
 
