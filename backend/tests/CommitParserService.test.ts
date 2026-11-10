@@ -94,3 +94,4 @@ describe('CommitParserService Unit Tests', () => {
     });
   });
 });
+
