@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `tasks` (
   INDEX `idx_task_code` (`task_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 3. Tabel Log Aktivitas (Activity Logs)
+-- 3. Tabel Log Aktivitas (Activity Logs) - Index Tuned for High-Throughput
 CREATE TABLE IF NOT EXISTS `activity_logs` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `event_type` VARCHAR(50) NOT NULL,
@@ -40,7 +40,11 @@ CREATE TABLE IF NOT EXISTS `activity_logs` (
   `task_code` VARCHAR(50) NULL,
   `status` VARCHAR(50) NOT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX `idx_created` (`created_at` DESC)
+  INDEX `idx_created` (`created_at` DESC),
+  INDEX `idx_task_created` (`task_code`, `created_at` DESC),
+  INDEX `idx_author_created` (`author`, `created_at` DESC),
+  INDEX `idx_event_status` (`event_type`, `status`),
+  INDEX `idx_commit_msg` (`commit_message`(100))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ====================================================================

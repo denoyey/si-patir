@@ -234,11 +234,11 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
   - Buat mekanisme in-memory fallback agar aplikasi tidak crash jika koneksi MySQL terputus.
 - [x] **3.6 Database Seeder Kolaborator Resmi**:
   - Daftarkan 4 anggota resmi (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) ke dalam database.
-- [ ] **3.7 Trello Inbound Webhook Listener**:
-  - Rancang endpoint webhook inbound dari Trello (`/api/v1/webhooks/trello`) agar jika ada anggota yang menggeser kartu langsung di website Trello.com, status di MySQL dan dashboard otomatis ikut terupdate secara real-time.
-- [ ] **3.8 Database Backup & Maintenance Script**:
-  - Buat script otomatisasi backup dump basis data MySQL (`backup_db.sh` / `backup_db.bat`).
-  - Lakukan tuning indeks query untuk performa pencatatan ribuan log aktivitas.
+- [x] **3.7 Trello Inbound Webhook Listener**:
+  - Berhasil merancang endpoint webhook inbound dari Trello (`/api/v1/webhooks/trello` dan `/api/webhooks/trello`) lengkap dengan validasi handshake HEAD/GET, ekstraksi tag tugas `[#TASK-XX]`, sinkronisasi dua arah ke basis data MySQL/in-memory fallback, dan siaran real-time WebSocket ke dashboard.
+- [x] **3.8 Database Backup & Maintenance Script**:
+  - Dibuat script otomatisasi backup dump basis data MySQL cross-platform: `scripts/backup_db.bat` (Windows), `scripts/backup_db.sh` (Linux/macOS), dan `scripts/backup_helper.js` (Engine Node.js mandiri).
+  - Berhasil melakukan tuning indeks komposit pada tabel `activity_logs` (`idx_task_created`, `idx_author_created`, `idx_event_status`, `idx_commit_msg`) untuk performa pencatatan ribuan log aktivitas.
 
 * **Berkas Kerja Utama:**
   - `backend/src/services/TrelloIntegrationService.ts`

@@ -266,5 +266,67 @@ export class TrelloIntegrationService {
       return false;
     }
   }
+
+  /**
+   * Register Trello Inbound Webhook on Trello.com
+   * Automatically connects Trello board changes to the SI-PATIR inbound webhook listener.
+   */
+  public async registerWebhook(
+    callbackUrl: string,
+    customConfig?: ITrelloCustomConfig
+  ): Promise<{ success: boolean; webhookId?: string; message: string }> {
+    const key = customConfig?.apiKey || this.config.trelloApiKey;
+    const token = customConfig?.token || this.config.trelloToken;
+    const boardId = customConfig?.boardId || this.config.trelloBoardId;
+
+    if (!key || !token || !boardId) {
+      return { success: false, message: 'Kredensial Trello (API key, token, boardId) belum lengkap.' };
+    }
+
+    try {
+      const res = await axios.post(
+        `https://api.trello.com/1/tokens/${token}/webhooks/`,
+        null,
+        {
+          params: {
+            key,
+            description: 'SI-PATIR Inbound Webhook Listener',
+            callbackURL: callbackUrl,
+            idModel: boardId,
+            active: true,
+          },
+          timeout: 10000,
+        }
+      );
+
+      return {
+        success: true,
+        webhookId: res.data.id,
+        message: 'Webhook Trello inbound berhasil didaftarkan.',
+      };
+    } catch (err: any) {
+      console.warn('[TrelloIntegrationService] Gagal mendaftarkan webhook Trello:', err.response?.data || err.message);
+      return { success: false, message: err.response?.data || err.message };
+    }
+  }
+
+  /**
+   * List all active Webhooks registered on the Trello token
+   */
+  public async fetchWebhooks(customConfig?: ITrelloCustomConfig): Promise<any[] | null> {
+    const key = customConfig?.apiKey || this.config.trelloApiKey;
+    const token = customConfig?.token || this.config.trelloToken;
+    if (!key || !token) return null;
+
+    try {
+      const res = await axios.get(`https://api.trello.com/1/tokens/${token}/webhooks`, {
+        params: { key },
+        timeout: 5000,
+      });
+      return res.data;
+    } catch {
+      return null;
+    }
+  }
 }
 

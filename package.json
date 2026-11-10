@@ -1,6 +1,7 @@
 {
   "name": "si-patir",
   "version": "2.0.0",
+  "type": "module",
   "description": "SI-PATIR: Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repositori (DevOps Lite)",
   "scripts": {
     "start": "bash ./start.sh",
@@ -14,6 +15,7 @@
     "typecheck": "cd backend && npx tsc --noEmit && cd ../frontend && npx tsc --noEmit",
     "test": "cd backend && npm test",
     "test:backend": "cd backend && npm test",
+    "db:backup": "node ./scripts/backup_helper.js",
     "clean:branches": "bash ./scripts/clean-merged-branches.sh",
     "tunnel": "bash ./scripts/setup-public-tunnel.sh"
   }

@@ -220,5 +220,116 @@ export class WebhookController {
       message: 'Commit web berhasil diproses dan disinkronkan ke Trello & Database.',
     });
   };
+
+  /**
+   * Trello Webhook Handshake Validation (HEAD / GET)
+   * Trello requires a 200 OK response upon webhook registration to confirm reachability.
+   */
+  public handleTrelloWebhookValidation = (_req: Request, res: Response): void => {
+    res.status(200).send('OK');
+  };
+
+  /**
+   * Trello Inbound Webhook Listener (POST)
+   * Handles real-time card move/update events directly from Trello.com.
+   * Updates task status in MySQL/Memory, recalculates metrics, logs activity, and emits Socket.io event.
+   */
+  public handleTrelloWebhook = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const payload = req.body;
+      const action = payload?.action;
+
+      if (!action) {
+        res.status(200).json({ success: true, message: 'Acknowledged empty Trello event' });
+        return;
+      }
+
+      const actionType = action.type;
+      const data = action.data || {};
+      const card = data.card;
+      const memberCreator = action.memberCreator || {};
+      const actorName = memberCreator.username || memberCreator.fullName || 'Trello User';
+
+      console.log(`[WebhookController] 📥 Trello Inbound Event: ${actionType} oleh @${actorName}`);
+
+      // Deteksi pergeseran kartu antar list di Trello
+      if (actionType === 'updateCard' && card) {
+        const cardName = card.name || '';
+        const listAfterName = data.listAfter?.name || '';
+        const listBeforeName = data.listBefore?.name || '';
+
+        // Ekstraksi kode tugas e.g. "Integrasi Papan Kanban Trello [#TASK-02]"
+        let taskCode = this.parserService.extractTaskCode(cardName);
+        if (!taskCode) {
+          const match = cardName.match(/#?(TASK-\d+)/i);
+          if (match) taskCode = match[1].toUpperCase();
+        }
+
+        // Petakan nama kolom tujuan Trello ke status internal sistem
+        let targetStatus: 'To Do' | 'In Progress' | 'Done' | null = null;
+        const listLower = listAfterName.toLowerCase();
+
+        if (listLower.includes('done') || listLower.includes('selesai')) {
+          targetStatus = 'Done';
+        } else if (listLower.includes('progress') || listLower.includes('doing') || listLower.includes('sedang')) {
+          targetStatus = 'In Progress';
+        } else if (listLower.includes('to do') || listLower.includes('todo') || listLower.includes('backlog')) {
+          targetStatus = 'To Do';
+        }
+
+        if (taskCode && targetStatus) {
+          const existingTask = await this.taskRepo.findByCode(taskCode);
+          if (existingTask) {
+            const oldStatus = existingTask.status;
+
+            if (oldStatus !== targetStatus) {
+              await this.taskRepo.updateStatus(taskCode, targetStatus);
+              if (card.id) {
+                await this.taskRepo.updateTrelloCardId(taskCode, card.id);
+              }
+
+              // Sinkronkan ulang akumulasi tasks_done anggota tim
+              await this.memberRepo.recalculateTasksDone();
+
+              const logMsg = `Trello Inbound: Kartu [${taskCode}] digeser dari "${listBeforeName || oldStatus}" ke "${listAfterName || targetStatus}" di Trello.com`;
+              await this.logRepo.record('TRELLO_SYNC', actorName, logMsg, taskCode, 'SUCCESS');
+
+              // Siarkan pembaruan real-time ke seluruh klien Dashboard
+              this.io.emit('activity_update', {
+                type: 'TRELLO_SYNC',
+                author: actorName,
+                taskCode,
+                taskTitle: existingTask.title,
+                oldStatus,
+                newStatus: targetStatus,
+                commitMsg: logMsg,
+                time: new Date().toLocaleTimeString('id-ID'),
+              });
+
+              this.io.emit('tasks:changed');
+
+              console.log(`[WebhookController] 🔄 Sinkronisasi berhasil: [${taskCode}] -> "${targetStatus}" dari Trello.com`);
+              res.status(200).json({
+                success: true,
+                message: `Status tugas ${taskCode} berhasil diperbarui ke "${targetStatus}" dari Trello inbound webhook.`,
+                taskCode,
+                status: targetStatus,
+              });
+              return;
+            }
+          }
+        }
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Trello event acknowledged',
+        actionType,
+      });
+    } catch (err: any) {
+      console.error('[WebhookController] Trello Webhook Error:', err.message);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  };
 }
 
