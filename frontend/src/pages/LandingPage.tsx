@@ -29,8 +29,8 @@ const TEAM_MEMBERS = [
     badge: 'Project Lead',
     avatar: 'https://github.com/denoyey.png?size=400',
     description:
-      'Memimpin arsitektur sistem terpadu, webhook ingestion pipeline, verifikasi keamanan HMAC SHA-256, serta otomasi CI/CD deployment.',
-    skills: ['Node.js', 'Express', 'WebSocket', 'DevOps', 'Security'],
+      'Memimpin arsitektur REST API v1 & multi-repo isolation, webhook pipeline HMAC SHA-256, public tunnel, serta GitHub Actions CI/CD.',
+    skills: ['Node.js', 'Express', 'WebSocket', 'Multi-Repo', 'CI/CD', 'Security'],
   },
   {
     name: 'Rafli',

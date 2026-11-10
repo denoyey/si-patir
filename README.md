@@ -353,7 +353,7 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
 
 | No | Pengembang | Peran & Badge | Tanggung Jawab & Jobdesk Utama | Tech Stack & Fokus |
 |:--:|:-----------|:--------------|:-------------------------------|:-------------------|
-| **1** | **Deni**<br>[@denoyey](https://github.com/denoyey) | `Project Lead`<br>`Lead Architect & DevOps Integrator` | • Memimpin arsitektur gateway sistem SI-PATIR & REST API v1.<br>• Merancang Webhook Ingestion Pipeline & verifikasi kriptografi HMAC SHA-256 (`crypto.timingSafeEqual`).<br>• Membangun Interactive REST API Explorer (`/api/docs`) responsif mobile/iPhone.<br>• Mengonfigurasi WebSocket server & sinkronisasi commit asli GitHub ke stream.<br>• Otomasi skrip CI/CD deployment & environment orchestration. | `Node.js`, `Express`, `TypeScript`, `WebSocket`, `DevOps`, `HMAC Security` |
+| **1** | **Deni**<br>[@denoyey](https://github.com/denoyey) | `Project Lead`<br>`Lead Architect & DevOps Integrator` | • Memimpin arsitektur gateway SI-PATIR, REST API v1 modular, serta isolasi Multi-Repo Workspace (`/api/v1/projects`).<br>• Merancang Webhook Ingestion Pipeline, engine Terminal Web Git, & verifikasi kriptografi HMAC SHA-256 (`crypto.timingSafeEqual`).<br>• Membangun Interactive REST API Explorer (`/api/docs`) responsif mobile/iPhone serta stream progresif & modal riwayat log (`ActivityLogsModal.tsx`).<br>• Mengonfigurasi WebSocket real-time server, sinkronisasi commit historis GitHub, & format waktu log bahasa Indonesia.<br>• Membangun public HTTPS webhook tunnel (`npm run tunnel`), CI/CD GitHub Actions (`.github/workflows/ci.yml`), serta otomasi branch governance (`auto-git-push` & `clean-merged-branches`). | `Node.js`, `Express`, `TypeScript`, `WebSocket`, `Multi-Repo`, `CI/CD`, `HMAC Security` |
 | **2** | **Rafli**<br>[@muhamadrafli16](https://github.com/muhamadrafli16) | `UI/UX Specialist`<br>`Frontend UI & Data Visualization Engineer` | • Merancang arsitektur antarmuka dashboard modern & landing page interaktif.<br>• Mengembangkan tabel tugas Filament v5 dengan pagination dinamis & filter kontributor.<br>• Membangun Terminal Web Git interaktif langsung di web browser.<br>• Menjamin responsivitas 100% di seluruh perangkat (desktop, tablet, hingga seluruh varian iPhone).<br>• Mengintegrasikan Lenis Smooth Scroll OOP engine & Theme Switcher cerdas.<br>• Membangun visualisasi grafik analitik presisi tinggi (Commit Bar Chart & Donut Chart), modal edit tugas terintegrasi Trello, ekspor laporan sprint (CSV/PDF), dan filter pencarian panel stream. | `React 19`, `Tailwind CSS v4`, `GSAP`, `Lenis Scroll`, `Filament UI`, `SVG Analytics` |
 | **3** | **Fatir**<br>[@Patirparkerr](https://github.com/Patirparkerr) | `Integrations Lead`<br>`Kanban Trello & Database Engineer` | • Mengintegrasikan Trello REST API untuk pemindahan kartu tugas otomatis (*In Progress* ➔ *Done*).<br>• Merancang dan memelihara skema basis data relasional MySQL lokal.<br>• Mengimplementasikan sinkronisasi status tugas real-time antara commit Git dan papan Kanban.<br>• Menyinkronkan 5 kartu tugas utama (`#TASK-01` s/d `#TASK-05`) dan seeder 4 anggota tim. | `Trello REST API`, `MySQL2`, `Database Design`, `RESTful API`, `Data Modeling` |
 | **4** | **Fajri**<br>[@AATTTRAWRRR](https://github.com/AATTTRAWRRR) | `Quality & Docs`<br>`QA, Security Testing & Academic Documentation` | • Menyusun pengujian unit test otomatis dan audit keamanan endpoint webhook.<br>• Melakukan pengujian audit ketahanan terhadap rate limiting, ReDoS, dan serangan DoS.<br>• Merancang laporan akademik lengkap (Bab 1–5), diagram UML (Use Case, Sequence, Activity, Class).<br>• Menyusun skenario demo 30 detik & slide presentasi dosen/penguji. | `Automated QA`, `Security Audit`, `UML Modeling`, `Technical Documentation` |
@@ -379,6 +379,7 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
 | 13 | **Security Penetration & Load Testing** | Belum ada tabel hasil uji batas rate limiter dan pengujian beban payload. | **PENDING (P2)** ⏳ | Fajri |
 | 14 | **Laporan Akademik Formal (Bab 1–5 & UML)** | Dokumen laporan formal skripsi/tugas besar & diagram arsitektur UML belum selesai. | **PENDING (P1)** ⏳ | Fajri |
 | 15 | **Slide Presentasi & Skenario Demo Dosen** | Bahan tayang presentasi Canva/PPT dan runbook naskah demo belum dibuat. | **PENDING (P1)** ⏳ | Fajri |
+| 16 | **Konfigurasi Profil Proyek Dinamis & Multi-Repo** | Multi-repo terisolasi, modal switcher, per-project Trello board & Discord webhook. | **SELESAI (DONE)** ✅ | Deni & Rafli |
 
 ---
 
@@ -387,7 +388,7 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
 <details open>
 <summary><b>1. Deni (@denoyey) — Project Lead & Lead Architect & DevOps Integrator</b></summary>
 
-- **Peran**: Penanggung jawab teknis proyek, arsitektur backend gateway, keamanan sistem, dan integrasi server.
+- **Peran**: Penanggung jawab teknis proyek, arsitektur backend gateway, keamanan sistem, CI/CD DevOps, serta penyempurnaan UX & aksesibilitas.
 - **Checklist Pekerjaan**:
   - [x] **1.1 Arsitektur Backend Gateway REST API v1**:
     - Bangun Express 5 + TypeScript OOP dengan pemisahan Controller, Service, dan Repository.
@@ -418,7 +419,10 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
       1. Backend `tsc --noEmit` & `npm run build`
       2. Frontend `oxlint`, `tsc --noEmit`, & `npm run build`
       3. Automated test gate (`npm test --if-present`) pada setiap Pull Request & push ke branch `main`.
-  - [ ] **1.10 Code Review & Branch Governance**:
+  - [x] **1.10 Penyempurnaan UX, Aksesibilitas Form & Stream Progresif**:
+    - Pisahkan card *Aktivitas Webhook* & *Terminal Git*, terapkan stream progresif (5 log awal + `Muat lebih banyak` + modal riwayat `ActivityLogsModal.tsx`) dengan format hari singkat Indonesia (`Sel, 19:14`).
+    - Terapkan `useBodyScrollLock` + `overscroll-contain` pada seluruh modal overlay hitam solid, penomoran `id`/`name` seluruh input form, paginasi ringkas, dan hierarki klasemen tim yang setara.
+  - [ ] **1.11 Code Review & Branch Governance (Ongoing)**:
     - Tinjau setiap Pull Request dari rekan tim (Rafli, Fatir, Fajri) sebelum di-merge ke branch `main`.
 - **Berkas Kerja Utama**:
   - `backend/src/Application.ts`
@@ -428,8 +432,12 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
   - `backend/src/docs/renderApiDocsHtml.ts`
   - `backend/src/services/GitHubIntegrationService.ts`
   - `backend/src/middlewares/SecurityMiddleware.ts`
-  - `scripts/setup-public-tunnel.sh`
-  - `scripts/setup-public-tunnel.bat`
+  - `frontend/src/components/ActivityLogsModal.tsx`
+  - `frontend/src/components/ActivityLogItem.tsx`
+  - `frontend/src/utils/logFormatters.ts`
+  - `frontend/src/services/scroll/hooks/useBodyScrollLock.ts`
+  - `scripts/setup-public-tunnel.sh` & `.bat`
+  - `scripts/auto-git-push.sh` & `.bat`
   - `.github/workflows/ci.yml`
 </details>
 

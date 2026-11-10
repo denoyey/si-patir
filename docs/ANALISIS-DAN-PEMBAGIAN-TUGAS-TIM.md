@@ -49,6 +49,10 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
    - **Tabel `projects` & REST API v1 (`/api/v1/projects`)**: CRUD profil proyek lengkap dengan proteksi proyek default ID 1 (SI-PATIR).
    - **Project Switcher & Configuration Modal di Dashboard**: Modal interaktif di frontend untuk beralih proyek aktif, mengedit kredensial integrasi, dan mendaftarkan proyek baru secara live.
    - **Webhook Routing Cerdas**: Backend secara otomatis mencocokkan repo GitHub pada payload webhook untuk menggerakkan kartu Trello dan mengirim notifikasi Discord ke proyek yang tepat.
+9. **CI/CD Pipeline, Stream Progresif & Penguatan UX/Aksesibilitas**:
+   - **GitHub Actions Quality Gate (`.github/workflows/ci.yml`)**: Pipeline paralel untuk `backend` & `frontend` (`tsc --noEmit`, `oxlint`, Vite build, dan `npm test --if-present`) pada setiap push & PR ke `main`.
+   - **Aktivitas Webhook Progresif & Modal Riwayat**: Feed sidebar ringkas 5 item terbaru dengan format hari singkat Indonesia (`Sel, 19:14`), *expandable commit message* (`line-clamp-2`), tombol *Muat lebih banyak*, pemisahan card `Terminal Git`, dan `ActivityLogsModal.tsx`.
+   - **Overlay Scroll Lock & Aksesibilitas Form**: Penguncian scroll background di seluruh modal (`useBodyScrollLock.ts` + `overscroll-contain`), overlay hitam solid tanpa blur, kelengkapan `id`/`name` seluruh form field, serta hierarki klasemen tim yang setara.
 
 ---
 
@@ -99,7 +103,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 
 ### 👤 1. DENI (Lead Engineer & DevOps Integrator)
 * **Akun GitHub:** `@denoyey` (Repo Owner & Team Lead)
-* **Peran Utama:** Pimpinan Proyek, Arsitek Backend Gateway, Keamanan Sistem, dan Integrasi Server.
+* **Peran Utama:** Pimpinan Proyek, Arsitek Backend Gateway & Multi-Repo, Keamanan Sistem, CI/CD DevOps, serta Penguatan UX & Aksesibilitas.
 
 #### Checklist Pekerjaan:
 - [x] **1.1 Arsitektur Backend Gateway REST API v1**:
@@ -132,7 +136,10 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
     1. Backend `tsc --noEmit` & `npm run build`
     2. Frontend `oxlint`, `tsc --noEmit`, & `npm run build`
     3. Automated test gate (`npm test --if-present`) pada setiap Pull Request & push ke branch `main`.
-- [ ] **1.10 Code Review & Branch Governance**:
+- [x] **1.10 Penyempurnaan UX, Aksesibilitas Form & Stream Progresif**:
+  - Pisahkan card *Aktivitas Webhook* & *Terminal Git*, terapkan stream progresif (5 log awal + `Muat lebih banyak` + `ActivityLogsModal.tsx`) dengan format hari singkat Indonesia (`Sel, 19:14`).
+  - Terapkan `useBodyScrollLock` + `overscroll-contain` pada modal overlay hitam solid, penomoran `id`/`name` seluruh form field, paginasi ringkas, dan hierarki klasemen tim yang setara.
+- [ ] **1.11 Code Review & Branch Governance (Ongoing)**:
   - Tinjau setiap Pull Request dari rekan tim (Rafli, Fatir, Fajri) sebelum di-merge ke branch `main`.
 
 * **Berkas Kerja Utama:**
@@ -143,8 +150,12 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
   - `backend/src/docs/renderApiDocsHtml.ts`
   - `backend/src/services/GitHubIntegrationService.ts`
   - `backend/src/middlewares/SecurityMiddleware.ts`
-  - `scripts/setup-public-tunnel.sh`
-  - `scripts/setup-public-tunnel.bat`
+  - `frontend/src/components/ActivityLogsModal.tsx`
+  - `frontend/src/components/ActivityLogItem.tsx`
+  - `frontend/src/utils/logFormatters.ts`
+  - `frontend/src/services/scroll/hooks/useBodyScrollLock.ts`
+  - `scripts/setup-public-tunnel.sh` & `.bat`
+  - `scripts/auto-git-push.sh` & `.bat`
   - `.github/workflows/ci.yml`
 
 ---

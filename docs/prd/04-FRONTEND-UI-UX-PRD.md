@@ -242,7 +242,7 @@ Sesuai spesifikasi tim proyek, seluruh anggota tim memiliki nama dan tanggung ja
 
 | Nama Anggota | Posisi / Spesialisasi | Akun GitHub Resmi | Fokus Pekerjaan Utama |
 | :--- | :--- | :--- | :--- |
-| **Deni** | Lead Architect & DevOps Integrator | `@denoyey` (Repo Owner) | Arsitektur integrasi sistem, ingestion webhook GitHub, validasi HMAC SHA-256, dan pipeline deployment. |
+| **Deni** | Lead Architect & DevOps Integrator | `@denoyey` (Repo Owner) | Arsitektur integrasi sistem & REST API v1, webhook GitHub & validasi HMAC SHA-256, Multi-Repo isolation (`/api/v1/projects`), Interactive API Explorer, public tunnel, GitHub Actions CI/CD, stream progresif & modal riwayat log, serta penguatan aksesibilitas & scroll lock UI. |
 | **Rafli** | Frontend UI & Data Visualization | `@muhamadrafli16` (Collaborator) | Antarmuka interaktif React 19, animasi GSAP OOP, smooth scroll Lenis, komponen tema, visualisasi analitik SVG (Bar & Donut Charts), modal interaktif edit tugas, filter stream live, dan ekspor laporan sprint (CSV/PDF). |
 | **Fatir** | Kanban Trello & Database Engineer | `@Patirparkerr` (Collaborator) | Integrasi REST API Trello untuk mutasi kartu otomatis, manajemen basis data MySQL, dan sinkronisasi tugas. |
 | **Fajri** | QA, Security Testing & Documentation | `@AATTTRAWRRR` (Collaborator / Fajrii) | Pengujian unit otomatis, audit ketahanan rate limiting & anti-DoS, diagram arsitektur UML, dan laporan akademik. |
@@ -350,19 +350,21 @@ Untuk memastikan pengalaman monitoring di perangkat seluler setara dengan deskto
   5. **Sinkronisasi Dua Arah**: Begitu status diubah, sistem secara otomatis menyelaraskan kartu di papan Trello dan menyiarkan pembaruan via Socket.io.
   6. **Aksesibilitas & Anti-Lock**: Mendukung penutupan modal via tombol Escape dan klik backdrop di luar dialog.
 
-### 17.2 Fitur Pencarian & Filter Live Webhook Stream (`DashboardPage.tsx` — Modul 2.9)
-* **Tujuan Rekayasa**: Mempermudah pemantauan alur audit log secara granular saat puluhan commit masuk dari berbagai pengembang.
+### 17.2 Fitur Pencarian, Stream Progresif & Modal Riwayat Log (`DashboardPage.tsx`, `ActivityLogsModal.tsx`)
+* **Tujuan Rekayasa**: Mempermudah pemantauan alur audit log secara granular tanpa membebani pengguna dengan kotak *inner scroll* yang panjang dan sempit.
 * **Spesifikasi Antarmuka**:
-  1. **Search Bar Stream**: Kotak input pencarian teks instan di puncak panel stream dengan debounce dan tombol reset instan `(X)`. Mendukung pencarian pesan commit, kode tugas `#TASK`, author, maupun tipe event.
+  1. **Search Bar Stream**: Kotak input pencarian teks instan (`id="stream-log-search"`) di puncak panel stream disertai tombol reset instan `(X)`. Mendukung pencarian pesan commit, kode tugas `#TASK`, author, maupun tipe event.
   2. **Author Filter Pills**: Bilah gulir horizontal berisi chip filter per author (`Semua`, `@denoyey`, `@Patirparkerr`, `@muhamadrafli16`, `@AATTTRAWRRR`, dll) lengkap dengan counter jumlah aktivitas log per author.
-  3. **State Kosong Reaktif**: Bila pencarian tidak menemukan hasil, ditampilkan pesan informatif disertai tombol satu-klik *"Reset filter stream"*.
+  3. **Tampilan Progresif & Format Waktu Indonesia**: Secara default menampilkan 5 item terbaru dengan format hari singkat bahasa Indonesia (`Sel, 19:14` + tooltip lengkap) dan pemadatan pesan commit (`line-clamp-2`, klik untuk expand), dilengkapi kontrol **`Muat X lagi`**, **`Ringkas`**, serta pemisahan card `Terminal Git` secara mandiri.
+  4. **Modal Riwayat Lengkap (`ActivityLogsModal.tsx`)**: Overlay hitam solid (`bg-black/85 backdrop-blur-none`) dengan penguncian scroll background (`useBodyScrollLock`), filter event (`Semua`, `Push`, `Task`), pencarian, serta author pills yang rapi (`flex-wrap`).
+  5. **State Kosong Reaktif**: Bila pencarian tidak menemukan hasil, ditampilkan pesan informatif disertai tombol satu-klik *"Reset filter"*.
 
 ---
 
 ## 18. Visualisasi Analitik Kontribusi & Ekspor Laporan Sprint
 
 ### 18.1 Komponen Visualisasi Analitik (`ContributionChart.tsx` — Modul 2.6)
-* **Diagram Batang (*Commit Bar Chart*)**: Mengukur proporsi kontribusi commit antar pengembang tim (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) dengan bar animasi gradien, avatar asli GitHub, persentase kontribusi, dan penanda kontributor teratas (*#1 Lead*).
+* **Diagram Batang (*Commit Bar Chart*)**: Mengukur proporsi kontribusi commit antar pengembang tim (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) dengan bar animasi gradien, avatar asli GitHub, persentase kontribusi, dan peringkat `#1–#4` yang setara tanpa badge kasta sepihak.
 * **Diagram Donat (*Sprint Status Donut Chart*)**: Diagram donat berbasis SVG murni presisi tinggi yang memetakan sebaran tugas sprint (*Done*, *In Progress*, *To Do*) dengan persentase di pusat diagram dan kartu ringkasan status interaktif.
 
 ### 18.2 Ekspor Laporan Sprint (CSV & PDF `@media print` — Modul 2.8)
