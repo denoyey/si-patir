@@ -116,4 +116,23 @@ Middleware `SecurityMiddleware.globalErrorHandler` mencegat seluruh error intern
   3. **Pembersihan Cache Git Index (`git rm --cached`)**: Seluruh berkas sensitif dan modul yang sebelumnya sempat terlacak di indeks git dihapus dari status pelacakan tanpa menghapus berkas fisik lokal.
   4. **Strict Template Whitelist (`!.env.example`)**: Hanya berkas percontohan konfigurasi nir-kredensial (`.env.example`) yang diizinkan masuk ke remote repository sebagai acuan anggota tim pengembang baru.
 
+---
+
+## 4. Hasil Verifikasi Pengujian Keamanan & Ketahanan Beban (Security & Load Test Verification)
+
+Pengujian ketahanan keamanan dieksekusi secara otomatis oleh **Fajri (`@AATTTRAWRRR`)** menggunakan Vitest pada berkas `backend/tests/SecurityLoadTest.test.ts`.
+
+| ID Skenario | Vektor Pengujian | Ekspektasi | Hasil Pengujian Aktual | Status |
+| :--- | :--- | :--- | :--- | :---: |
+| `SEC-RATE-01` | Rate Limiter Normal (Req 1 s/d 30) | Permintaan diproses normal | HTTP `200 OK` (30/30 sukses) | **PASSED** ✅ |
+| `SEC-RATE-02` | Rate Limiter Overload (Req 31 s/d 35) | Permintaan diblokir seketika | HTTP `429 Too Many Requests` | **PASSED** ✅ |
+| `SEC-BODY-01` | Payload DoS Attack (>100KB) | Muatan ditolak sebelum alokasi memori | HTTP `413 Payload Too Large` | **PASSED** ✅ |
+| `SEC-SQLI-01` | SQL Injection Tautologi & Multi-Query | Input diisolasi sebagai literal string | `null` (Data & skema aman 100%) | **PASSED** ✅ |
+| `SEC-XSS-01` | Cross-Site Scripting Sanitization | Script tag berbahaya dibersihkan | Tag `<script>` dieliminasi total | **PASSED** ✅ |
+| `SEC-REDOS-01` | ReDoS Catastrophic Backtracking | Evaluasi selesai <50ms | Selesai dalam **<10ms** | **PASSED** ✅ |
+
+> Laporan lengkap dokumentasi Blackbox Testing dapat dilihat pada berkas:  
+> [`docs/academic/LAPORAN-PENGUJIAN-BLACKBOX-DAN-SECURITY.md`](../academic/LAPORAN-PENGUJIAN-BLACKBOX-DAN-SECURITY.md)
+
+
 

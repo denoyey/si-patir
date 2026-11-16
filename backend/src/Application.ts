@@ -226,6 +226,14 @@ export class Application {
     });
   }
 
+  public getApp(): Express {
+    return this.app;
+  }
+
+  public getServer(): HttpServer {
+    return this.server;
+  }
+
   public async stop(): Promise<void> {
     return new Promise((resolve) => {
       this.server.close(() => {

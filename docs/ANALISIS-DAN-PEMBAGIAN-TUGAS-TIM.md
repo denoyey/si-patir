@@ -255,14 +255,17 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 - [x] **4.3 Pengujian Alur Webhook Nyata**:
   - Validasi alur pengiriman pesan Discord dan transisi status tugas internal saat webhook dijalankan.
 - [x] **4.4 Automated Unit Testing Suite (Vitest)**:
-  - Berhasil membuat pengujian otomatis 28 skenario pada folder `backend/tests/` (100% lolos):
+  - Berhasil membuat pengujian otomatis komprehensif pada folder `backend/tests/` (100% lolos):
     1. `CommitParserService.test.ts`: Uji parsing regex pesan commit (`[done #TASK-01]`, `fix: #TASK-02`, casing variatif, anti-XSS, anti-ReDoS).
     2. `WebhookSecurityService.test.ts`: Uji validasi HMAC SHA-256 (payload valid, signature palsu/spoofed, payload tanpa header signature, anti-CRLF).
     3. `TaskStatusFlow.test.ts`: Uji transisi status tugas (*To Do* ➔ *In Progress* ➔ *Done*).
 - [x] **4.5 Uji Ketahanan Keamanan & Beban (Security & Load Testing)**:
-  - Uji batas rate limiter: lakukan 35 request dalam 1 menit ke endpoint webhook dan buktikan sistem memblokir dengan HTTP `429 Too Many Requests`.
-  - Uji batas ukuran payload (100kb anti-JSON bomb) dan uji keamanan input parameterized query (anti-SQL Injection).
-  - Terapkan simulator pengujian keamanan interaktif di portal `/docs` untuk demonstrasi langsung di hadapan dosen pengampu.
+  - Berhasil mengimplementasikan automated suite `backend/tests/SecurityLoadTest.test.ts` (9 skenario lolos, total 37 test):
+    1. Uji batas rate limiter: eksekusi 35 request dalam 1 menit ke endpoint webhook dan terbukti sistem memblokir request ke-31 s/d 35 dengan HTTP `429 Too Many Requests`.
+    2. Uji batas ukuran payload: menolak muatan raksasa >100KB dengan HTTP `413 Payload Too Large` (anti-JSON Bomb DoS).
+    3. Uji ketahanan SQL Injection (Tautologi, Multi-query drop table, Union Select) dengan Parameterized Query.
+    4. Uji sanitasi Cross-Site Scripting (XSS) pada pesan commit.
+  - Berhasil menyusun dokumen resmi: [`docs/academic/LAPORAN-PENGUJIAN-BLACKBOX-DAN-SECURITY.md`](academic/LAPORAN-PENGUJIAN-BLACKBOX-DAN-SECURITY.md) memuat 22 matriks uji Blackbox Testing dan Security Audit.
 - [x] **4.6 Penyusunan Panduan Evaluasi & Tanya Jawab Dosen**:
   - Menyusun materi tanya jawab kritis evaluasi tugas kelompok mata kuliah Pemrograman Integratif pada `/docs`:
     - Alasan pemilihan arsitektur Webhook vs Polling.
