@@ -25,7 +25,6 @@ import {
   Database,
   HelpCircle,
   Activity,
-  Globe,
   Radio,
   EyeOff,
   Filter,
@@ -625,14 +624,14 @@ export function DocumentationPage() {
             </Link>
 
             <a
-              href="http://localhost:5000/api/docs"
+              href="/api/v1/system/docs"
               target="_blank"
               rel="noopener noreferrer"
               className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-medium border border-zinc-200 dark:border-zinc-700 transition"
-              title="Buka Swagger UI Explorer di server port 5000"
+              title="Lihat Spesifikasi OpenAPI JSON murni (/api/v1/system/docs)"
             >
-              <Globe className="w-3.5 h-3.5" />
-              <span>Swagger /api/docs</span>
+              <Code2 className="w-3.5 h-3.5 text-zinc-500" />
+              <span>OpenAPI JSON</span>
               <ExternalLink className="w-3 h-3 text-zinc-400" />
             </a>
 

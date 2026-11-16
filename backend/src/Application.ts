@@ -65,12 +65,21 @@ export class Application {
     const projectController = new ProjectController(this.io);
 
     // ==========================================
-    // 1. Root Discovery & Interactive API Docs
+    // 1. Root Discovery & Interactive API Docs (Unified URL: /docs)
     // ==========================================
+    const redirectToUnifiedDocs = (req: express.Request, res: express.Response): void => {
+      const host = req.get('host') || '';
+      if (host.includes(':5000')) {
+        res.redirect('http://localhost:3000/docs');
+      } else {
+        res.redirect('/docs');
+      }
+    };
+
     this.app.get('/', (req, res) => {
-      // Jika request menerima HTML (misal dari browser), arahkan ke /api/docs
+      // Jika request menerima HTML (misal dari browser), arahkan langsung ke /docs
       if (req.accepts('html')) {
-        res.redirect('/api/docs');
+        redirectToUnifiedDocs(req, res);
         return;
       }
       systemController.getRootCatalog(req, res);
@@ -78,10 +87,19 @@ export class Application {
     this.app.get('/api', systemController.getRootCatalog);
     this.app.get('/api/v1', systemController.getRootCatalog);
 
-    // Interactive Swagger / HTML API Explorer
-    this.app.get('/docs', systemController.getSwaggerHtml);
-    this.app.get('/api/docs', systemController.getSwaggerHtml);
-    this.app.get('/api/v1/docs', systemController.getSwaggerHtml);
+    // Dokumentasi Tunggal: Semua alias (/api/docs, /api/v1/docs) diarahkan ke /docs
+    this.app.get('/api/docs', redirectToUnifiedDocs);
+    this.app.get('/api/v1/docs', redirectToUnifiedDocs);
+    this.app.get('/docs', (req, res) => {
+      const host = req.get('host') || '';
+      if (host.includes(':5000')) {
+        res.redirect('http://localhost:3000/docs');
+        return;
+      }
+      systemController.getSwaggerHtml(req, res);
+    });
+
+    // Endpoint spesifikasi OpenAPI JSON murni (mesin/alat testing)
     this.app.get('/api/docs/json', systemController.getApiDocs);
     this.app.get('/api/v1/system/docs', systemController.getApiDocs);
 

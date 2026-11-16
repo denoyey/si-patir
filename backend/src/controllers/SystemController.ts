@@ -143,7 +143,7 @@ export class SystemController {
       version: API_METADATA.version,
       description: API_METADATA.description,
       status: 'operational',
-      documentation: `${req.protocol}://${req.get('host')}/api/docs`,
+      documentation: `${req.protocol}://${req.get('host')}/docs`,
       endpoints_count: API_ENDPOINTS.length,
       endpoints: groupedEndpoints,
     });

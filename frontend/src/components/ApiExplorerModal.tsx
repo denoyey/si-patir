@@ -4,7 +4,6 @@ import axios from 'axios';
 import {
   X,
   Code2,
-  ExternalLink,
   Play,
   Copy,
   Check,
@@ -221,21 +220,11 @@ export function ApiExplorerModal({ isOpen, onClose }: ApiExplorerModalProps) {
               to="/docs"
               onClick={onClose}
               className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-200 dark:border-blue-800 text-xs font-semibold transition cursor-pointer"
-              title="Buka Portal Dokumentasi Lengkap & Lab Keamanan"
+              title="Buka Portal Dokumentasi Lengkap & Lab Keamanan di /docs"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span>Full Docs &amp; Security</span>
+              <span>Dokumentasi Lengkap (/docs)</span>
             </Link>
-            <a
-              href="http://localhost:5000/api/docs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-medium transition cursor-pointer"
-              title="Buka Swagger / Full API Explorer di tab baru"
-            >
-              <span>Swagger</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
             <button
               type="button"
               onClick={onClose}

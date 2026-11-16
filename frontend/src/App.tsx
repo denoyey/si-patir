@@ -43,7 +43,8 @@ export function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/docs" element={<DocumentationPage />} />
-          <Route path="/api-docs" element={<DocumentationPage />} />
+          <Route path="/api-docs" element={<Navigate to="/docs" replace />} />
+          <Route path="/api/docs" element={<Navigate to="/docs" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <BackToTop />
