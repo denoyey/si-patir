@@ -27,6 +27,7 @@ Diagram ini memetakan aktor-aktor yang berinteraksi dengan sistem dan kasus peng
 5. **Gateway SI-PATIR (Internal Core)**: Memvalidasi keamanan tanda tangan kriptografi, memproses state machine tugas, dan menyiarkan data realtime.
 
 ```mermaid
+%%{init: {'theme': 'default', 'themeVariables': { 'fontSize': '12px' }}}%%
 flowchart LR
     %% Actors
     dev(["👨‍💻 Developer / Mahasiswa"])
@@ -34,18 +35,18 @@ flowchart LR
     github(["🌐 GitHub Cloud"])
     discord(["💬 Discord Webhook"])
 
-    subgraph SIPATIR ["Sistem SI-PATIR (Boundary)"]
-        UC1(["UC-01: Push Commit Berformat Tugas"])
-        UC2(["UC-02: Eksekusi Web Git Terminal"])
-        UC3(["UC-03: Kelola Kartu Tugas (CRUD)"])
-        UC4(["UC-04: Lihat Klasemen & Analitik Kontribusi"])
-        UC5(["UC-05: Ingest & Verifikasi Webhook HMAC"])
-        UC6(["UC-06: Mutasi Status Tugas Otomatis"])
-        UC7(["UC-07: Siarkan Log Realtime via WebSocket"])
-        UC8(["UC-08: Kirim Notifikasi Discord Embed"])
-        UC9(["UC-09: Uji Lab Keamanan & Eksplorasi API"])
-        UC10(["UC-10: Ekspor Laporan Sprint (PDF & CSV)"])
-        UC11(["UC-11: Konfigurasi Multi-Repo Workspace"])
+    subgraph SIPATIR ["Sistem SI-PATIR (System Boundary)"]
+        UC1(["UC-01: Push Commit<br/>Berformat Tugas"])
+        UC2(["UC-02: Eksekusi Web<br/>Git Terminal"])
+        UC3(["UC-03: Kelola Kartu<br/>Tugas (CRUD)"])
+        UC4(["UC-04: Lihat Klasemen &<br/>Analitik Kontribusi"])
+        UC5(["UC-05: Ingest & Verifikasi<br/>Webhook HMAC"])
+        UC6(["UC-06: Mutasi Status<br/>Tugas Otomatis"])
+        UC7(["UC-07: Siarkan Log Realtime<br/>via WebSocket"])
+        UC8(["UC-08: Kirim Notifikasi<br/>Discord Embed"])
+        UC9(["UC-09: Uji Lab Keamanan &<br/>Eksplorasi API"])
+        UC10(["UC-10: Ekspor Laporan Sprint<br/>(PDF & CSV)"])
+        UC11(["UC-11: Konfigurasi<br/>Multi-Repo Workspace"])
     end
 
     %% Developer Relations
@@ -78,37 +79,38 @@ flowchart LR
 Diagram ini menggambarkan alur kerja (*workflow*) end-to-end saat developer melakukan push commit ke repositori Git hingga notifikasi disiarkan ke Discord dan dashboard web.
 
 ```mermaid
+%%{init: {'theme': 'default', 'themeVariables': { 'fontSize': '12px' }}}%%
 flowchart TD
-    Start(["● Mulai"]) --> A1["Developer melakukan Git Push commit dengan format: [done #TASK-XX]"]
-    A1 --> A2["GitHub Remote Repository mendeteksi event 'push'"]
-    A2 --> A3["GitHub mengirimkan payload HTTP POST JSON ke endpoint /api/v1/webhooks/github"]
+    Start(["● Mulai"]) --> A1["Developer Push Commit Git<br/>Format: [done #TASK-XX]"]
+    A1 --> A2["GitHub Remote Repository<br/>Mendeteksi Event 'push'"]
+    A2 --> A3["GitHub Kirim HTTP POST JSON<br/>ke /api/v1/webhooks/github"]
     
-    A3 --> A4{"Apakah IP melampaui batas Rate Limiter (30 req/menit)?"}
-    A4 -- "Ya" --> E1["Tolak Request: HTTP 429 Too Many Requests"] --> EndFail(["● Selesai (Ditolak)"])
+    A3 --> A4{"IP Melebihi Rate Limiter?<br/>(Batas: 30 req / menit)"}
+    A4 -- "Ya" --> E1["Tolak Request:<br/>HTTP 429 Too Many Requests"] --> EndFail(["● Selesai (Ditolak)"])
     
-    A4 -- "Tidak" --> A5{"Apakah ukuran Payload > 100 Kilobyte?"}
-    A5 -- "Ya" --> E2["Tolak Request: HTTP 413 Payload Too Large"] --> EndFail
+    A4 -- "Tidak" --> A5{"Ukuran Payload > 100kb?<br/>(Proteksi Anti-JSON Bomb)"}
+    A5 -- "Ya" --> E2["Tolak Request:<br/>HTTP 413 Payload Too Large"] --> EndFail
     
-    A5 -- "Tidak" --> A6["Security Middleware mengekstrak header X-Hub-Signature-256"]
-    A6 --> A7["Hitung Hash HMAC-SHA256 payload dengan Kunci Rahasia Proyek"]
-    A7 --> A8{"Apakah Signature Cocok (crypto.timingSafeEqual)?"}
-    A8 -- "Tidak Cocok (Palsu/Spoofed)" --> E3["Tolak Request: HTTP 401 Unauthorized"] --> EndFail
+    A5 -- "Tidak" --> A6["Security Middleware Ekstrak<br/>Header X-Hub-Signature-256"]
+    A6 --> A7["Hitung Hash HMAC-SHA256 Payload<br/>dengan Secret Key Proyek"]
+    A7 --> A8{"Signature Cocok & Sah?<br/>(crypto.timingSafeEqual)"}
+    A8 -- "Tidak Cocok (Palsu)" --> E3["Tolak Request:<br/>HTTP 401 Unauthorized"] --> EndFail
     
-    A8 -- "Cocok (Sah)" --> A9["CommitParserService membersihkan pesan commit (Anti-XSS/ReDoS)"]
-    A9 --> A10{"Apakah pesan memuat tag penyelesaian [done #TASK-XX]?"}
+    A8 -- "Cocok (Valid)" --> A9["CommitParserService Sanitasi Pesan<br/>(Proteksi Anti-XSS & ReDoS)"]
+    A9 --> A10{"Pesan Mengandung Tag Tugas?<br/>Format: [done #TASK-XX]"}
     
-    A10 -- "Tidak (Commit Biasa)" --> B1["Perbarui total commit author di tabel members (+1)"]
-    B1 --> B2["Catat aktivitas ke tabel activity_logs (event: PUSH_EVENT)"]
-    B2 --> B3["WebSocket menyiarkan event COMMIT_PUSHED ke browser"]
+    A10 -- "Tidak (Commit Biasa)" --> B1["Perbarui Total Commit Author<br/>di Tabel members (+1)"]
+    B1 --> B2["Catat Aktivitas ke MySQL<br/>activity_logs (PUSH_EVENT)"]
+    B2 --> B3["WebSocket Siarkan Event<br/>COMMIT_PUSHED ke Browser"]
     
-    A10 -- "Ya (Ada Tag Tugas)" --> C1["TaskRepository memperbarui status kartu tugas di MySQL menjadi 'Done'"]
-    C1 --> C2["MemberRepository memperbarui total commit & tasks_done (+1)"]
-    C2 --> C3["ActivityLogRepository mencatat event TASK_COMPLETED ke MySQL"]
-    C3 --> C4["DiscordWebhookService menyusun pesan Rich Embed berwarna hijau"]
-    C4 --> C5["Kirim payload Embed secara asynchronous ke API Discord Webhook"]
-    C5 --> C6["WebSocket (Socket.io) menyiarkan event TASK_COMPLETED ke Dashboard React"]
+    A10 -- "Ya (Ada Tag Tugas)" --> C1["TaskRepository Update Status Tugas<br/>di MySQL Menjadi 'Done'"]
+    C1 --> C2["MemberRepository Update Total<br/>Commit & tasks_done (+1)"]
+    C2 --> C3["ActivityLogRepository Catat Event<br/>TASK_COMPLETED ke MySQL"]
+    C3 --> C4["DiscordWebhookService Susun<br/>Pesan Rich Embed Hijau"]
+    C4 --> C5["Kirim Payload Embed Async<br/>ke API Discord Webhook"]
+    C5 --> C6["WebSocket (Socket.io) Siarkan Event<br/>TASK_COMPLETED ke React"]
     
-    B3 --> D1["Web Frontend React menangkap event dan meng-update UI secara instan tanpa reload"]
+    B3 --> D1["Frontend React Tangkap Event<br/>Update UI Instan Tanpa Reload"]
     C6 --> D1
     D1 --> Success(["● Selesai (Berhasil & Realtime)"])
 ```
@@ -122,17 +124,17 @@ Diagram sekuensial ini merinci urutan pertukaran pesan antarobjek sistem secara 
 sequenceDiagram
     autonumber
     actor Dev as Developer
-    participant Git as Git Client / Web Git
+    participant Git as Web / Git CLI
     participant GH as GitHub Cloud
-    participant Sec as SecurityMiddleware
-    participant Ctrl as WebhookController
-    participant Parser as CommitParserService
-    participant TaskRepo as TaskRepository
-    participant DB as MySQL Database
-    participant Disc as DiscordWebhookService
-    participant DiscordAPI as Discord API Server
-    participant WSS as Socket.io Server
-    participant UI as React Dashboard UI
+    participant Sec as Security Gate
+    participant Ctrl as WebhookCtrl
+    participant Parser as CommitParser
+    participant TaskRepo as TaskRepo
+    participant DB as MySQL DB
+    participant Disc as DiscordService
+    participant DiscordAPI as Discord API
+    participant WSS as Socket.io
+    participant UI as React Dashboard
 
     Dev->>Git: git commit -m "Fix core engine [done #TASK-02]" && git push
     Git->>GH: Push commit ke branch 'main'
@@ -146,7 +148,7 @@ sequenceDiagram
     alt Signature Tidak Valid
         Sec-->>GH: 401 Unauthorized (Signature Mismatch)
     else Signature Valid
-        Sec->>Ctrl: Teruskan Request ke handleGitHubWebhook(req, res)
+        Sec->>Ctrl: handleGitHubWebhook(req, res)
         deactivate Sec
         activate Ctrl
         
@@ -158,25 +160,25 @@ sequenceDiagram
         Ctrl->>TaskRepo: updateStatus('TASK-02', 'Done')
         activate TaskRepo
         TaskRepo->>DB: UPDATE tasks SET status='Done' WHERE task_code='TASK-02'
-        DB-->>TaskRepo: OK (1 row affected)
+        DB-->>TaskRepo: OK (1 baris diupdate)
         deactivate TaskRepo
         
         Ctrl->>DB: INSERT INTO activity_logs (TASK_COMPLETED, ...)
         DB-->>Ctrl: Log Tersimpan
         
-        par Outbound Discord Notification
+        par Notifikasi Eksternal Discord
             Ctrl->>Disc: sendTaskCompletion(taskDetails, webhookUrl)
             activate Disc
             Disc->>DiscordAPI: POST Webhook Payload (Rich Embed)
-            DiscordAPI-->>Disc: 204 No Content (Terkirim)
+            DiscordAPI-->>Disc: 204 No Content (Sukses)
             deactivate Disc
-        and Realtime WebSocket Broadcast
+        and Broadcast Realtime WebSocket
             Ctrl->>WSS: emit('activity_update', { type: 'TASK_COMPLETED', ... })
             activate WSS
-            WSS->>UI: Broadcast event WebSocket ke semua klien aktif
+            WSS->>UI: Broadcast event WebSocket ke browser aktif
             deactivate WSS
             activate UI
-            UI->>UI: Update state tabel tugas & analitik tanpa reload browser
+            UI->>UI: Update state tabel tugas & analitik tanpa reload
             deactivate UI
         end
         
@@ -344,10 +346,11 @@ stateDiagram-v2
 Diagram ini memvisualisasikan arsitektur penyebaran fisik perangkat keras, wadah perangkat lunak (*containers* / *nodes*), serta protokol jaringan penghubung antar-subsistem.
 
 ```mermaid
+%%{init: {'theme': 'default', 'themeVariables': { 'fontSize': '11px' }}}%%
 flowchart TD
-    subgraph ClientTier ["🖥️ Client Tier (Browser Pengguna / Mahasiswa / Dosen)"]
-        Browser["🌐 Web Browser (Chrome / Safari / Firefox)"]
-        ReactApp["⚛️ React 19 Single Page Application"]
+    subgraph ClientTier ["🖥️ Client Tier<br/>(Browser Mahasiswa & Dosen)"]
+        Browser["🌐 Web Browser<br/>(Chrome / Safari / Firefox)"]
+        ReactApp["⚛️ React 19 Single Page App<br/>(Dashboard & Docs)"]
         Tailwind["🎨 Tailwind CSS v4 Engine"]
         SocketClient["⚡ Socket.io WebSocket Client"]
         Browser --> ReactApp
@@ -356,17 +359,17 @@ flowchart TD
     end
 
     subgraph EdgeTier ["🛡️ Edge & Public Gateway Tier"]
-        CloudflareTunnel["☁️ Public HTTPS Tunnel (Cloudflare / LocalTunnel)"]
-        ReverseProxy["🔒 SSL/TLS Termination (HTTPS)"]
+        CloudflareTunnel["☁️ Public HTTPS Tunnel<br/>(Cloudflare / LocalTunnel)"]
+        ReverseProxy["🔒 SSL/TLS Termination<br/>(HTTPS Reverse Proxy)"]
         CloudflareTunnel --> ReverseProxy
     end
 
-    subgraph AppServerTier ["⚙️ Application Server Tier (Node.js 22 + Express 5)"]
-        ExpressApp["🚀 Express REST API Gateway (:5000)"]
-        SecMiddleware["🛡️ Security Shields: Helmet CSP, RateLimiter, BodyLimiter"]
-        CryptoEngine["🔐 Node.js Crypto Engine (HMAC-SHA256, timingSafeEqual)"]
+    subgraph AppServerTier ["⚙️ Application Server Tier<br/>(Node.js 22 + Express 5)"]
+        ExpressApp["🚀 Express REST API<br/>Gateway (Port :5000)"]
+        SecMiddleware["🛡️ Security Shields:<br/>Helmet, RateLimiter, BodyLimiter"]
+        CryptoEngine["🔐 Node.js Crypto Engine<br/>HMAC-SHA256, timingSafeEqual"]
         SocketServer["⚡ Socket.io WebSocket Server"]
-        StateEngine["🔄 Task State & Commit Parser Engine"]
+        StateEngine["🔄 Task State Engine &<br/>Commit Parser Service"]
 
         ExpressApp --> SecMiddleware
         SecMiddleware --> CryptoEngine
@@ -375,26 +378,26 @@ flowchart TD
     end
 
     subgraph DataTier ["💾 Database & Storage Tier"]
-        MySQLServer[("🐬 MySQL 8.0 Server (:3306)\nDatabase: sipatir_db\nTabel: members, tasks, projects, activity_logs")]
-        MemoryFallback[("🧠 In-Memory RAM Storage Fallback\n(Aktif saat MySQL Offline)")]
+        MySQLServer[("🐬 MySQL 8.0 Server (:3306)<br/>Database: sipatir_db<br/>Tabel: members, tasks, activity_logs")]
+        MemoryFallback[("🧠 In-Memory Storage Fallback<br/>(Aktif otomatis saat MySQL Offline)")]
     end
 
     subgraph ExternalCloudTier ["☁️ Third-Party Cloud Services Tier"]
-        GitHubCloud["🐙 GitHub.com Cloud\n(Webhook Dispatcher)"]
-        DiscordCloud["💬 Discord API Cloud\n(Webhook Notification Receiver)"]
+        GitHubCloud["🐙 GitHub.com Cloud<br/>(Webhook Dispatcher)"]
+        DiscordCloud["💬 Discord API Cloud<br/>(Webhook Notification Receiver)"]
     end
 
     %% Network Connections
-    GitHubCloud -- "HTTPS POST (Public Webhook Event)" --> CloudflareTunnel
-    CloudflareTunnel -- "Reverse Proxy Forwarding" --> ExpressApp
+    GitHubCloud -- "HTTPS POST<br/>(Public Webhook Event)" --> CloudflareTunnel
+    CloudflareTunnel -- "Reverse Proxy<br/>Forwarding" --> ExpressApp
     
-    Browser -- "HTTP GET / POST / PATCH (REST API)" --> ExpressApp
-    SocketServer <-- "WSS Bi-Directional Stream (Event: activity_update)" --> SocketClient
+    Browser -- "HTTP REST API<br/>(GET / POST / PATCH)" --> ExpressApp
+    SocketServer <-- "WSS Bi-Directional Stream<br/>(Event: activity_update)" --> SocketClient
 
-    StateEngine -- "TCP Port 3306 (MySQL2 Prepared Statements)" --> MySQLServer
-    StateEngine -.->|Fallback Otomatis Jika Offline| MemoryFallback
+    StateEngine -- "TCP Port 3306<br/>(Prepared Statements)" --> MySQLServer
+    StateEngine -.->|In-Memory Fallback<br/>Jika MySQL Offline| MemoryFallback
 
-    ExpressApp -- "Outbound HTTPS POST (Rich Embed JSON)" --> DiscordCloud
+    ExpressApp -- "Outbound HTTPS POST<br/>(Rich Embed JSON)" --> DiscordCloud
 ```
 
 ---
