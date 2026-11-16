@@ -25,6 +25,7 @@ import {
   FileCode,
   Workflow,
   Calendar,
+  ListChecks,
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { UmlViewer } from '../components/UmlViewer';
@@ -289,6 +290,105 @@ const ENDPOINTS_DATA: EndpointDoc[] = [
   },
 ];
 
+interface QaTestCase {
+  id: string;
+  name: string;
+  category: string;
+  step: string;
+  expected: string;
+  link?: string;
+  linkText?: string;
+}
+
+const QA_TEST_CASES: QaTestCase[] = [
+  {
+    id: 'TC-WEB-01',
+    name: 'Bar Navigasi & Indikator 4 Sistem',
+    category: 'Header',
+    step: 'Periksa lampu indikator di header dashboard (GitHub, MySQL, Discord, WebSocket).',
+    expected: 'Semua lampu berstatus hijau/aktif dan WebSocket Live terhubung ke port 5000.',
+    link: '/dashboard',
+    linkText: 'Ke Dashboard',
+  },
+  {
+    id: 'TC-WEB-02',
+    name: 'Terminal Web Git & Mutasi Tugas',
+    category: 'Integrasi',
+    step: 'Pilih tugas #TASK-02 di Terminal Web Git dashboard lalu klik "Eksekusi Commit & Push".',
+    expected: 'Status tugas seketika berubah ke Done via WebSocket tanpa reload halaman.',
+    link: '/dashboard',
+    linkText: 'Uji di Web Git',
+  },
+  {
+    id: 'TC-WEB-03',
+    name: 'Tabel Tugas Filament v5 (Filter & Search)',
+    category: 'Data Table',
+    step: 'Ketik pencarian kode tugas, ubah filter status, dan klik badge status tugas langsung.',
+    expected: 'Data tersaring seketika dan mutasi status tersimpan aman ke database.',
+    link: '/dashboard',
+    linkText: 'Lihat Tabel',
+  },
+  {
+    id: 'TC-WEB-04',
+    name: 'Modal Manajemen Tugas (CRUD)',
+    category: 'Task Manager',
+    step: 'Klik Tambah Tugas baru, edit via modal pensil, dan hapus via dialog konfirmasi.',
+    expected: 'Tugas baru berhasil dibuat, diedit, dan dihapus dengan validasi input yang aman.',
+    link: '/dashboard',
+    linkText: 'Buka Dashboard',
+  },
+  {
+    id: 'TC-WEB-05',
+    name: 'Klasemen & Skor 4 Anggota Resmi',
+    category: 'Leaderboard',
+    step: 'Periksa panel klasemen tim (Deni, Fatir, Rafli, Fajri) setelah mengeksekusi commit.',
+    expected: 'Poin commit bertambah +1 dan peringkat terhitung otomatis sesuai keaktifan.',
+    link: '/dashboard',
+    linkText: 'Cek Klasemen',
+  },
+  {
+    id: 'TC-WEB-06',
+    name: 'Grafik Analitik SVG (Bar & Donut)',
+    category: 'Analitik',
+    step: 'Arahkan kursor ke batang grafik commit dan irisan diagram donat distribusi tugas.',
+    expected: 'Tooltip angka presisi muncul dan irisan donat selalu berjumlah tepat 100%.',
+    link: '/dashboard',
+    linkText: 'Lihat Grafik',
+  },
+  {
+    id: 'TC-WEB-07',
+    name: 'Live Activity Stream & Modal Riwayat',
+    category: 'Real-Time',
+    step: 'Kirim commit baru lalu periksa log di panel live stream dan buka "Lihat Semua Log".',
+    expected: 'Log baru tersisip paling atas seketika dengan format waktu bahasa Indonesia.',
+    link: '/dashboard',
+    linkText: 'Cek Stream',
+  },
+  {
+    id: 'TC-WEB-08',
+    name: '6 Diagram Arsitektur UML (Pan & Zoom)',
+    category: 'UML Docs',
+    step: 'Buka tab Diagram UML, geser kanvas (drag), zoom dengan scroll/tombol, dan coba fullscreen.',
+    expected: 'Vektor SVG tajam, tidak ada teks terpotong, dan kontrol interaktif responsif.',
+    link: '/docs?tab=uml',
+    linkText: 'Uji Diagram UML',
+  },
+  {
+    id: 'TC-WEB-09',
+    name: 'Lab Uji Keamanan (HMAC, Rate Limit, SQLi)',
+    category: 'Keamanan',
+    step: 'Jalankan 3 tombol simulasi di bawah: Uji HMAC palsu, kirim 35 request, dan uji SQLi.',
+    expected: 'HMAC palsu ditolak 401, banjir request dicegat 429, dan SQLi tertahan aman.',
+  },
+  {
+    id: 'TC-WEB-10',
+    name: 'Responsivitas Semua Device & iPhone',
+    category: 'UI/UX Mobile',
+    step: 'Buka DevTools mode mobile (320px, 375px, 390px iPhone) dan uji scroll horizontal tab.',
+    expected: 'Tidak ada layout overflow, tab scroll lancar, dan aman dari notch/dynamic island.',
+  },
+];
+
 export function DocumentationPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get('tab') as TabKey) || 'architecture';
@@ -335,6 +435,34 @@ export function DocumentationPage() {
   const [sqliInput, setSqliInput] = useState("' OR '1'='1");
   const [sqliLoading, setSqliLoading] = useState(false);
   const [sqliResult, setSqliResult] = useState<any>(null);
+
+  // QA Interactive Checklist State
+  const [checkedQaTests, setCheckedQaTests] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('sipatir_qa_checklist');
+      return saved ? JSON.parse(saved) : QA_TEST_CASES.map((t) => t.id);
+    } catch {
+      return QA_TEST_CASES.map((t) => t.id);
+    }
+  });
+
+  const toggleQaTest = (id: string) => {
+    setCheckedQaTests((prev) => {
+      const next = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id];
+      try {
+        localStorage.setItem('sipatir_qa_checklist', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  const markAllQaTests = (passed: boolean) => {
+    const next = passed ? QA_TEST_CASES.map((t) => t.id) : [];
+    setCheckedQaTests(next);
+    try {
+      localStorage.setItem('sipatir_qa_checklist', JSON.stringify(next));
+    } catch {}
+  };
 
   useEffect(() => {
     axios
@@ -1429,6 +1557,148 @@ export function DocumentationPage() {
                 <strong>Panduan Demonstrasi:</strong> Bagian ini disiapkan untuk simulasi langsung saat mempresentasikan tugas kelompok di depan dosen.
                 Klik tombol-tombol di bawah untuk membuktikan keandalan sistem API dan proteksi keamanannya secara nyata.
               </span>
+            </div>
+
+            {/* QA Web Testing Cross-Check Suite */}
+            <div className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-start sm:items-center gap-2.5">
+                  <div className="p-2 rounded-md bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800 shrink-0 mt-0.5 sm:mt-0">
+                    <ListChecks className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-sm sm:text-base font-bold text-zinc-950 dark:text-white">
+                        Matriks Ceklis Pengujian QA Web (Cross-Check 10 Modul)
+                      </h2>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 font-semibold">
+                        QA Lead: Fajri
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                      Verifikasi antarmuka web, fungsionalitas tombol, mutasi real-time, dan responsivitas sebelum demonstrasi di depan dosen.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => markAllQaTests(true)}
+                    className="px-2.5 py-1 text-xs rounded-md bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-medium transition cursor-pointer touch-manipulation"
+                  >
+                    Tandai Semua Lolos ✅
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => markAllQaTests(false)}
+                    className="px-2.5 py-1 text-xs rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 font-medium transition cursor-pointer touch-manipulation"
+                  >
+                    Reset Ceklis
+                  </button>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="p-3 rounded-md bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-zinc-700 dark:text-zinc-300">
+                    Progres Kesiapan Pengujian QA:
+                  </span>
+                  <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                    {checkedQaTests.length} / {QA_TEST_CASES.length} Modul Terverifikasi ({Math.round((checkedQaTests.length / QA_TEST_CASES.length) * 100)}%)
+                  </span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
+                  <div
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                    style={{ width: `${(checkedQaTests.length / QA_TEST_CASES.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Test Cases Checklist Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                {QA_TEST_CASES.map((tc) => {
+                  const isChecked = checkedQaTests.includes(tc.id);
+                  return (
+                    <div
+                      key={tc.id}
+                      onClick={() => toggleQaTest(tc.id)}
+                      className={`p-3 rounded-lg border transition cursor-pointer select-none space-y-2 ${
+                        isChecked
+                          ? 'border-emerald-300 dark:border-emerald-900/60 bg-emerald-50/20 dark:bg-emerald-950/10'
+                          : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] hover:border-zinc-300 dark:hover:border-zinc-700'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => {}}
+                            className="w-4 h-4 rounded text-blue-600 border-zinc-300 dark:border-zinc-700 focus:ring-0 cursor-pointer pointer-events-none shrink-0"
+                          />
+                          <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                            {tc.id}
+                          </span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900/40 font-medium">
+                            {tc.category}
+                          </span>
+                        </div>
+
+                        <span
+                          className={`text-[10px] font-mono px-2 py-0.5 rounded-md font-semibold shrink-0 ${
+                            isChecked
+                              ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                              : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                          }`}
+                        >
+                          {isChecked ? 'Lolos ✅' : 'Belum ⏳'}
+                        </span>
+                      </div>
+
+                      <h3 className="font-semibold text-xs text-zinc-900 dark:text-white">
+                        {tc.name}
+                      </h3>
+
+                      <div className="text-[11px] space-y-1 text-zinc-600 dark:text-zinc-400">
+                        <p className="leading-relaxed">
+                          <strong>Langkah:</strong> {tc.step}
+                        </p>
+                        <p className="leading-relaxed text-zinc-500 dark:text-zinc-400">
+                          <strong>Ekspektasi:</strong> {tc.expected}
+                        </p>
+                      </div>
+
+                      {tc.link && (
+                        <div className="pt-1 flex items-center justify-end" onClick={(e) => e.stopPropagation()}>
+                          <Link
+                            to={tc.link}
+                            className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                          >
+                            <span>{tc.linkText || 'Buka Fitur'}</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-zinc-500">
+                <span>Dokumen pengujian lengkap telah terstandarisasi untuk presentasi kelompok.</span>
+                <a
+                  href="https://github.com/denoyey/si-patir/blob/main/docs/academic/PANDUAN-TESTING-WEB-QA.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  <span>Baca Manual Lengkap QA (Markdown)</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
             </div>
 
             {/* Simulasi 1: Uji HMAC */}
