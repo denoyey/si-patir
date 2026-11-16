@@ -107,6 +107,13 @@ export class WebhookController {
         await this.memberRepo.incrementStats(author, false);
         await this.logRepo.record('PUSH_EVENT', author, commitMsg, '', 'SUCCESS');
 
+        // Notifikasi commit reguler ke Discord
+        await this.discordService.sendCommitPush({
+          developer: author,
+          commitMsg,
+          commitUrl,
+        }, discordWebhookUrl);
+
         this.io.emit('activity_update', {
           type: 'COMMIT_PUSHED',
           author,
@@ -128,10 +135,11 @@ export class WebhookController {
     const activeProject = await this.projectRepo.findActive();
     const currentRepo = activeProject?.github_repo || this.config.githubRepo;
     const defaultDev = currentRepo.split('/')[0] || 'denoyey';
-    const { developer, message = 'Fix bug tombol login [done #TASK-02]' } = req.body;
+    const { developer, message, commitMsg: reqCommitMsg, command } = req.body;
+    const rawMsg = message || reqCommitMsg || command || 'Update fitur via terminal simulator';
 
-    const commitMsg = this.parserService.sanitizeCommitMessage(message);
-    const taskCode = this.parserService.extractTaskCode(commitMsg);
+    const commitMsg = this.parserService.sanitizeCommitMessage(rawMsg);
+    const taskCode = req.body.taskCode || this.parserService.extractTaskCode(commitMsg);
 
     const discordWebhookUrl = activeProject?.discord_webhook_url;
 
@@ -156,6 +164,8 @@ export class WebhookController {
     const commitSha = Math.random().toString(16).substring(2, 9);
     const commitUrl = `https://github.com/${currentRepo}/commit/${commitSha}`;
 
+    const shouldNotifyDiscord = req.body.notifyDiscord !== false;
+
     if (taskCode) {
       const task = await this.taskRepo.findByCode(taskCode);
       const taskTitle = task ? task.title : 'Integrasi Fitur';
@@ -164,8 +174,8 @@ export class WebhookController {
       await this.memberRepo.incrementStats(author, true);
       await this.logRepo.record('TASK_COMPLETED', author, commitMsg, taskCode, 'SUCCESS');
 
-      // Kirim notifikasi Discord jika penyelesaian tugas nyata
-      if (req.body.notifyDiscord === true) {
+      // Kirim notifikasi Discord jika penyelesaian tugas nyata (default true)
+      if (shouldNotifyDiscord) {
         await this.discordService.sendTaskCompletion({
           taskCode,
           taskTitle,
@@ -188,6 +198,15 @@ export class WebhookController {
       await this.memberRepo.incrementStats(author, false);
       await this.logRepo.record('PUSH_EVENT', author, commitMsg, '', 'SUCCESS');
 
+      // Kirim notifikasi Discord untuk commit reguler / spam test (default true)
+      if (shouldNotifyDiscord) {
+        await this.discordService.sendCommitPush({
+          developer: author,
+          commitMsg,
+          commitUrl,
+        }, discordWebhookUrl);
+      }
+
       this.io.emit('activity_update', {
         type: 'COMMIT_PUSHED',
         author,
@@ -203,7 +222,7 @@ export class WebhookController {
       taskCode,
       commitMsg,
       commitUrl,
-      message: 'Commit web berhasil diproses dan disinkronkan ke Database.',
+      message: 'Commit web berhasil diproses dan disinkronkan ke Database serta Discord.',
     });
   };
 }

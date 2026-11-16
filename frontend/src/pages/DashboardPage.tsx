@@ -639,16 +639,18 @@ export function DashboardPage() {
       await axios.post('/api/v1/webhooks/simulate', {
         developer: effectiveAuthor,
         commitMsg: commitMsg || 'Update fitur via terminal simulator',
+        message: commitMsg || 'Update fitur via terminal simulator',
         taskCode,
+        notifyDiscord: true,
       });
 
       setTerminalOutput(
-        `[OK] Commit @${effectiveAuthor}: ${taskCode ? `Task #${taskCode} selesai.` : 'Push event tercatat.'}`
+        `[OK] Commit @${effectiveAuthor}: ${taskCode ? `Task #${taskCode} selesai.` : 'Push event tercatat.'} (Terkirim ke Discord & WebSocket)`
       );
 
       setActiveToast({
         title: taskCode ? `Simulasi Selesai #${taskCode}` : 'Simulasi Commit Berhasil',
-        desc: `@${effectiveAuthor}: "${commitMsg}". Klasemen & Database terupdate (Discord tetap tenang tanpa spam).`,
+        desc: `@${effectiveAuthor}: "${commitMsg}". Terkirim ke Discord Webhook & WebSocket update.`,
       });
       setTimeout(() => setActiveToast(null), 4000);
 

@@ -69,5 +69,64 @@ export class DiscordNotificationService {
       return false;
     }
   }
+
+  public async sendCommitPush(
+    dto: { developer: string; commitMsg: string; commitUrl?: string },
+    overrideWebhookUrl?: string
+  ): Promise<boolean> {
+    const webhookUrl = overrideWebhookUrl || this.config.discordWebhookUrl;
+
+    if (!webhookUrl || !webhookUrl.startsWith('https://discord.com/api/webhooks/')) {
+      console.log('[DiscordNotificationService] Webhook URL belum diisi. Lewati dispatch.');
+      return false;
+    }
+
+    try {
+      const embedPayload = {
+        title: '🚀 Commit Terdeteksi! [SI-PATIR]',
+        color: 0x3b82f6, // Blue
+        description: `Aktivitas commit baru dari **${dto.developer}** telah diterima oleh sistem.`,
+        fields: [
+          {
+            name: '👤 Developer',
+            value: `\`${dto.developer}\``,
+            inline: true,
+          },
+          {
+            name: '💬 Pesan Commit',
+            value: `> *"${dto.commitMsg}"*`,
+            inline: false,
+          },
+          {
+            name: '🔗 Bukti Commit GitHub',
+            value: dto.commitUrl ? `[Lihat Perubahan di GitHub](${dto.commitUrl})` : `*Commit lokal terverifikasi*`,
+            inline: false,
+          },
+        ],
+        footer: {
+          text: 'SI-PATIR Sistem Integrasi Pemantau Aktivitas Tugas',
+        },
+        timestamp: new Date().toISOString(),
+      };
+
+      await axios.post(
+        webhookUrl,
+        {
+          username: 'SI-PATIR Bot',
+          avatar_url: 'https://cdn-icons-png.flaticon.com/512/906/906324.png',
+          embeds: [embedPayload],
+        },
+        {
+          timeout: 5000,
+        }
+      );
+
+      console.log(`[DiscordNotificationService] Sukses dispatch notifikasi commit: ${dto.commitMsg}`);
+      return true;
+    } catch (error: any) {
+      console.error('[DiscordNotificationService] Error:', error.response?.data || error.message);
+      return false;
+    }
+  }
 }
 
