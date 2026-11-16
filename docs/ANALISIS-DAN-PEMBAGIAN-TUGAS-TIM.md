@@ -288,25 +288,11 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 
 ## 4. Jadwal Sprint & Rencana Tindak Lanjut Tim (Sprint Action Plan)
 
-```
-[ FASE 1: Core Foundation & Integrasi Sistem ] ──> STATUS: 100% SELESAI ✅
-  ├─ Deni   : Backend Gateway REST API v1, Security Hardening, & Portal Dokumentasi /docs
-  ├─ Fatir  : Setup Task State Engine, MySQL DDL Schema, & Database Seeder 4 Anggota
-  ├─ Rafli  : Frontend Dashboard React 19, Filament v5 Data Table, & Terminal Web Git
-  └─ Fajri  : Quality Gate Pre-push & Validasi Alur Integrasi
-
-[ FASE 2: Fitur Lanjutan, Visualisasi & Pengujian ] ──> STATUS: 100% SELESAI ✅
-  ├─ Deni   : Setup Public Webhook Gateway (Cloudflare Tunnel / LocalTunnel) & CI/CD Actions [SELESAI ✅]
-  ├─ Fatir  : Discord Outbound Webhook, Database Backup Script & Pembersihan Data Dummy [SELESAI ✅]
-  ├─ Rafli  : Grafik Analitik Kontribusi Tim, Modal Edit Tugas, & Export Laporan PDF/CSV [SELESAI ✅]
-  └─ Fajri  : Automated Unit Testing (Vitest 28/28 Passed) & Lab Simulasi Keamanan [SELESAI ✅]
-
-[ FASE 3: Penyusunan Panduan Akademik & Kesiapan Demonstrasi ] ──> STATUS: SIAP SIDANG 🚀
-  ├─ Fajri  : Panduan Tanya Jawab Sidang Dosen & Skenario Demo Live 30 Detik di /docs [SELESAI ✅]
-  ├─ Deni   : Standarisasi Multi-Repo Project & HMAC Timing-Safe Verification [SELESAI ✅]
-  ├─ Rafli  : Tampilan Human-Crafted Responsif (Semua Device & iPhone) dengan Radius Konsisten [SELESAI ✅]
-  └─ Seluruh Tim: Gladi Bersih Demonstrasi Alur Integrasi Riil (Git ➔ MySQL ➔ Discord ➔ Web UI)
-```
+| Fase Sprint | Fokus & Deliverable Utama | Kontributor & Tanggung Jawab | Status Capaian |
+| :--- | :--- | :--- | :---: |
+| **Fase 1**<br>*Core Foundation & Integrasi Sistem* | • Backend Gateway REST API v1 modular & Express OOP<br>• Skema basis data MySQL2 & Task State Engine internal<br>• Dashboard React 19, Filament v5 Data Table & Web Git<br>• Quality Gate pre-push & validasi pipeline integrasi | • **Deni**: Gateway API & Security<br>• **Fatir**: MySQL DDL & Seeder Tim<br>• **Rafli**: UI Dashboard & Web Git<br>• **Fajri**: Quality Gate Pre-Push | **100% SELESAI** ✅ |
+| **Fase 2**<br>*Fitur Lanjutan & Pengujian Mutu* | • Public Webhook Gateway (`npm run tunnel`) & CI/CD Actions<br>• Outbound Discord Webhook (Rich Embeds status tugas)<br>• Grafik analitik kontribusi tim & ekspor laporan sprint (CSV/PDF)<br>• Automated Unit Testing Vitest (28 skenario pengujian 100% lolos) | • **Deni**: Public Tunnel & CI/CD<br>• **Fatir**: Discord Webhook & Backup<br>• **Rafli**: Analitik SVG & Export Modal<br>• **Fajri**: Vitest 28 Suite & QA | **100% SELESAI** ✅ |
+| **Fase 3**<br>*Keamanan, UML & Kesiapan Sidang* | • Laboratorium simulasi keamanan siber di portal `/docs`<br>• Dokumentasi lengkap 6 diagram arsitektur UML formal<br>• Panduan tanya jawab kritis sidang mata kuliah integratif<br>• Skenario runbook demonstrasi *live* 30 detik (Push ➔ Web) | • **Deni**: Portal `/docs` & HMAC<br>• **Fatir**: Seeder & Data Sanitization<br>• **Rafli**: Radius Konsisten & Responsif<br>• **Fajri**: Dokumen UML & Panduan Sidang | **SIAP SIDANG** 🚀 |
 
 ---
 
