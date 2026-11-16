@@ -507,36 +507,37 @@ export function DocumentationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0c0f17] text-zinc-900 dark:text-zinc-100 flex flex-col font-sans transition-colors">
-      {/* Header Bar */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#111420]/95 border-b border-zinc-200 dark:border-zinc-800 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center gap-2 cursor-pointer">
-              <div className="w-8 h-8 rounded-md bg-blue-600 text-white font-bold flex items-center justify-center text-xs shadow-xs">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0c0f17] text-zinc-900 dark:text-zinc-100 flex flex-col font-sans transition-colors overflow-x-hidden">
+      {/* Header Bar with Safe Area support */}
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#111420]/95 border-b border-zinc-200 dark:border-zinc-800 backdrop-blur-md pt-[env(safe-area-inset-top,0px)] px-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)]">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <Link to="/" className="flex items-center gap-2 cursor-pointer shrink-0">
+              <div className="w-8 h-8 rounded-md bg-blue-600 text-white font-bold flex items-center justify-center text-xs shadow-xs shrink-0">
                 SP
               </div>
-              <span className="font-bold text-sm tracking-tight text-zinc-950 dark:text-white">SI-PATIR</span>
-              <span className="text-xs px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-medium">
+              <span className="font-bold text-sm tracking-tight text-zinc-950 dark:text-white truncate">SI-PATIR</span>
+              <span className="hidden xs:inline-flex text-[11px] px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-medium shrink-0">
                 Docs &amp; Lab
               </span>
             </Link>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <Link
               to="/dashboard"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition cursor-pointer shadow-xs shrink-0 touch-manipulation"
             >
-              <Activity className="w-3.5 h-3.5" />
-              <span>Buka Dashboard</span>
+              <Activity className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline">Buka Dashboard</span>
+              <span className="sm:hidden">Dashboard</span>
             </Link>
 
             <a
               href="/api/v1/system/docs"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+              className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
               title="Lihat spesifikasi OpenAPI JSON"
             >
               <Code2 className="w-3.5 h-3.5" />
@@ -549,13 +550,13 @@ export function DocumentationPage() {
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="max-w-6xl mx-auto px-4 py-8 flex-1 w-full space-y-6">
+      {/* Main Container with iPhone Safe Areas */}
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8 flex-1 w-full space-y-5 sm:space-y-6 pb-[max(2rem,env(safe-area-inset-bottom,0px))]">
         {/* Simple & Clear Page Intro */}
-        <div className="p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-3">
+        <div className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-semibold border border-blue-200 dark:border-blue-900/50">
-              <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
               <span>Tugas Kelompok: Pemrograman Integratif</span>
             </span>
             <span className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -564,7 +565,7 @@ export function DocumentationPage() {
           </div>
 
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-950 dark:text-white">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-zinc-950 dark:text-white wrap-break-word">
               Dokumentasi API, Alur Integrasi &amp; Keamanan
             </h1>
             <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
@@ -577,27 +578,27 @@ export function DocumentationPage() {
 
           {/* Quick Summary Highlights */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
-            <div className="p-2.5 rounded-md bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
-              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Metode Integrasi</span>
-              <span className="text-xs font-bold text-zinc-900 dark:text-white">Event-Driven (Push)</span>
+            <div className="p-2 sm:p-2.5 rounded-md bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 min-w-0">
+              <span className="text-[10px] sm:text-[11px] text-zinc-500 dark:text-zinc-400 block truncate">Metode Integrasi</span>
+              <span className="text-xs font-bold text-zinc-900 dark:text-white block truncate">Event-Driven (Push)</span>
             </div>
-            <div className="p-2.5 rounded-md bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
-              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Keamanan Webhook</span>
-              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">HMAC SHA-256</span>
+            <div className="p-2 sm:p-2.5 rounded-md bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 min-w-0">
+              <span className="text-[10px] sm:text-[11px] text-zinc-500 dark:text-zinc-400 block truncate">Keamanan Webhook</span>
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 block truncate">HMAC SHA-256</span>
             </div>
-            <div className="p-2.5 rounded-md bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
-              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Keamanan Database</span>
-              <span className="text-xs font-bold text-blue-600 dark:text-blue-400">Prepared Statements</span>
+            <div className="p-2 sm:p-2.5 rounded-md bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 min-w-0">
+              <span className="text-[10px] sm:text-[11px] text-zinc-500 dark:text-zinc-400 block truncate">Keamanan Database</span>
+              <span className="text-xs font-bold text-blue-600 dark:text-blue-400 block truncate">Prepared Statements</span>
             </div>
-            <div className="p-2.5 rounded-md bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
-              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Penyajian Data</span>
-              <span className="text-xs font-bold text-purple-600 dark:text-purple-400">Real-Time WebSocket</span>
+            <div className="p-2 sm:p-2.5 rounded-md bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 min-w-0">
+              <span className="text-[10px] sm:text-[11px] text-zinc-500 dark:text-zinc-400 block truncate">Penyajian Data</span>
+              <span className="text-xs font-bold text-purple-600 dark:text-purple-400 block truncate">Real-Time WebSocket</span>
             </div>
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-1.5 border-b border-zinc-200 dark:border-zinc-800 pb-2 overflow-x-auto">
+        {/* Navigation Tabs with Momentum Scroll */}
+        <div className="flex items-center gap-1 sm:gap-1.5 border-b border-zinc-200 dark:border-zinc-800 pb-2 overflow-x-auto no-scrollbar touch-scroll px-0.5">
           {[
             { key: 'architecture', label: '1. Alur Sistem', icon: Layers },
             { key: 'uml', label: '2. Diagram UML (6)', icon: Workflow },
@@ -616,13 +617,13 @@ export function DocumentationPage() {
                   setActiveTab(tab.key as TabKey);
                   setSearchParams({ tab: tab.key });
                 }}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition cursor-pointer shrink-0 touch-manipulation ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-xs'
                     : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-800/60'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-3.5 h-3.5 shrink-0" />
                 <span>{tab.label}</span>
               </button>
             );
@@ -631,9 +632,9 @@ export function DocumentationPage() {
 
         {/* TAB 1: ALUR KERJA SISTEM */}
         {activeTab === 'architecture' && (
-          <div className="space-y-6">
+          <div className="space-y-5 sm:space-y-6">
             {/* Step by Step Explanation */}
-            <div className="p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-4">
+            <div className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-4">
               <div>
                 <h2 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">
                   Bagaimana Sistem Ini Bekerja Otomatis?
@@ -643,9 +644,9 @@ export function DocumentationPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {/* Step 1 */}
-                <div className="p-3.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40 space-y-2">
+                <div className="p-3 sm:p-3.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900/40">
                       Langkah 1
@@ -733,8 +734,8 @@ export function DocumentationPage() {
                 </p>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
+              <div className="overflow-x-auto no-scrollbar touch-scroll -mx-1 px-1 sm:mx-0 sm:px-0">
+                <table className="w-full min-w-[560px] text-left text-xs border-collapse">
                   <thead>
                     <tr className="border-b border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400">
                       <th className="pb-2.5 font-semibold">Protokol</th>
@@ -988,7 +989,7 @@ export function DocumentationPage() {
 
               {/* Diagram Navigation Selector Pills */}
               <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 touch-scroll">
+                <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto pb-1.5 no-scrollbar touch-scroll">
                   {UML_DIAGRAMS.map((diag) => {
                     const isSelected = selectedUmlId === diag.id;
                     return (
@@ -999,7 +1000,7 @@ export function DocumentationPage() {
                           setSelectedUmlId(diag.id);
                           setSearchParams({ tab: 'uml', diagram: diag.id });
                         }}
-                        className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                        className={`px-2.5 sm:px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 shrink-0 touch-manipulation ${
                           isSelected
                             ? 'bg-blue-600 text-white shadow-xs'
                             : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-950 dark:hover:text-white border border-zinc-200 dark:border-zinc-700/80'
@@ -1085,9 +1086,9 @@ export function DocumentationPage() {
         {activeTab === 'catalog' && (
           <div className="space-y-4">
             {/* Filter Bar */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420]">
-              <div className="flex items-center gap-1.5 overflow-x-auto">
-                <span className="text-xs text-zinc-400 font-medium px-1 flex items-center gap-1">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 p-2.5 sm:p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420]">
+              <div className="flex items-center gap-1 overflow-x-auto no-scrollbar touch-scroll pb-1 sm:pb-0">
+                <span className="text-xs text-zinc-400 font-medium px-1 flex items-center gap-1 shrink-0">
                   <Filter className="w-3 h-3" />
                   Kategori:
                 </span>
@@ -1096,7 +1097,7 @@ export function DocumentationPage() {
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition cursor-pointer ${
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition cursor-pointer shrink-0 touch-manipulation ${
                       selectedCategory === cat
                         ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
                         : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
@@ -1107,7 +1108,7 @@ export function DocumentationPage() {
                 ))}
               </div>
 
-              <div className="relative min-w-55">
+              <div className="relative w-full sm:w-auto sm:min-w-56">
                 <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
                 <input
                   type="text"
@@ -1321,7 +1322,7 @@ export function DocumentationPage() {
             </div>
 
             {/* 6 Security Cards (Written in clear human language) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {/* Card 1 */}
               <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-2">
                 <div className="w-7 h-7 rounded-md bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
@@ -1603,7 +1604,7 @@ export function DocumentationPage() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 max-w-lg">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-lg">
                 <input
                   type="text"
                   value={sqliInput}
@@ -1614,7 +1615,7 @@ export function DocumentationPage() {
                   type="button"
                   disabled={sqliLoading}
                   onClick={handleTestSqli}
-                  className="px-3 py-1.5 rounded-md text-xs font-medium bg-purple-600 hover:bg-purple-700 text-white transition cursor-pointer disabled:opacity-50 whitespace-nowrap shadow-xs"
+                  className="px-3 py-2 sm:py-1.5 rounded-md text-xs font-medium bg-purple-600 hover:bg-purple-700 text-white transition cursor-pointer disabled:opacity-50 whitespace-nowrap shadow-xs touch-manipulation shrink-0"
                 >
                   {sqliLoading ? 'Memeriksa...' : 'Kirim Uji SQLi'}
                 </button>
@@ -1678,15 +1679,15 @@ export function DocumentationPage() {
                   </span>
                   <span>{item.q}</span>
                 </h3>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400 pl-7 leading-relaxed">{item.a}</p>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 pl-0 sm:pl-7 leading-relaxed">{item.a}</p>
               </div>
             ))}
           </div>
         )}
       </main>
 
-      {/* Clean & Simple Footer */}
-      <footer className="border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] py-4 px-4 text-center text-xs text-zinc-500">
+      {/* Clean & Simple Footer with iPhone Safe Area */}
+      <footer className="border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] py-4 px-3 sm:px-4 text-center text-xs text-zinc-500 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>Dokumentasi SI-PATIR • Mata Kuliah Pemrograman Integratif</span>
           <div className="flex items-center gap-3">

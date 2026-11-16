@@ -278,28 +278,30 @@ export function UmlViewer({ id, code, title, className = '' }: UmlViewerProps) {
       <div
         ref={containerRef}
         className={`relative rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0c0f17] overflow-hidden flex flex-col shadow-xs select-none ${className} ${
-          isFullscreen ? 'fixed inset-4 sm:inset-8 z-50 shadow-2xl border-blue-500/50' : ''
+          isFullscreen
+            ? 'fixed inset-2 sm:inset-6 z-50 pt-[max(0.5rem,env(safe-area-inset-top,0px))] pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pl-[max(0.5rem,env(safe-area-inset-left,0px))] pr-[max(0.5rem,env(safe-area-inset-right,0px))] shadow-2xl border-blue-500/50'
+            : ''
         }`}
       >
         {/* Top Control Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-2 px-3 sm:px-4 py-2 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/90 dark:bg-[#111420]/90 backdrop-blur-sm z-10">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-2.5 sm:px-4 py-2 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/90 dark:bg-[#111420]/90 backdrop-blur-sm z-10">
           {/* Title & Zoom Info */}
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-xs text-zinc-900 dark:text-white flex items-center gap-1.5 truncate">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+            <span className="font-semibold text-xs text-zinc-900 dark:text-white flex items-center gap-1.5 truncate max-w-[140px] xs:max-w-[200px] sm:max-w-xs md:max-w-md">
               <Move className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
-              <span>{title}</span>
+              <span className="truncate">{title}</span>
             </span>
-            <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-zinc-200/80 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-medium">
+            <span className="text-[10px] sm:text-[11px] font-mono px-1.5 sm:px-2 py-0.5 rounded-md bg-zinc-200/80 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-medium shrink-0">
               {percentage}%
             </span>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 shrink-0">
             <button
               type="button"
               onClick={handleZoomOut}
-              className="p-1.5 rounded-md bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition cursor-pointer shadow-2xs active:scale-95"
+              className="p-1.5 rounded-md bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition cursor-pointer shadow-2xs active:scale-95 touch-manipulation"
               title="Perkecil Diagram (Zoom Out)"
               aria-label="Zoom Out"
             >
@@ -309,7 +311,7 @@ export function UmlViewer({ id, code, title, className = '' }: UmlViewerProps) {
             <button
               type="button"
               onClick={handleZoomIn}
-              className="p-1.5 rounded-md bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition cursor-pointer shadow-2xs active:scale-95"
+              className="p-1.5 rounded-md bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition cursor-pointer shadow-2xs active:scale-95 touch-manipulation"
               title="Perbesar Diagram (Zoom In)"
               aria-label="Zoom In"
             >
@@ -319,7 +321,7 @@ export function UmlViewer({ id, code, title, className = '' }: UmlViewerProps) {
             <button
               type="button"
               onClick={handleResetZoom}
-              className="p-1.5 rounded-md bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition cursor-pointer shadow-2xs active:scale-95"
+              className="p-1.5 rounded-md bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition cursor-pointer shadow-2xs active:scale-95 touch-manipulation"
               title="Reset Zoom & Posisi (100%)"
               aria-label="Reset Zoom"
             >
@@ -331,7 +333,7 @@ export function UmlViewer({ id, code, title, className = '' }: UmlViewerProps) {
             <button
               type="button"
               onClick={handleDownloadSvg}
-              className="p-1.5 rounded-md bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition cursor-pointer shadow-2xs active:scale-95"
+              className="p-1.5 rounded-md bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition cursor-pointer shadow-2xs active:scale-95 touch-manipulation"
               title="Unduh Berkas Vektor SVG Bersih"
               aria-label="Unduh SVG"
             >
@@ -345,7 +347,7 @@ export function UmlViewer({ id, code, title, className = '' }: UmlViewerProps) {
             <button
               type="button"
               onClick={() => setIsFullscreen((prev) => !prev)}
-              className="p-1.5 rounded-md bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 transition cursor-pointer shadow-2xs active:scale-95"
+              className="p-1.5 rounded-md bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 transition cursor-pointer shadow-2xs active:scale-95 touch-manipulation"
               title={isFullscreen ? 'Keluar dari Layar Penuh (Esc)' : 'Buka Kanvas Penuh (Fullscreen)'}
               aria-label="Toggle Fullscreen"
             >
@@ -372,7 +374,7 @@ export function UmlViewer({ id, code, title, className = '' }: UmlViewerProps) {
               : 'radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px)',
             backgroundSize: '20px 20px',
           }}
-          className={`relative flex-1 min-h-[380px] sm:min-h-[460px] overflow-hidden flex items-center justify-center ${
+          className={`relative flex-1 min-h-[320px] xs:min-h-[360px] sm:min-h-[440px] md:min-h-[500px] overflow-hidden flex items-center justify-center touch-none overscroll-contain ${
             isDragging ? 'cursor-grabbing' : 'cursor-grab'
           }`}
         >
@@ -413,11 +415,18 @@ export function UmlViewer({ id, code, title, className = '' }: UmlViewerProps) {
             </div>
           )}
 
-          {/* Bottom Hint Floating Badge */}
-          <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 pointer-events-none px-3 py-1 rounded-full bg-zinc-900/80 dark:bg-zinc-800/80 backdrop-blur-md text-[11px] text-zinc-200 dark:text-zinc-300 shadow-md flex items-center gap-1.5 whitespace-nowrap">
+          {/* Bottom Hint Floating Badge - Desktop */}
+          <div className="hidden sm:flex absolute bottom-2.5 left-1/2 -translate-x-1/2 pointer-events-none px-3 py-1 rounded-full bg-zinc-900/80 dark:bg-zinc-800/80 backdrop-blur-md text-[11px] text-zinc-200 dark:text-zinc-300 shadow-md items-center gap-1.5 whitespace-nowrap">
             <span>✋ Klik &amp; geser untuk panning</span>
             <span className="text-zinc-500">•</span>
             <span>Scroll mouse atau tombol +/- untuk zoom</span>
+          </div>
+
+          {/* Bottom Hint Floating Badge - Mobile */}
+          <div className="sm:hidden flex absolute bottom-2 left-1/2 -translate-x-1/2 pointer-events-none px-2.5 py-1 rounded-full bg-zinc-900/85 dark:bg-zinc-800/85 backdrop-blur-md text-[10px] text-zinc-200 dark:text-zinc-300 shadow-md items-center gap-1 max-w-[92%] truncate">
+            <span>✋ Sentuh &amp; geser</span>
+            <span className="text-zinc-500">•</span>
+            <span>Cubit / tombol +/- zoom</span>
           </div>
         </div>
       </div>
