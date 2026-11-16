@@ -49,7 +49,7 @@ start.bat
 
 ## 3. Protokol Demonstrasi ke Dosen (Skenario 30 Detik)
 
-Saat giliran Anda presentasi di depan dosen atau penguji, ikuti skenario 30 detik berikut untuk mendemonstrasikan keunggulan integrasi 3 sistem secara instan:
+Saat giliran Anda mempresentasikan tugas kelompok di depan dosen pengampu dan rekan mahasiswa, ikuti skenario 30 detik berikut untuk mendemonstrasikan keunggulan integrasi multi-sistem secara instan:
 
 ### Langkah 1: Tampilkan Kondisi Awal (10 Detik)
 1. Buka Dashboard SI-PATIR di browser (`http://localhost:3000`).

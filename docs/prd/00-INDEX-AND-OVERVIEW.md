@@ -45,7 +45,7 @@ Dokumentasi spesifikasi kebutuhan produk (PRD) SI-PATIR dipecah menjadi modul-mo
 
 ## 3. Product Stakeholders & Personas
 
-### Persona A: Lead Developer / Dosen Penguji (Evaluator)
+### Persona A: Lead Developer / Dosen Pengampu (Evaluator)
 * **Tujuan**: Memverifikasi bahwa mahasiswa membangun sistem terintegrasi yang nyata, aman, modular, dan memiliki arsitektur yang solid.
 * **Kebutuhan**: Melihat transparansi aliran data antar sistem, verifikasi keamanan webhook, dan eksekusi demo instan yang mulus.
 

@@ -28,8 +28,6 @@ import {
   Copy,
   Code2,
   Play,
-  Download,
-  Printer,
   FolderGit2,
   MoreVertical,
   Maximize2,
@@ -152,11 +150,9 @@ export function DashboardPage() {
     'Terminal siap. Ketik perintah commit di bawah.'
   );
 
-  // Sync & Export & Mobile Dropdown States
+  // Sync & Mobile Dropdown States
   const [isSyncMenuOpen, setIsSyncMenuOpen] = useState(false);
   const syncMenuRef = useRef<HTMLDivElement | null>(null);
-  const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
-  const exportMenuRef = useRef<HTMLDivElement | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement | null>(null);
 
@@ -362,61 +358,6 @@ export function DashboardPage() {
     await refreshData();
   };
 
-  // Export Sprint Report to CSV (Point 2.8)
-  const handleExportCSV = () => {
-    const lines: string[] = [];
-
-    lines.push(`SI-PATIR - Laporan Sprint & Aktivitas Repositori`);
-    lines.push(`Tanggal Export: ${new Date().toLocaleString('id-ID')}`);
-    lines.push(`Target Repositori: ${status.repository || 'denoyey/si-patir'}`);
-    lines.push(``);
-
-    // Section 1: Members Summary
-    lines.push(`=== KLASIFIKASI KONTRIBUSI ANGGOTA ===`);
-    lines.push(`No,Nama,GitHub Username,Total Commit,Tugas Selesai`);
-    members.forEach((m, idx) => {
-      lines.push(`${idx + 1},"${m.name}","@${m.github_username}",${m.total_commits},${m.tasks_done}`);
-    });
-    lines.push(``);
-
-    // Section 2: Tasks List
-    lines.push(`=== DAFTAR KARTU TUGAS SPRINT KANBAN ===`);
-    lines.push(`No,Kode Tugas,Judul Tugas,Penanggung Jawab,Status`);
-    tasks.forEach((t, idx) => {
-      lines.push(`${idx + 1},"#${t.task_code}","${t.title.replace(/"/g, '""')}","@${t.assignee}","${t.status}"`);
-    });
-    lines.push(``);
-
-    // Section 3: Activity Logs
-    lines.push(`=== RIWAYAT LOG AKTIVITAS WEBHOOK STREAM ===`);
-    lines.push(`No,Waktu,Event,Author,Kode Tugas,Status,Pesan Commit`);
-    logs.forEach((l, idx) => {
-      lines.push(`${idx + 1},"${l.created_at}","${l.event_type}","@${l.author}","${l.task_code || '-'}","${l.status}","${l.commit_message.replace(/"/g, '""')}"`);
-    });
-
-    const csvContent = '\uFEFF' + lines.join('\r\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `laporan-sprint-sipatir-${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    setActiveToast({
-      title: 'Laporan CSV Diunduh',
-      desc: 'Berkas laporan-sprint-sipatir.csv berhasil dibuat dan diunduh.',
-    });
-    setTimeout(() => setActiveToast(null), 3500);
-  };
-
-  // Print or Export PDF (Point 2.8)
-  const handlePrint = () => {
-    window.print();
-  };
-
   // Aggregate Metrics
   const metrics = useMemo(() => {
     const totalCommits = members.reduce((acc, m) => acc + m.total_commits, 0);
@@ -461,15 +402,12 @@ export function DashboardPage() {
     }
   }, [activeToast, engine]);
 
-  // Dropdown Click-Outside & Keyboard Escape Handler (Sync, Export, Mobile Menu)
+  // Dropdown Click-Outside & Keyboard Escape Handler (Sync, Mobile Menu)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       if (syncMenuRef.current && !syncMenuRef.current.contains(target)) {
         setIsSyncMenuOpen(false);
-      }
-      if (exportMenuRef.current && !exportMenuRef.current.contains(target)) {
-        setIsExportMenuOpen(false);
       }
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(target)) {
         setIsMobileMenuOpen(false);
@@ -479,12 +417,11 @@ export function DashboardPage() {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setIsSyncMenuOpen(false);
-        setIsExportMenuOpen(false);
         setIsMobileMenuOpen(false);
       }
     };
 
-    if (isSyncMenuOpen || isExportMenuOpen || isMobileMenuOpen) {
+    if (isSyncMenuOpen || isMobileMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('keydown', handleKeyDown);
     }
@@ -493,7 +430,7 @@ export function DashboardPage() {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isSyncMenuOpen, isExportMenuOpen, isMobileMenuOpen]);
+  }, [isSyncMenuOpen, isMobileMenuOpen]);
 
   // Sync real contributors from GitHub repository
   const handleSyncGitHub = async () => {
@@ -814,73 +751,6 @@ export function DashboardPage() {
               <span className="lg:hidden text-xs font-medium">Docs</span>
             </Link>
 
-            {/* Desktop & Tablet: Consolidated Export Dropdown */}
-            <div ref={exportMenuRef} className="relative shrink-0 hidden sm:block">
-              <button
-                type="button"
-                onClick={(e) => {
-                  engine.animateButtonPress(e.currentTarget);
-                  setIsExportMenuOpen((prev) => !prev);
-                  setIsSyncMenuOpen(false);
-                }}
-                aria-haspopup="menu"
-                aria-expanded={isExportMenuOpen}
-                aria-label="Menu Ekspor Laporan"
-                className="h-8 sm:h-8.5 px-2 sm:px-2.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs shrink-0"
-                title="Ekspor laporan sprint (PDF & CSV)"
-              >
-                <Download className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span className="hidden md:inline text-xs font-medium">Ekspor</span>
-                <ChevronDown className={`w-3 h-3 text-zinc-400 dark:text-zinc-500 transition-transform duration-150 ${isExportMenuOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {isExportMenuOpen && (
-                <div
-                  role="menu"
-                  aria-label="Pilihan ekspor laporan"
-                  className="absolute right-0 mt-1.5 w-52 rounded-md bg-white dark:bg-[#12151f] border border-zinc-200 dark:border-zinc-800 shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-100"
-                >
-                  <div className="px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-mono">
-                    Ekspor Laporan
-                  </div>
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      setIsExportMenuOpen(false);
-                      handlePrint();
-                    }}
-                    className="w-full p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left flex items-center gap-2.5 transition cursor-pointer"
-                  >
-                    <div className="p-1 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
-                      <Printer className="w-3.5 h-3.5 shrink-0" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold text-zinc-900 dark:text-white">Cetak PDF</div>
-                      <div className="text-[10px] text-zinc-500 dark:text-zinc-400">Laporan evaluasi resmi</div>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      setIsExportMenuOpen(false);
-                      handleExportCSV();
-                    }}
-                    className="w-full p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left flex items-center gap-2.5 transition cursor-pointer"
-                  >
-                    <div className="p-1 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                      <Download className="w-3.5 h-3.5 shrink-0" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-semibold text-zinc-900 dark:text-white">Unduh CSV</div>
-                      <div className="text-[10px] text-zinc-500 dark:text-zinc-400">Spreadsheet Excel</div>
-                    </div>
-                  </button>
-                </div>
-              )}
-            </div>
-
             {/* Desktop & Tablet: Theme Switcher */}
             <div className="hidden sm:block">
               <ThemeSwitcher />
@@ -893,7 +763,6 @@ export function DashboardPage() {
                 onClick={(e) => {
                   engine.animateButtonPress(e.currentTarget);
                   setIsSyncMenuOpen((prev) => !prev);
-                  setIsExportMenuOpen(false);
                   setIsMobileMenuOpen(false);
                 }}
                 aria-haspopup="menu"
@@ -1038,30 +907,6 @@ export function DashboardPage() {
                   >
                     <Code2 className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                     <span>API Docs</span>
-                  </button>
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      handlePrint();
-                    }}
-                    className="w-full p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left flex items-center gap-2.5 transition cursor-pointer text-xs font-medium text-zinc-800 dark:text-zinc-200"
-                  >
-                    <Printer className="w-4 h-4 text-zinc-600 dark:text-zinc-300 shrink-0" />
-                    <span>Cetak PDF</span>
-                  </button>
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      handleExportCSV();
-                    }}
-                    className="w-full p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left flex items-center gap-2.5 transition cursor-pointer text-xs font-medium text-zinc-800 dark:text-zinc-200"
-                  >
-                    <Download className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span>Unduh CSV</span>
                   </button>
 
                   <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-1" />

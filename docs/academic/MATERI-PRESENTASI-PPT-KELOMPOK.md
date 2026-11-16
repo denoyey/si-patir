@@ -133,17 +133,17 @@ Setiap anggota tim memiliki alokasi segmen materi dan demonstrasi yang berimbang
 
 ---
 
-### 🖥️ Slide 9: Visualisasi Data Analitik & Ekspor Laporan
-- **Judul Slide**: Visualisasi Data Analitik & Ekspor Sprint Tim
+### 🖥️ Slide 9: Visualisasi Data Analitik & Pemantauan Progres Real-Time
+- **Judul Slide**: Visualisasi Data Analitik & Pemantauan Progres Tim
 - **Poin Analitik di Slide**:
   - **SVG Charts Presisi Tinggi**:
     - *Commit Bar Chart*: Diagram batang interaktif perbandingan produktivitas jumlah commit riil antar-anggota tim.
     - *Donut Chart Status Sprint*: Diagram donat persentase penyelesaian tugas tim (*To Do*, *In Progress*, *Done*).
   - **Klasemen Kontribusi Riil**: Mengambil data kompilasi asli dari riwayat commit GitHub (`denoyey`, `muhamadrafli16`, `Patirparkerr`, `AATTTRAWRRR`).
-  - **Ekspor Laporan Tugas (CSV & PDF)**: Memudahkan pelaporan tugas kelompok ke dosen dengan fitur cetak bersih `@media print` (PDF) dan berkas spreadsheet CSV berstandar UTF-8 BOM.
+  - **Metrik Progres Real-Time**: Pembaruan rasio ketercapaian target dan total commit tim secara otomatis via streaming WebSocket tanpa reload halaman.
 - **Visual**: Screenshot diagram batang commit per anggota dan diagram donat tugas selesai.
 - **🎙️ Naskah Bicara (Rafli)**:
-  > *"Selain pengelolaan tugas, dashboard kami dilengkapi grafik visualisasi analitik SVG. Dosen dan anggota kelompok dapat melihat diagram batang perbandingan jumlah commit yang ditarik langsung dari GitHub riil, serta diagram donat rasio tugas sprint. Kami juga menyediakan tombol ekspor laporan sprint ke format CSV dan cetak PDF yang rapi, sehingga rekapitulasi pekerjaan kelompok dapat langsung diunduh dan diserahkan kepada dosen. Selanjutnya, aspek keamanan siber dan penjaminan mutu akan dipresentasikan oleh rekan saya, Fajri."*
+  > *"Selain pengelolaan tugas, dashboard kami dilengkapi grafik visualisasi analitik SVG. Dosen dan rekan mahasiswa dapat melihat diagram batang perbandingan jumlah commit yang ditarik langsung dari repositori GitHub riil, serta diagram donat rasio tugas sprint tim. Metrik analitik ini terhubung langsung dengan streaming WebSocket, sehingga setiap ada commit atau mutasi status tugas baru, visualisasi grafik akan terbarui secara instan. Selanjutnya, aspek keamanan siber dan penjaminan mutu akan dipresentasikan oleh rekan saya, Fajri."*
 
 ---
 

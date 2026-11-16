@@ -70,13 +70,12 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 | 7 | **CI/CD Pipeline (GitHub Actions)** | Workflow `.github/workflows/ci.yml` aktif memvalidasi `tsc --noEmit`, `oxlint`, Vite build, dan automated tests saat PR/push ke `main`. | **SELESAI (DONE)** ✅ | Deni |
 | 8 | **Visualisasi Grafik Kontribusi (Analytics Chart)** | Tersedia diagram batang perbandingan commit & diagram donat status sprint berbasis SVG presisi tinggi. | **SELESAI (DONE)** ✅ | Rafli |
 | 9 | **Modal Edit Tugas Lengkap** | Modal interaktif (`EditTaskModal.tsx`) terintegrasi tabel untuk mutasi judul, assignee, dan status dengan persistensi database & WebSocket real-time. | **SELESAI (DONE)** ✅ | Rafli |
-| 10 | **Export Laporan Sprint (PDF / CSV)** | Dukungan export CSV dengan UTF-8 BOM dan pencetakan PDF bersih via styling `@media print`. | **SELESAI (DONE)** ✅ | Rafli |
-| 11 | **Sinkronisasi GitHub Issues API** | Sinkronisasi issue dari repositori GitHub langsung ke daftar tugas lokal (`/api/v1/tasks/sync-github-issues`). | **SELESAI (DONE)** ✅ | Fatir & Deni |
-| 12 | **Automated Unit Testing (Vitest/Jest)** | Suite unit test otomatis 28 skenario: CommitParser, WebhookSecurity HMAC, dan TaskStatusFlow. | **SELESAI (DONE)** ✅ | Fajri |
-| 13 | **Security Penetration & Load Testing** | Simulator uji batas rate limiter (35 req 429), batas payload 100kb, dan anti-SQLi aktif di `/docs`. | **SELESAI (DONE)** ✅ | Fajri |
-| 14 | **Panduan Evaluasi & Tanya Jawab Dosen** | Panduan tanya jawab kritis evaluasi tugas kelompok Pemrograman Integratif lengkap dengan analisis teknis di `/docs`. | **SELESAI (DONE)** ✅ | Fajri |
-| 15 | **Skenario Demonstrasi Tugas Kelompok** | Naskah runbook demo live 30 detik alur end-to-end terintegrasi di web dashboard & dokumentasi. | **SELESAI (DONE)** ✅ | Fajri |
-| 16 | **Konfigurasi Profil Proyek Dinamis & Multi-Repo** | Multi-repo terisolasi, modal switcher, per-project repository config & Discord webhook. | **SELESAI (DONE)** ✅ | Deni & Rafli |
+| 10 | **Sinkronisasi GitHub Issues API** | Sinkronisasi issue dari repositori GitHub langsung ke daftar tugas lokal (`/api/v1/tasks/sync-github-issues`). | **SELESAI (DONE)** ✅ | Fatir & Deni |
+| 11 | **Automated Unit Testing (Vitest/Jest)** | Suite unit test otomatis 28 skenario: CommitParser, WebhookSecurity HMAC, dan TaskStatusFlow. | **SELESAI (DONE)** ✅ | Fajri |
+| 12 | **Security Penetration & Load Testing** | Simulator uji batas rate limiter (35 req 429), batas payload 100kb, dan anti-SQLi aktif di `/docs`. | **SELESAI (DONE)** ✅ | Fajri |
+| 13 | **Panduan Evaluasi & Tanya Jawab Dosen** | Panduan tanya jawab kritis evaluasi tugas kelompok Pemrograman Integratif lengkap dengan analisis teknis di `/docs`. | **SELESAI (DONE)** ✅ | Fajri |
+| 14 | **Skenario Demonstrasi Tugas Kelompok** | Naskah runbook demo live 30 detik alur end-to-end terintegrasi di web dashboard & dokumentasi. | **SELESAI (DONE)** ✅ | Fajri |
+| 15 | **Konfigurasi Profil Proyek Dinamis & Multi-Repo** | Multi-repo terisolasi, modal switcher, per-project repository config & Discord webhook. | **SELESAI (DONE)** ✅ | Deni & Rafli |
 
 ---
 
@@ -189,12 +188,9 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
   - Tampilkan diagram donat (*donut chart*) persentase penyelesaian tugas sprint (*To Do*, *In Progress*, *Done*).
 - [x] **2.7 Modal Edit Tugas Interaktif**:
   - Buat modal **Edit Tugas**: memungkinkan pengguna mengubah judul tugas, status, atau mengubah assignee developer langsung dari antarmuka web.
-- [x] **2.8 Fitur Export Laporan Sprint (PDF & CSV)**:
-  - Tombol **Export CSV**: menghasilkan berkas `laporan-sprint-sipatir.csv` berisi rekap tugas, penanggung jawab, status, dan riwayat commit.
-  - Opsi **Print / Export PDF**: styling `@media print` agar tampilan dashboard dapat dicetak bersih ke format PDF untuk diserahkan ke dosen pembimbing.
-- [x] **2.9 Fitur Pencarian & Filter pada Panel Stream**:
+- [x] **2.8 Fitur Pencarian & Filter pada Panel Stream**:
   - Tambahkan kotak filter teks dan filter berdasarkan author pada panel *Live Webhook Stream*.
-- [x] **2.10 Komponen Modal Profil Proyek Dinamis & Multi-Repo Switcher (`ProjectConfigModal.tsx`)**:
+- [x] **2.9 Komponen Modal Profil Proyek Dinamis & Multi-Repo Switcher (`ProjectConfigModal.tsx`)**:
   - Buat komponen modal human-crafted dengan 3 tab: *Daftar Proyek & Switcher*, *Edit Konfigurasi Aktif*, dan *Tambah Proyek Baru*.
   - Pasang tombol pemilih proyek interaktif di header dashboard dengan live project name badge.
 
@@ -291,7 +287,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 | Fase Sprint | Fokus & Deliverable Utama | Kontributor & Tanggung Jawab | Status Capaian |
 | :--- | :--- | :--- | :---: |
 | **Fase 1**<br>*Core Foundation & Integrasi Sistem* | • Backend Gateway REST API v1 modular & Express OOP<br>• Skema basis data MySQL2 & Task State Engine internal<br>• Dashboard React 19, Filament v5 Data Table & Web Git<br>• Quality Gate pre-push & validasi pipeline integrasi | • **Deni**: Gateway API & Security<br>• **Fatir**: MySQL DDL & Seeder Tim<br>• **Rafli**: UI Dashboard & Web Git<br>• **Fajri**: Quality Gate Pre-Push | **100% SELESAI** ✅ |
-| **Fase 2**<br>*Fitur Lanjutan & Pengujian Mutu* | • Public Webhook Gateway (`npm run tunnel`) & CI/CD Actions<br>• Outbound Discord Webhook (Rich Embeds status tugas)<br>• Grafik analitik kontribusi tim & ekspor laporan sprint (CSV/PDF)<br>• Automated Unit Testing Vitest (28 skenario pengujian 100% lolos) | • **Deni**: Public Tunnel & CI/CD<br>• **Fatir**: Discord Webhook & Backup<br>• **Rafli**: Analitik SVG & Export Modal<br>• **Fajri**: Vitest 28 Suite & QA | **100% SELESAI** ✅ |
+| **Fase 2**<br>*Fitur Lanjutan & Pengujian Mutu* | • Public Webhook Gateway (`npm run tunnel`) & CI/CD Actions<br>• Outbound Discord Webhook (Rich Embeds status tugas)<br>• Grafik analitik kontribusi tim (SVG Bar & Donut Charts)<br>• Automated Unit Testing Vitest (28 skenario pengujian 100% lolos) | • **Deni**: Public Tunnel & CI/CD<br>• **Fatir**: Discord Webhook & Backup<br>• **Rafli**: Analitik SVG & Modal Edit<br>• **Fajri**: Vitest 28 Suite & QA | **100% SELESAI** ✅ |
 | **Fase 3**<br>*Keamanan, UML & Kesiapan Demonstrasi* | • Laboratorium simulasi keamanan siber di portal `/docs`<br>• Dokumentasi lengkap 6 diagram arsitektur UML formal<br>• Panduan tanya jawab kritis tugas kelompok integratif<br>• Skenario runbook demonstrasi *live* 30 detik di depan dosen | • **Deni**: Portal `/docs` & HMAC<br>• **Fatir**: Seeder & Data Sanitization<br>• **Rafli**: Radius Konsisten & Responsif<br>• **Fajri**: Dokumen UML & Naskah Demo | **SIAP PRESENTASI** 🚀 |
 
 ---

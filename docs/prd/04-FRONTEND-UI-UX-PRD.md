@@ -243,7 +243,7 @@ Sesuai spesifikasi tim proyek, seluruh anggota tim memiliki nama dan tanggung ja
 | Nama Anggota | Posisi / Spesialisasi | Akun GitHub Resmi | Fokus Pekerjaan Utama |
 | :--- | :--- | :--- | :--- |
 | **Deni** | Lead Architect & DevOps Integrator | `@denoyey` (Repo Owner) | Arsitektur integrasi sistem & REST API v1, webhook GitHub & validasi HMAC SHA-256, Multi-Repo isolation (`/api/v1/projects`), Interactive API Explorer, public tunnel, GitHub Actions CI/CD, stream progresif & modal riwayat log, serta penguatan aksesibilitas & scroll lock UI. |
-| **Rafli** | Frontend UI & Data Visualization | `@muhamadrafli16` (Collaborator) | Antarmuka interaktif React 19, animasi GSAP OOP, smooth scroll Lenis, komponen tema, visualisasi analitik SVG (Bar & Donut Charts), modal interaktif edit tugas, filter stream live, dan ekspor laporan sprint (CSV/PDF). |
+| **Rafli** | Frontend UI & Data Visualization | `@muhamadrafli16` (Collaborator) | Antarmuka interaktif React 19, animasi GSAP OOP, smooth scroll Lenis, komponen tema, visualisasi analitik SVG (Bar & Donut Charts), modal interaktif edit tugas, dan filter pencarian live stream aktivitas repositori. |
 | **Fatir** | Database & System Integration Engineer | `@Patirparkerr` (Collaborator) | Perancangan skema basis data relasional MySQL2, arsitektur Task State Engine internal, REST API tugas, dan optimasi query. |
 | **Fajri** | QA, Security Testing & Documentation | `@AATTTRAWRRR` (Collaborator / Fajrii) | Pengujian unit otomatis, audit ketahanan rate limiting & anti-DoS, diagram arsitektur UML, dan laporan akademik. |
 
@@ -361,13 +361,10 @@ Untuk memastikan pengalaman monitoring di perangkat seluler setara dengan deskto
 
 ---
 
-## 18. Visualisasi Analitik Kontribusi & Ekspor Laporan Sprint
+## 18. Visualisasi Analitik Kontribusi & Pemantauan Progres Real-Time
 
 ### 18.1 Komponen Visualisasi Analitik (`ContributionChart.tsx` — Modul 2.6)
 * **Diagram Batang (*Commit Bar Chart*)**: Mengukur proporsi kontribusi commit antar pengembang tim (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) dengan bar animasi gradien, avatar asli GitHub, persentase kontribusi, dan peringkat `#1–#4` yang setara tanpa badge kasta sepihak.
 * **Diagram Donat (*Sprint Status Donut Chart*)**: Diagram donat berbasis SVG murni presisi tinggi yang memetakan sebaran tugas sprint (*Done*, *In Progress*, *To Do*) dengan persentase di pusat diagram dan kartu ringkasan status interaktif.
-
-### 18.2 Ekspor Laporan Sprint (CSV & PDF `@media print` — Modul 2.8)
-* **Ekspor CSV**: Menghasilkan berkas `laporan-sprint-sipatir-YYYY-MM-DD.csv` ber-encoding UTF-8 BOM yang memuat rekap anggota tim, daftar kartu tugas, dan riwayat stream secara terstruktur untuk dibuka langsung di Microsoft Excel.
-* **Cetak / Ekspor PDF**: Styling `@media print` yang mengeliminasi elemen navigasi dan tombol aksi, meratakan latar ke putih bersih, dan mencegah tabel terpotong canggung antar halaman cetak (*page-break-inside: avoid*).
+* **Integrasi Streaming WebSocket**: Setiap commit baru atau perubahan status tugas memicu pembaruan metrik secara otomatis tanpa perlu merefresh browser.
 

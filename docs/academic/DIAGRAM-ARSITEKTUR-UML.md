@@ -45,8 +45,7 @@ flowchart LR
         UC7(["UC-07: Siarkan Log Realtime<br/>via WebSocket"])
         UC8(["UC-08: Kirim Notifikasi<br/>Discord Embed"])
         UC9(["UC-09: Uji Lab Keamanan &<br/>Eksplorasi API"])
-        UC10(["UC-10: Ekspor Laporan Sprint<br/>(PDF & CSV)"])
-        UC11(["UC-11: Konfigurasi<br/>Multi-Repo Workspace"])
+        UC10(["UC-10: Konfigurasi<br/>Multi-Repo Workspace"])
     end
 
     %% Developer Relations
@@ -70,7 +69,6 @@ flowchart LR
     lecturer --> UC4
     lecturer --> UC9
     lecturer --> UC10
-    lecturer --> UC11
 ```
 
 ---
