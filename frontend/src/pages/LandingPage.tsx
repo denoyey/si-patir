@@ -29,8 +29,8 @@ const TEAM_MEMBERS = [
     badge: 'Project Lead',
     avatar: 'https://github.com/denoyey.png?size=400',
     description:
-      'Memimpin arsitektur REST API v1 & multi-repo isolation, webhook pipeline HMAC SHA-256, public tunnel, serta GitHub Actions CI/CD.',
-    skills: ['Node.js', 'Express', 'WebSocket', 'Multi-Repo', 'CI/CD', 'Security'],
+      'Memimpin arsitektur Backend Gateway REST API v1, verifikasi Webhook HMAC SHA-256, isolasi multi-repo, dan portal dokumentasi /docs.',
+    skills: ['Node.js', 'Express', 'HMAC SHA-256', 'Multi-Repo', 'CI/CD'],
   },
   {
     name: 'Rafli',
@@ -39,28 +39,28 @@ const TEAM_MEMBERS = [
     badge: 'UI/UX Specialist',
     avatar: 'https://github.com/muhamadrafli16.png?size=400',
     description:
-      'Merancang antarmuka dashboard modern, visualisasi analitik kontribusi, dan interaksi tugas yang intuitif serta responsif di semua perangkat.',
-    skills: ['React 19', 'Tailwind CSS', 'GSAP', 'Lenis Scroll'],
+      'Merancang antarmuka dashboard React 19 dengan styling Tailwind konsisten, tabel tugas interaktif, grafik analitik kontribusi, dan terminal web Git.',
+    skills: ['React 19', 'Tailwind CSS', 'Data Visualization', 'Web Git Terminal'],
   },
   {
     name: 'Fatir',
-    role: 'Database & System Integration Engineer',
+    role: 'Integrations Lead & Database Engineer',
     username: 'Patirparkerr',
     badge: 'Integrations Lead',
     avatar: 'https://github.com/Patirparkerr.png?size=400',
     description:
-      'Merancang arsitektur basis data relasional MySQL, mengimplementasikan state machine status tugas, dan menghubungkan webhook pipeline ke basis data.',
-    skills: ['MySQL', 'Database Design', 'RESTful API', 'State Engine'],
+      'Merancang skema basis data relasional MySQL, task state engine internal, seeder data tim riil, notifikasi Discord Webhook, dan script backup otomatis.',
+    skills: ['MySQL Relasional', 'State Engine', 'Discord Webhook', 'Database Backup'],
   },
   {
     name: 'Fajri',
     role: 'QA, Security Testing & Academic Documentation',
     username: 'AATTTRAWRRR',
-    badge: 'Quality & Docs',
+    badge: 'QA & Security',
     avatar: 'https://github.com/AATTTRAWRRR.png?size=400',
     description:
-      'Menyusun pengujian unit test otomatis, audit ketahanan rate limiting & DoS, serta perancangan laporan akademik dan diagram UML.',
-    skills: ['Automated QA', 'Security Audit', 'UML Modeling', 'Technical Writing'],
+      'Membangun automated unit testing Vitest (28 skenario), simulator uji penetrasi & rate limiter di /docs, dan panduan naskah demonstrasi sidang.',
+    skills: ['Vitest Suite', 'Rate Limiting', 'Penetration Testing', 'Academic Defense'],
   },
 ];
 

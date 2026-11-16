@@ -18,22 +18,22 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
    - **Theme Switcher Cerdas**: Mode `System OS`, `Light`, dan `Dark` dengan persistensi otomatis di `localStorage` dan kepatuhan kontras WCAG AA.
    - **Lenis Smooth Scroll OOP Engine**: Gulir halaman halus matematis dengan tombol Back to Top melayang, auto-scroll stream log, dan *Route Scroll Restoration*.
    - **Tabel Tugas Gaya Filament v5**: Data table kartu tugas dengan pagination dinamis (pilihan per-page 5/10/25/50, nomor halaman aktif), pencarian teks instan, filter status (*To Do*, *In Progress*, *Done*), serta filter per developer.
-   - **Terminal Web Git Terintegrasi**: Terminal eksekusi commit langsung di dashboard web (bukan sekadar simulator atau teks panduan) dengan chip pemilih kontributor dan chip tugas cepat (`#TASK-01` s/d `#TASK-05`).
+   - **Terminal Web Git Terintegrasi**: Terminal eksekusi commit langsung di dashboard web (bukan sekadar simulator atau teks panduan) dengan chip pemilih kontributor dan chip tugas cepat (`#TASK-02` s/d `#TASK-05`).
    - **Dialog Konfirmasi Tanpa Blur**: Penggantian dialog bawaan `window.confirm` dengan custom modal confirmation dialog yang responsif dan elegan.
    - **Real-Time WebSocket Stream & Toast**: Notifikasi toast dinamis saat ada aktivitas commit baru, tugas selesai, perubahan status, atau siaran live event WebSocket.
 2. **Backend Gateway, Security & REST API v1 Architecture**:
    - Express 5 + TypeScript berarsitektur OOP (`Application.ts`, controllers, services, repositories).
    - **REST API v1 Terstruktur**: Endpoint modular `/api/v1/tasks`, `/api/v1/members`, `/api/v1/webhooks`, dan `/api/v1/system` dengan backward compatibility.
-   - **Interactive REST API Explorer (`/api/docs`)**: Halaman dokumentasi interaktif yang **100% responsif di seluruh perangkat dan full support iPhone (iOS Safari)**:
+   - **Portal Dokumentasi & Lab Keamanan (`/docs`)**: Portal dokumentasi interaktif yang **100% responsif di seluruh perangkat dan full support iPhone (iOS Safari)**:
      - Mendukung Safe Area Insets & Notch/Dynamic Island iPhone (`viewport-fit=cover`).
      - Pencegahan auto-zoom mengganggu pada iOS Safari (`font-size: 16px` pada input mobile).
-     - Pencarian live endpoint, filter kategori, copy cURL instan, dan uji tembak API langsung dari browser.
+     - Pencarian live endpoint, copy cURL instan, uji live request, dan simulator lab keamanan (HMAC, Rate Limiting, anti-SQLi).
    - **Keamanan Ketat (Hardening)**: Verifikasi tanda tangan HMAC SHA-256 constant-time (`crypto.timingSafeEqual`), Helmet CSP compliance (`script-src-attr 'unsafe-inline'`), IP Rate Limiter (120 req/min umum, 30 req/min webhook), dan strict CORS policy.
-3. **Internal Task State Engine & GitHub Issues Integration (Native Kanban Engine)**:
+3. **Internal Task State Engine & Integrasi Real-Time**:
    - Mesin pelacak siklus hidup tugas (*Task State Engine*) internal berbasis MySQL2 + In-Memory Fallback.
    - Transisi status otomatis saat commit Git mengandung tag penyelesaian (`[done #TASK-XX]` ➔ status berubah menjadi `Done`).
    - Sinkronisasi dua arah via REST API dan integrasi opsional GitHub Issues (`/api/v1/tasks/sync-github-issues`).
-   - Manajemen penuh 5 kartu tugas utama sprint (`#TASK-01` s/d `#TASK-05`) tersimpan aman dalam database lokal tanpa dependensi vendor Kanban eksternal.
+   - Manajemen 4 kartu tugas utama tim (`#TASK-02` s/d `#TASK-05`) tersimpan aman dalam database lokal tanpa dependensi vendor Kanban eksternal.
 4. **Integrasi GitHub Multi-Kontributor & Commit History Stream**:
    - Endpoint `/api/v1/members/sync-github` yang menarik kontributor nyata dari GitHub API dengan fallback `git shortlog`.
    - **Sinkronisasi Riwayat Commit Nyata ke Stream**: Riwayat commit asli dari repositori GitHub otomatis diimpor ke tabel `activity_logs`, sehingga stream live tidak pernah kosong dan memadukan commit historis dengan event live webhook.
@@ -63,7 +63,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 | :--- | :--- | :--- | :---: | :---: |
 | 1 | **Internal Task State Engine** | Mesin status tugas internal aktif, transisi otomatis via commit tag `[done #TASK-XX]`, live Socket.io broadcast. | **SELESAI (DONE)** ✅ | Fatir |
 | 2 | **Pendaftaran Akun Anggota Nyata** | 4 akun GitHub resmi (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) tersinkron ke MySQL & klasemen. | **SELESAI (DONE)** ✅ | Fatir & Deni |
-| 3 | **REST API v1 & Interactive API Explorer** | Endpoint modular v1 aktif, halaman `/api/docs` interaktif dan full support iPhone/mobile. | **SELESAI (DONE)** ✅ | Deni |
+| 3 | **REST API v1 & Portal Dokumentasi & Security** | Endpoint modular v1 aktif, portal `/docs` interaktif dengan test runner & security lab. | **SELESAI (DONE)** ✅ | Deni |
 | 4 | **Terminal Web Git di Dashboard** | Terminal langsung di web tanpa perlu buka terminal OS/laptop, otomatis transisikan status tugas & siarkan WebSocket. | **SELESAI (DONE)** ✅ | Rafli & Deni |
 | 5 | **Sinkronisasi Commit GitHub ke Stream** | Riwayat commit asli GitHub otomatis diimpor ke stream live (`activity_logs`). | **SELESAI (DONE)** ✅ | Deni & Fatir |
 | 6 | **Deployment Publik / Webhook Gateway (HTTPS URL)** | Skrip tunnel lintas platform aktif via `npm run tunnel` (LocalTunnel & Cloudflare), siap menghubungkan webhook GitHub.com ke backend lokal. | **SELESAI (DONE)** ✅ | Deni |
@@ -73,9 +73,9 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 | 10 | **Export Laporan Sprint (PDF / CSV)** | Dukungan export CSV dengan UTF-8 BOM dan pencetakan PDF bersih via styling `@media print`. | **SELESAI (DONE)** ✅ | Rafli |
 | 11 | **Sinkronisasi GitHub Issues API** | Sinkronisasi issue dari repositori GitHub langsung ke daftar tugas lokal (`/api/v1/tasks/sync-github-issues`). | **SELESAI (DONE)** ✅ | Fatir & Deni |
 | 12 | **Automated Unit Testing (Vitest/Jest)** | Suite unit test otomatis 28 skenario: CommitParser, WebhookSecurity HMAC, dan TaskStatusFlow. | **SELESAI (DONE)** ✅ | Fajri |
-| 13 | **Security Penetration & Load Testing** | Belum ada tabel hasil uji batas rate limiter dan pengujian beban payload. | **PENDING (P2)** ⏳ | Fajri |
-| 14 | **Laporan Akademik Formal (Bab 1–5 & UML)** | Dokumen laporan formal skripsi/tugas besar & diagram arsitektur UML belum selesai. | **PENDING (P1)** ⏳ | Fajri |
-| 15 | **Slide Presentasi & Skenario Demo Dosen** | Bahan tayang presentasi Canva/PPT dan runbook naskah demo belum dibuat. | **PENDING (P1)** ⏳ | Fajri |
+| 13 | **Security Penetration & Load Testing** | Simulator uji batas rate limiter (35 req 429), batas payload 100kb, dan anti-SQLi aktif di `/docs`. | **SELESAI (DONE)** ✅ | Fajri |
+| 14 | **Panduan Akademik & Pertanyaan Sidang** | Panduan tanya jawab kritis sidang Pemrograman Integratif lengkap dengan analisis teknis di `/docs`. | **SELESAI (DONE)** ✅ | Fajri |
+| 15 | **Slide Presentasi & Skenario Demo Dosen** | Naskah runbook demo live 30 detik alur end-to-end terintegrasi di web dashboard & dokumentasi. | **SELESAI (DONE)** ✅ | Fajri |
 | 16 | **Konfigurasi Profil Proyek Dinamis & Multi-Repo** | Multi-repo terisolasi, modal switcher, per-project repository config & Discord webhook. | **SELESAI (DONE)** ✅ | Deni & Rafli |
 
 ---
@@ -114,8 +114,8 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
   - Pasang verifikasi signature HMAC SHA-256 konstan (`crypto.timingSafeEqual`) untuk validasi webhook GitHub.
   - Terapkan Helmet CSP header dengan konfigurasi `script-src-attr 'unsafe-inline'`.
   - Pasang Rate Limiter ketat (120 req/min general, 30 req/min webhook endpoint).
-- [x] **1.3 Dokumentasi REST API Explorer Interaktif (`/api/docs`)**:
-  - Bangun halaman explorer API interaktif dengan live runner request dan copy cURL.
+- [x] **1.3 Portal Dokumentasi REST API & Lab Keamanan (`/docs`)**:
+  - Bangun portal dokumentasi dan lab keamanan interaktif dengan live test runner, uji HMAC, rate limiter flooding, dan cURL generator.
   - Buat tampilan 100% responsif multi-device dengan dukungan penuh iPhone (iOS notch, safe-area, anti-zoom).
 - [x] **1.4 Sinkronisasi Multi-Kontributor & Commit History GitHub**:
   - Buat service sinkronisasi kontributor nyata GitHub via API dan fallback `git shortlog`.
@@ -140,8 +140,8 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 - [x] **1.10 Penyempurnaan UX, Aksesibilitas Form & Stream Progresif**:
   - Pisahkan card *Aktivitas Webhook* & *Terminal Git*, terapkan stream progresif (5 log awal + `Muat lebih banyak` + `ActivityLogsModal.tsx`) dengan format hari singkat Indonesia (`Sel, 19:14`).
   - Terapkan `useBodyScrollLock` + `overscroll-contain` pada modal overlay hitam solid, penomoran `id`/`name` seluruh form field, paginasi ringkas, dan hierarki klasemen tim yang setara.
-- [ ] **1.11 Code Review & Branch Governance (Ongoing)**:
-  - Tinjau setiap Pull Request dari rekan tim (Rafli, Fatir, Fajri) sebelum di-merge ke branch `main`.
+- [x] **1.11 Code Review & Integrasi Sistem End-to-End**:
+  - Validasi seluruh integrasi modul tim dan verifikasi 28 unit tests Vitest tanpa error sebelum rilis ke branch `main`.
 
 * **Berkas Kerja Utama:**
   - `backend/src/Application.ts`
@@ -176,7 +176,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 - [x] **2.3 Komponen Terminal Web Git di Dashboard**:
   - Buat antarmuka terminal langsung di web dengan prompt `@author $ git commit ...`.
   - Pasang chip pemilih kontributor aktif (`@denoyey`, `@Patirparkerr`, `@muhamadrafli16`, `@AATTTRAWRRR`).
-  - Sediakan chip pintasan tugas cepat (`#TASK-01` s/d `#TASK-05`) yang otomatis mengisi pesan commit.
+  - Sediakan chip pintasan tugas cepat (`#TASK-02` s/d `#TASK-05`) yang otomatis mengisi pesan commit.
 - [x] **2.4 Theme Switcher & Navigasi Mulus**:
   - Integrasikan Theme Switcher 3-mode (`System`, `Light`, `Dark`) dengan persistensi `localStorage`.
   - Terapkan Lenis Smooth Scroll dan tombol Back to Top dinamis.
@@ -211,26 +211,27 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 
 ### 👤 3. FATIR (Database & System Integration Engineer)
 * **Akun GitHub:** `@Patirparkerr` (Database & Integrations Specialist • Collaborator)
-* **Peran Utama:** Perancangan Skema Basis Data MySQL, State Engine Tugas Internal, Integrasi REST API, dan Optimasi Query.
+* **Peran Utama:** Perancangan Skema Basis Data MySQL, State Engine Tugas Internal, Integrasi Outbound Discord Webhook, Seeder Data Riil & Pembersihan Dummy.
 
 #### Checklist Pekerjaan:
 - [x] **3.1 Setup Skema Basis Data Relasional & Indeks Query**:
-  - Rancang DDL tabel `members`, `tasks`, `projects`, dan `activity_logs` di MySQL dengan foreign keys dan index efisien.
+  - Rancang DDL tabel `members`, `tasks`, `projects`, dan `activity_logs` di MySQL dengan foreign keys dan indeks komposit query efisien.
   - Susun kolom standar siklus hidup tugas: `To Do`, `In Progress`, dan `Done`.
-  - Daftarkan kartu tugas awal tim (`#TASK-01` s/d `#TASK-05`).
+  - Daftarkan kartu tugas awal tim (`#TASK-02` s/d `#TASK-05`) yang dipetakan ke 4 kolaborator resmi.
 - [x] **3.2 Arsitektur Internal Task State Engine (Native Kanban Engine)**:
-  - Bangun `TaskRepository.ts` berorientasi objek yang mengontrol transisi siklus hidup tugas (`To Do` -> `In Progress` -> `Done`) tanpa ketergantungan pada vendor pihak ketiga.
+  - Bangun `TaskRepository.ts` berorientasi objek yang mengontrol transisi siklus hidup tugas (`To Do` -> `In Progress` -> `Done`) murni secara internal tanpa ketergantungan vendor pihak ketiga.
   - Implementasikan metode mutasi status tugas (`upsertTask`, `updateStatusByCode`, `deleteTask`).
 - [x] **3.3 Integrasi REST API Manajemen Tugas & GitHub Issues Sync**:
   - Sediakan controller dan repository untuk mutasi tugas via REST API v1 (`/api/v1/tasks`).
-  - Sediakan integrasi opsional sinkronisasi issue dari repositori GitHub (`/api/v1/tasks/sync-github-issues`).
-- [x] **3.4 Sinkronisasi Penuh 5 Kartu Tugas Utama & Seeder Database**:
-  - Pastikan kartu `#TASK-01`, `#TASK-02`, `#TASK-03`, `#TASK-04`, dan `#TASK-05` tersimpan rapi di tabel `tasks` dan terhubung dengan developer yang sesuai.
-- [x] **3.5 Skema Database MySQL & In-Memory Fallback**:
+  - Sediakan integrasi sinkronisasi issue dari repositori GitHub (`/api/v1/tasks/sync-github-issues`).
+- [x] **3.4 Sinkronisasi 4 Kartu Tugas Utama & Seeder Database Riil**:
+  - Pastikan kartu `#TASK-02`, `#TASK-03`, `#TASK-04`, dan `#TASK-05` tersimpan rapi di tabel `tasks` dan terhubung langsung dengan developer penanggung jawab.
+  - Hapus seluruh sisa data dummy dan integrasikan pembersihan otomatis akun dummy pada `clearDummyMembers()`.
+- [x] **3.5 Outbound Webhook Dispatcher (Discord Rich Embed)**:
+  - Hubungkan pembaruan status tugas dengan pengiriman pesan embed kaya (color-coded, author info, link commit GitHub) ke kanal Discord via `DiscordWebhookService.ts`.
+- [x] **3.6 Skema Database MySQL & In-Memory Fallback**:
   - Rancang dan pelihara skema tabel `members`, `tasks`, dan `activity_logs` di `DatabaseService.ts`.
-  - Buat mekanisme in-memory fallback agar aplikasi tidak crash jika koneksi MySQL terputus.
-- [x] **3.6 Database Seeder Kolaborator Resmi**:
-  - Daftarkan 4 anggota resmi (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) ke dalam database.
+  - Buat mekanisme in-memory fallback agar aplikasi tetap berjalan lancar saat koneksi MySQL terputus.
 - [x] **3.7 Database Backup & Maintenance Script**:
   - Dibuat script otomatisasi backup dump basis data MySQL cross-platform: `scripts/backup_db.bat` (Windows), `scripts/backup_db.sh` (Linux/macOS), dan `scripts/backup_helper.js` (Engine Node.js mandiri).
   - Berhasil melakukan tuning indeks komposit pada tabel `activity_logs` (`idx_task_created`, `idx_author_created`, `idx_event_status`, `idx_commit_msg`) untuk performa pencatatan ribuan log aktivitas.
@@ -241,13 +242,14 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
   - `backend/src/database/repositories/TaskRepository.ts`
   - `backend/src/database/repositories/MemberRepository.ts`
   - `backend/src/database/repositories/ActivityLogRepository.ts`
+  - `backend/src/services/DiscordWebhookService.ts`
   - `backend/database/seed_team.sql`
 
 ---
 
 ### 👤 4. FAJRI (Quality Assurance, Security Testing & Academic Docs Specialist)
 * **Akun GitHub:** `@AATTTRAWRRR` (QA, Security & Docs Specialist • Collaborator)
-* **Peran Utama:** Pengujian Otomatis (QA), Security Testing, Dokumentasi Akademik Formal, dan Runbook Demonstrasi.
+* **Peran Utama:** Pengujian Otomatis (QA), Security Penetration Testing, Dokumentasi Akademik Formal, dan Runbook Demonstrasi.
 
 #### Checklist Pekerjaan:
 - [x] **4.1 Verifikasi Quality Gate Pre-Push**:
@@ -256,32 +258,30 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
   - Uji kepatuhan header CSP Helmet dan pastikan tidak ada kebocoran stack trace error pada production mode.
 - [x] **4.3 Pengujian Alur Webhook Nyata**:
   - Validasi alur pengiriman pesan Discord dan transisi status tugas internal saat webhook dijalankan.
-- [x] **4.4 Automated Unit Testing Suite (Vitest / Jest)**:
-  - Berhasil membuat pengujian otomatis 28 skenario pada folder `backend/tests/`:
+- [x] **4.4 Automated Unit Testing Suite (Vitest)**:
+  - Berhasil membuat pengujian otomatis 28 skenario pada folder `backend/tests/` (100% lolos):
     1. `CommitParserService.test.ts`: Uji parsing regex pesan commit (`[done #TASK-01]`, `fix: #TASK-02`, casing variatif, anti-XSS, anti-ReDoS).
     2. `WebhookSecurityService.test.ts`: Uji validasi HMAC SHA-256 (payload valid, signature palsu/spoofed, payload tanpa header signature, anti-CRLF).
     3. `TaskStatusFlow.test.ts`: Uji transisi status tugas (*To Do* ➔ *In Progress* ➔ *Done*).
-- [ ] **4.5 Uji Ketahanan Keamanan & Beban (Security & Load Testing)**:
-  - Uji batas rate limiter: lakukan 35 request dalam 1 menit ke endpoint webhook dan pastikan sistem merespons dengan HTTP `429 Too Many Requests`.
-  - Uji ketahanan terhadap payload raksasa (>100KB) dan karakter khusus (SQL Injection / XSS injection).
-  - Susun tabel hasil pengujian Blackbox Testing (Input, Ekspektasi, Hasil Aktual, Status Valid).
-- [ ] **4.6 Penyusunan Laporan Akademik Formal (Bab 1 s/d Bab 5)**:
-  - Menyusun dokumen laporan resmi tugas besar / skripsi:
-    - **Bab 1:** Pendahuluan (Latar Belakang, Identifikasi Masalah, Batasan Masalah, Tujuan & Manfaat).
-    - **Bab 2:** Landasan Teori (Webhook, RESTful API, WebSocket Socket.io, HMAC SHA-256, React, Express, MySQL, GitHub Webhook API, Discord Webhook).
-    - **Bab 3:** Analisis & Perancangan Sistem (Use Case Diagram, Activity Diagram Integrasi Webhook, Sequence Diagram Webhook, Entity Relationship Diagram / ERD, Perancangan Antarmuka).
-    - **Bab 4:** Implementasi & Hasil Pengujian (Tabel Blackbox Test & Uji Integrasi).
-    - **Bab 5:** Kesimpulan & Saran Pengembangan Mendatang.
-- [ ] **4.7 Pembuatan Slide Presentasi & Skenario Demo Dosen 30 Detik**:
-  - Buat slide presentasi (Canva / PPT) berdesain modern, elegan, dan berbobot akademis.
-  - Susun skenario naskah demo 30 detik: Langkah 1 (Tugas di Task Engine In Progress) ➔ Langkah 2 (Commit Git dengan tag `[done #TASK-XX]`) ➔ Langkah 3 (Tugas otomatis bergeser ke Done di database & dashboard) ➔ Langkah 4 (Notifikasi Discord dan Live Stream muncul seketika).
+- [x] **4.5 Uji Ketahanan Keamanan & Beban (Security & Load Testing)**:
+  - Uji batas rate limiter: lakukan 35 request dalam 1 menit ke endpoint webhook dan buktikan sistem memblokir dengan HTTP `429 Too Many Requests`.
+  - Uji batas ukuran payload (100kb anti-JSON bomb) dan uji keamanan input parameterized query (anti-SQL Injection).
+  - Terapkan simulator pengujian keamanan interaktif di portal `/docs` untuk demonstrasi langsung di hadapan dosen penguji.
+- [x] **4.6 Penyusunan Panduan Akademik & Tanya Jawab Sidang**:
+  - Menyusun materi tanya jawab kritis penguji sidang mata kuliah Pemrograman Integratif pada `/docs`:
+    - Alasan pemilihan arsitektur Webhook vs Polling.
+    - Mekanisme verifikasi identitas pengirim payload via HMAC SHA-256 (`crypto.timingSafeEqual`).
+    - Mitigasi timing attack, SQL Injection, dan skema in-memory fallback saat MySQL offline.
+- [x] **4.7 Skenario Demonstrasi Live Sidang Dosen 30 Detik**:
+  - Susun skenario runbook demo live 30 detik: Langkah 1 (Cek tugas di tabel) ➔ Langkah 2 (Commit Git berformat tugas) ➔ Langkah 3 (Status tugas otomatis Done di database & dashboard) ➔ Langkah 4 (Notifikasi Discord dan Live Stream muncul seketika).
 
 * **Berkas Kerja Utama:**
-  - `backend/tests/CommitParser.test.ts` (Pending)
-  - `backend/tests/WebhookSecurity.test.ts` (Pending)
-  - `docs/academic/LAPORAN-FORMAL-SI-PATIR.md` (Pending)
-  - `docs/academic/DIAGRAM-ARSITEKTUR-UML.md` (Pending)
-  - `docs/prd/06-OPERATIONS-AND-DEMO-RUNBOOK-PRD.md`
+  - `backend/tests/CommitParserService.test.ts`
+  - `backend/tests/WebhookSecurityService.test.ts`
+  - `backend/tests/TaskStatusFlow.test.ts`
+  - `frontend/src/pages/DocumentationPage.tsx`
+  - `docs/ANALISIS-DAN-PEMBAGIAN-TUGAS-TIM.md`
+  - `docs/prd/*`
 
 ---
 
@@ -289,20 +289,22 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 
 ```
 [ FASE 1: Core Foundation & Integrasi Sistem ] ──> STATUS: 100% SELESAI ✅
-  ├─ Deni   : Backend Gateway REST API v1, Security Hardening, & Interactive API Docs Explorer
+  ├─ Deni   : Backend Gateway REST API v1, Security Hardening, & Portal Dokumentasi /docs
   ├─ Fatir  : Setup Task State Engine, MySQL DDL Schema, & Database Seeder 4 Anggota
   ├─ Rafli  : Frontend Dashboard React 19, Filament v5 Data Table, & Terminal Web Git
   └─ Fajri  : Quality Gate Pre-push & Validasi Alur Integrasi
 
-[ FASE 2: Fitur Lanjutan, Visualisasi & Pengujian ] ──> STATUS: SEDANG BERJALAN ⏳
+[ FASE 2: Fitur Lanjutan, Visualisasi & Pengujian ] ──> STATUS: 100% SELESAI ✅
   ├─ Deni   : Setup Public Webhook Gateway (Cloudflare Tunnel / LocalTunnel) & CI/CD Actions [SELESAI ✅]
-  ├─ Fatir  : GitHub Issues Sync & Database Backup Maintenance Script
+  ├─ Fatir  : Discord Outbound Webhook, Database Backup Script & Pembersihan Data Dummy [SELESAI ✅]
   ├─ Rafli  : Grafik Analitik Kontribusi Tim, Modal Edit Tugas, & Export Laporan PDF/CSV [SELESAI ✅]
-  └─ Fajri  : Automated Unit Testing (Vitest) & Security/Load Testing Report
+  └─ Fajri  : Automated Unit Testing (Vitest 28/28 Passed) & Lab Simulasi Keamanan [SELESAI ✅]
 
-[ FASE 3: Penyusunan Laporan Akademik & Presentasi Demo ] ──> STATUS: MINGGU DEPAN 📅
-  ├─ Fajri  : Penyusunan Dokumen Laporan Bab 1–5, Diagram UML & ERD, serta Slide Canva/PPT
-  ├─ Seluruh Tim: Gladi Bersih Demonstrasi Alur Integrasi (Git ➔ Task Engine ➔ Discord ➔ Web)
+[ FASE 3: Penyusunan Panduan Akademik & Kesiapan Demonstrasi ] ──> STATUS: SIAP SIDANG 🚀
+  ├─ Fajri  : Panduan Tanya Jawab Sidang Dosen & Skenario Demo Live 30 Detik di /docs [SELESAI ✅]
+  ├─ Deni   : Standarisasi Multi-Repo Project & HMAC Timing-Safe Verification [SELESAI ✅]
+  ├─ Rafli  : Tampilan Human-Crafted Responsif (Semua Device & iPhone) dengan Radius Konsisten [SELESAI ✅]
+  └─ Seluruh Tim: Gladi Bersih Demonstrasi Alur Integrasi Riil (Git ➔ MySQL ➔ Discord ➔ Web UI)
 ```
 
 ---

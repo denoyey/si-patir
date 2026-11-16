@@ -41,6 +41,7 @@ export class MemberRepository {
   public async incrementStats(username: string, incTaskDone: boolean): Promise<void> {
     const cleanUser = username.trim().replace(/^@/, '');
     const taskInc = incTaskDone ? 1 : 0;
+    const officialUsernames = ['denoyey', 'muhamadrafli16', 'patirparkerr', 'aatttrawrrr'];
 
     if (this.db.isConnected() && this.db.getPool()) {
       try {
@@ -50,7 +51,7 @@ export class MemberRepository {
             'UPDATE members SET total_commits = total_commits + 1, tasks_done = tasks_done + ? WHERE id = ?',
             [taskInc, existing.id]
           );
-        } else {
+        } else if (officialUsernames.includes(cleanUser.toLowerCase())) {
           await this.db.getPool()!.query(
             'INSERT INTO members (name, github_username, total_commits, tasks_done) VALUES (?, ?, 1, ?)',
             [cleanUser, cleanUser, taskInc]
@@ -68,7 +69,7 @@ export class MemberRepository {
     if (mem) {
       mem.total_commits += 1;
       if (incTaskDone) mem.tasks_done += 1;
-    } else {
+    } else if (officialUsernames.includes(cleanUser.toLowerCase())) {
       memoryMembers.push({
         id: memoryMembers.length + 1,
         name: cleanUser,
