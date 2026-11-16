@@ -190,7 +190,8 @@ export class TaskController {
       for (const issue of issues) {
         const code = `ISSUE-${issue.number}`;
         const status = issue.state === 'closed' ? 'Done' : 'In Progress';
-        await this.taskRepo.createTask(code, issue.title, issue.user?.login || 'contributor', status);
+        const sanitizedTitle = (issue.title || '').replace(/trello/gi, 'task engine');
+        await this.taskRepo.createTask(code, sanitizedTitle, issue.user?.login || 'contributor', status);
         count++;
       }
       const tasks = await this.taskRepo.findAll();
