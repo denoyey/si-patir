@@ -21,7 +21,7 @@ Diagram ini memetakan aktor-aktor yang berinteraksi dengan sistem dan kasus peng
 
 ### Aktor Sistem:
 1. **Developer / Mahasiswa**: Mengembangkan kode, melakukan commit, memantau tugas, dan mengeksekusi commit cepat melalui Terminal Web Git.
-2. **Dosen Penguji / Reviewer**: Meninjau dokumentasi teknis, melihat metriks kontribusi riil, dan menjalankan simulasi lab keamanan.
+2. **Dosen Pengampu / Penilai Tugas**: Meninjau dokumentasi teknis, memeriksa integrasi API, melihat metriks kontribusi kelompok, dan menguji simulasi lab keamanan.
 3. **GitHub Cloud System (External)**: Memicu notifikasi webhook HTTPS saat terjadi event push repository.
 4. **Discord Webhook Server (External)**: Menerima payload bot notifikasi kaya (*Rich Embed*) saat tugas diselesaikan.
 5. **Gateway SI-PATIR (Internal Core)**: Memvalidasi keamanan tanda tangan kriptografi, memproses state machine tugas, dan menyiarkan data realtime.
@@ -31,7 +31,7 @@ Diagram ini memetakan aktor-aktor yang berinteraksi dengan sistem dan kasus peng
 flowchart LR
     %% Actors
     dev(["👨‍💻 Developer / Mahasiswa"])
-    lecturer(["👨‍🏫 Dosen Penguji / Reviewer"])
+    lecturer(["👨‍🏫 Dosen Pengampu / Penilai"])
     github(["🌐 GitHub Cloud"])
     discord(["💬 Discord Webhook"])
 
@@ -402,7 +402,12 @@ flowchart TD
 
 ---
 
-## 💡 Rangkuman untuk Pertahanan Sidang Tugas:
-1. **Model Arsitektur**: *Three-Tier Layered Architecture* yang dipadukan dengan *Event-Driven Webhook Integration*.
-2. **Kepatuhan OOP**: Menggunakan pola *Controller-Service-Repository* sehingga logika query database, parsing logika bisnis, dan penanganan HTTP terisolasi rapi (*Separation of Concerns*).
-3. **Keandalan Sistem**: Menggabungkan *In-Memory Fallback* untuk menjaga ketersediaan tinggi (*High Availability*) jika database MySQL mengalami gangguan sementara.
+## 💡 Poin Kunci Presentasi Tugas Kelompok ke Dosen:
+1. **Model Arsitektur Integrasi API**: *Three-Tier Layered Architecture* yang memadukan REST API (komunikasi data web), Webhook API (event-driven dari GitHub & Discord), dan WebSocket (streaming realtime).
+2. **Implementasi Keamanan Siber (Security Layer)**:
+   - Verifikasi Webhook menggunakan *HMAC SHA-256* dan fungsi konstan waktu (`crypto.timingSafeEqual`) untuk menangkal *timing attack*.
+   - Proteksi basis data dari *SQL Injection* menggunakan *Prepared Statements* (parameterized query `mysql2/promise`).
+   - Proteksi *Rate Limiting* (30 req/menit untuk webhook) guna mencegah serangan banjir request (*Denial of Service / DoS*).
+   - Batas *Payload 100kb* guna menangkal serangan kehabisan memori (*JSON Bomb*).
+3. **Kepatuhan OOP & Rekayasa Perangkat Lunak**: Menggunakan pola *Controller-Service-Repository* berorientasi objek dalam TypeScript untuk menjamin pemisahan tanggung jawab kode (*Separation of Concerns*).
+4. **Keandalan Sistem (*High Availability*)**: Menerapkan *In-Memory Fallback* otomatis sehingga saat database MySQL lokal mati, backend tidak crash dan notifikasi Discord tetap terkirim normal.

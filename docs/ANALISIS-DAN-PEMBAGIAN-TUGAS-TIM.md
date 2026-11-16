@@ -74,8 +74,8 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 | 11 | **Sinkronisasi GitHub Issues API** | Sinkronisasi issue dari repositori GitHub langsung ke daftar tugas lokal (`/api/v1/tasks/sync-github-issues`). | **SELESAI (DONE)** ✅ | Fatir & Deni |
 | 12 | **Automated Unit Testing (Vitest/Jest)** | Suite unit test otomatis 28 skenario: CommitParser, WebhookSecurity HMAC, dan TaskStatusFlow. | **SELESAI (DONE)** ✅ | Fajri |
 | 13 | **Security Penetration & Load Testing** | Simulator uji batas rate limiter (35 req 429), batas payload 100kb, dan anti-SQLi aktif di `/docs`. | **SELESAI (DONE)** ✅ | Fajri |
-| 14 | **Panduan Akademik & Pertanyaan Sidang** | Panduan tanya jawab kritis sidang Pemrograman Integratif lengkap dengan analisis teknis di `/docs`. | **SELESAI (DONE)** ✅ | Fajri |
-| 15 | **Slide Presentasi & Skenario Demo Dosen** | Naskah runbook demo live 30 detik alur end-to-end terintegrasi di web dashboard & dokumentasi. | **SELESAI (DONE)** ✅ | Fajri |
+| 14 | **Panduan Evaluasi & Tanya Jawab Dosen** | Panduan tanya jawab kritis evaluasi tugas kelompok Pemrograman Integratif lengkap dengan analisis teknis di `/docs`. | **SELESAI (DONE)** ✅ | Fajri |
+| 15 | **Skenario Demonstrasi Tugas Kelompok** | Naskah runbook demo live 30 detik alur end-to-end terintegrasi di web dashboard & dokumentasi. | **SELESAI (DONE)** ✅ | Fajri |
 | 16 | **Konfigurasi Profil Proyek Dinamis & Multi-Repo** | Multi-repo terisolasi, modal switcher, per-project repository config & Discord webhook. | **SELESAI (DONE)** ✅ | Deni & Rafli |
 
 ---
@@ -266,13 +266,13 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 - [x] **4.5 Uji Ketahanan Keamanan & Beban (Security & Load Testing)**:
   - Uji batas rate limiter: lakukan 35 request dalam 1 menit ke endpoint webhook dan buktikan sistem memblokir dengan HTTP `429 Too Many Requests`.
   - Uji batas ukuran payload (100kb anti-JSON bomb) dan uji keamanan input parameterized query (anti-SQL Injection).
-  - Terapkan simulator pengujian keamanan interaktif di portal `/docs` untuk demonstrasi langsung di hadapan dosen penguji.
-- [x] **4.6 Penyusunan Panduan Akademik & Tanya Jawab Sidang**:
-  - Menyusun materi tanya jawab kritis penguji sidang mata kuliah Pemrograman Integratif pada `/docs`:
+  - Terapkan simulator pengujian keamanan interaktif di portal `/docs` untuk demonstrasi langsung di hadapan dosen pengampu.
+- [x] **4.6 Penyusunan Panduan Evaluasi & Tanya Jawab Dosen**:
+  - Menyusun materi tanya jawab kritis evaluasi tugas kelompok mata kuliah Pemrograman Integratif pada `/docs`:
     - Alasan pemilihan arsitektur Webhook vs Polling.
     - Mekanisme verifikasi identitas pengirim payload via HMAC SHA-256 (`crypto.timingSafeEqual`).
     - Mitigasi timing attack, SQL Injection, dan skema in-memory fallback saat MySQL offline.
-- [x] **4.7 Skenario Demonstrasi Live Sidang Dosen 30 Detik**:
+- [x] **4.7 Skenario Demonstrasi Tugas Kelompok 30 Detik**:
   - Susun skenario runbook demo live 30 detik: Langkah 1 (Cek tugas di tabel) ➔ Langkah 2 (Commit Git berformat tugas) ➔ Langkah 3 (Status tugas otomatis Done di database & dashboard) ➔ Langkah 4 (Notifikasi Discord dan Live Stream muncul seketika).
 
 * **Berkas Kerja Utama:**
@@ -292,7 +292,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 | :--- | :--- | :--- | :---: |
 | **Fase 1**<br>*Core Foundation & Integrasi Sistem* | • Backend Gateway REST API v1 modular & Express OOP<br>• Skema basis data MySQL2 & Task State Engine internal<br>• Dashboard React 19, Filament v5 Data Table & Web Git<br>• Quality Gate pre-push & validasi pipeline integrasi | • **Deni**: Gateway API & Security<br>• **Fatir**: MySQL DDL & Seeder Tim<br>• **Rafli**: UI Dashboard & Web Git<br>• **Fajri**: Quality Gate Pre-Push | **100% SELESAI** ✅ |
 | **Fase 2**<br>*Fitur Lanjutan & Pengujian Mutu* | • Public Webhook Gateway (`npm run tunnel`) & CI/CD Actions<br>• Outbound Discord Webhook (Rich Embeds status tugas)<br>• Grafik analitik kontribusi tim & ekspor laporan sprint (CSV/PDF)<br>• Automated Unit Testing Vitest (28 skenario pengujian 100% lolos) | • **Deni**: Public Tunnel & CI/CD<br>• **Fatir**: Discord Webhook & Backup<br>• **Rafli**: Analitik SVG & Export Modal<br>• **Fajri**: Vitest 28 Suite & QA | **100% SELESAI** ✅ |
-| **Fase 3**<br>*Keamanan, UML & Kesiapan Sidang* | • Laboratorium simulasi keamanan siber di portal `/docs`<br>• Dokumentasi lengkap 6 diagram arsitektur UML formal<br>• Panduan tanya jawab kritis sidang mata kuliah integratif<br>• Skenario runbook demonstrasi *live* 30 detik (Push ➔ Web) | • **Deni**: Portal `/docs` & HMAC<br>• **Fatir**: Seeder & Data Sanitization<br>• **Rafli**: Radius Konsisten & Responsif<br>• **Fajri**: Dokumen UML & Panduan Sidang | **SIAP SIDANG** 🚀 |
+| **Fase 3**<br>*Keamanan, UML & Kesiapan Demonstrasi* | • Laboratorium simulasi keamanan siber di portal `/docs`<br>• Dokumentasi lengkap 6 diagram arsitektur UML formal<br>• Panduan tanya jawab kritis tugas kelompok integratif<br>• Skenario runbook demonstrasi *live* 30 detik di depan dosen | • **Deni**: Portal `/docs` & HMAC<br>• **Fatir**: Seeder & Data Sanitization<br>• **Rafli**: Radius Konsisten & Responsif<br>• **Fajri**: Dokumen UML & Naskah Demo | **SIAP PRESENTASI** 🚀 |
 
 ---
 

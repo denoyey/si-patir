@@ -59,8 +59,8 @@ const TEAM_MEMBERS = [
     badge: 'QA & Security',
     avatar: 'https://github.com/AATTTRAWRRR.png?size=400',
     description:
-      'Membangun automated unit testing Vitest (28 skenario), simulator uji penetrasi & rate limiter di /docs, dan panduan naskah demonstrasi sidang.',
-    skills: ['Vitest Suite', 'Rate Limiting', 'Penetration Testing', 'Academic Defense'],
+      'Membangun automated unit testing Vitest (28 skenario), simulator uji keamanan API di /docs, serta panduan evaluasi demonstrasi tugas kelompok.',
+    skills: ['Vitest Suite', 'Rate Limiting', 'Penetration Testing', 'API Testing'],
   },
 ];
 

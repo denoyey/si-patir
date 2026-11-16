@@ -536,10 +536,10 @@ export function DocumentationPage() {
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-semibold border border-blue-200 dark:border-blue-900/50">
               <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span>Mata Kuliah: Pemrograman Integratif</span>
+              <span>Tugas Kelompok: Pemrograman Integratif</span>
             </span>
             <span className="text-xs text-zinc-500 dark:text-zinc-400">
-              Panduan Praktis Sidang &amp; Demonstrasi Sistem
+              Dokumentasi API, Integrasi Webhook &amp; Keamanan Siber
             </span>
           </div>
 
@@ -551,7 +551,7 @@ export function DocumentationPage() {
               Halaman ini menjelaskan bagaimana sistem <strong>SI-PATIR</strong> menghubungkan layanan{' '}
               <strong>GitHub Webhook</strong>, bot pesan <strong>Discord</strong>, basis data <strong>MySQL</strong>,
               dan streaming <strong>WebSocket</strong> secara otomatis tanpa perlu refresh halaman. Disediakan juga lab uji coba langsung
-              untuk keperluan presentasi ke dosen penguji.
+              untuk keperluan demonstrasi tugas kelompok di depan dosen pengampu.
             </p>
           </div>
 
@@ -1137,8 +1137,8 @@ export function DocumentationPage() {
             <div className="p-4 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-950/20 text-xs text-blue-800 dark:text-blue-300 flex items-center gap-2">
               <Play className="w-4 h-4 shrink-0 text-blue-600 dark:text-blue-400" />
               <span>
-                <strong>Panduan Presentasi:</strong> Bagian ini disiapkan untuk simulasi langsung di depan dosen penguji.
-                Klik tombol-tombol di bawah untuk membuktikan keandalan sistem secara nyata.
+                <strong>Panduan Demonstrasi:</strong> Bagian ini disiapkan untuk simulasi langsung saat mempresentasikan tugas kelompok di depan dosen.
+                Klik tombol-tombol di bawah untuk membuktikan keandalan sistem API dan proteksi keamanannya secara nyata.
               </span>
             </div>
 
@@ -1322,7 +1322,7 @@ export function DocumentationPage() {
           </div>
         )}
 
-        {/* TAB 5: TANYA JAWAB SIDANG (PANDUAN LENGKAP MAHASISWA & DOSEN) */}
+        {/* TAB 5: TANYA JAWAB EVALUASI TUGAS (PANDUAN LENGKAP MAHASISWA & DOSEN) */}
         {activeTab === 'qa' && (
           <div className="space-y-3">
             {[
