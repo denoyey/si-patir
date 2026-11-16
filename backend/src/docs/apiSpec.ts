@@ -21,11 +21,11 @@ export interface IApiEndpointSpec {
 export const API_METADATA = {
   name: 'SI-PATIR REST API',
   version: '1.2.0',
-  description: 'Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repositori (Git -> Trello -> Discord -> WebSocket)',
+  description: 'Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repositori (GitHub Webhooks -> MySQL -> Discord Webhooks -> WebSocket)',
   baseUrls: ['http://localhost:5000/api/v1', 'http://localhost:5000/api'],
   author: 'Tim Pengembang SI-PATIR',
   repository: 'https://github.com/denoyey/si-patir',
-  technologies: ['Node.js (TypeScript)', 'Express 5', 'MySQL 8', 'Socket.IO', 'Trello REST API', 'Discord Webhooks'],
+  technologies: ['Node.js (TypeScript)', 'Express 5', 'MySQL 8', 'Socket.IO', 'GitHub Webhooks', 'Discord Webhooks'],
 };
 
 export const API_ENDPOINTS: IApiEndpointSpec[] = [
@@ -44,7 +44,6 @@ export const API_ENDPOINTS: IApiEndpointSpec[] = [
           task_code: 'TASK-01',
           title: 'Buat Database & Skema User',
           status: 'Done',
-          trello_card_id: '6aeda701866caee30e603ca4',
           assignee: 'denoyey',
           updated_at: '2026-11-06T07:29:02.000Z',
         },
@@ -69,7 +68,6 @@ export const API_ENDPOINTS: IApiEndpointSpec[] = [
           task_code: 'TASK-01',
           title: 'Buat Database & Skema User',
           status: 'Done',
-          trello_card_id: '6aeda701866caee30e603ca4',
           assignee: 'denoyey',
         },
       },
@@ -106,8 +104,8 @@ export const API_ENDPOINTS: IApiEndpointSpec[] = [
     method: 'PATCH',
     path: '/api/v1/tasks/:id/status',
     category: 'Tasks',
-    summary: 'Update Status Tugas & Sinkronisasi Trello Dua Arah',
-    description: 'Mengubah status kartu tugas di database MySQL, memindahkan kartu secara otomatis ke kolom yang bersesuaian di Trello ("To Do", "in progress", "Done"), menghitung ulang statistik anggota, dan menyiarkan event WebSocket.',
+    summary: 'Update Status Tugas & Broadcast Real-Time',
+    description: 'Mengubah status kartu tugas di database MySQL ("To Do", "In Progress", "Done"), menghitung ulang statistik anggota, dan menyiarkan event WebSocket.',
     headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
     params: [
       { name: 'id', type: 'string | number', description: 'ID numerik atau kode tugas (misal: TASK-02)', required: true },
@@ -120,11 +118,10 @@ export const API_ENDPOINTS: IApiEndpointSpec[] = [
       body: {
         success: true,
         message: 'Status tugas TASK-02 berhasil diperbarui ke "Done".',
-        trello_notice: 'Kartu TASK-02 berhasil dipindahkan ke kolom "Done" di Trello.',
         task: {
           id: 2,
           task_code: 'TASK-02',
-          title: 'Integrasi Papan Kanban Trello',
+          title: 'Integrasi Basis Data & Task State Engine',
           status: 'Done',
           assignee: 'Patirparkerr',
         },
@@ -143,21 +140,6 @@ export const API_ENDPOINTS: IApiEndpointSpec[] = [
     exampleResponse: {
       status: 200,
       body: { success: true },
-    },
-  },
-  {
-    method: 'POST',
-    path: '/api/v1/tasks/sync-trello',
-    category: 'Tasks',
-    summary: 'Sinkronisasi Dua Arah dari Papan Trello',
-    description: 'Menarik seluruh kartu dan daftar kolom dari papan Kanban Trello resmi, memetakan status, dan melakukan upsert ke database MySQL beserta ID kartu Trello.',
-    exampleResponse: {
-      status: 200,
-      body: {
-        success: true,
-        message: 'Berhasil menyinkronkan 4 kartu nyata dari papan Kanban Trello ke sistem.',
-        count: 4,
-      },
     },
   },
   {
@@ -336,12 +318,11 @@ export const API_ENDPOINTS: IApiEndpointSpec[] = [
     path: '/api/v1/system/status',
     category: 'System',
     summary: 'Healthcheck & Status Integrasi Sistem',
-    description: 'Memeriksa status ketersediaan koneksi MySQL Database, integrasi Trello, Discord Webhook, koneksi GitHub, serta memori dan uptime server.',
+    description: 'Memeriksa status ketersediaan koneksi MySQL Database, Discord Webhook, koneksi GitHub, serta memori dan uptime server.',
     exampleResponse: {
       status: 200,
       body: {
         mysql: true,
-        trello: true,
         discord: true,
         github: true,
         repository: 'denoyey/si-patir',
@@ -403,7 +384,6 @@ export const API_ENDPOINTS: IApiEndpointSpec[] = [
             name: 'SI-PATIR (DevOps Lite)',
             slug: 'si-patir',
             github_repo: 'denoyey/si-patir',
-            trello_board_id: '672b1444d3725b816ba7b830',
             is_active: true,
           },
         ],
@@ -435,13 +415,11 @@ export const API_ENDPOINTS: IApiEndpointSpec[] = [
     path: '/api/v1/projects',
     category: 'Projects',
     summary: 'Daftarkan Proyek / Repositori Baru',
-    description: 'Menambahkan profil repositori baru lengkap dengan konfigurasi Trello Board dan Discord Webhook terisolasi.',
+    description: 'Menambahkan profil repositori baru lengkap dengan konfigurasi Webhook Secret dan Discord Webhook terisolasi.',
     headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
     body: {
       name: 'E-Commerce Microservice',
       github_repo: 'denoyey/ecommerce-app',
-      trello_board_id: '672b1444d3725b816ba7b899',
-      trello_done_list_id: '672b14589d81373e3bf8e299',
       discord_webhook_url: 'https://discord.com/api/webhooks/123/xyz',
       is_active: false,
     },
@@ -458,7 +436,7 @@ export const API_ENDPOINTS: IApiEndpointSpec[] = [
     path: '/api/v1/projects/:id',
     category: 'Projects',
     summary: 'Perbarui Konfigurasi Proyek',
-    description: 'Mengubah pengaturan repositori GitHub, board Trello, atau webhook Discord untuk proyek tertentu.',
+    description: 'Mengubah pengaturan repositori GitHub, secret webhook, atau webhook Discord untuk proyek tertentu.',
     params: [{ name: 'id', type: 'number', description: 'ID profil proyek', required: true }],
     headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
     body: {

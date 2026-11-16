@@ -85,15 +85,13 @@ export class ProjectRepository {
         }
 
         const [result]: any = await this.db.getPool()!.query(
-          `INSERT INTO projects (name, slug, github_repo, github_webhook_secret, trello_board_id, trello_done_list_id, discord_webhook_url, is_active)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO projects (name, slug, github_repo, github_webhook_secret, discord_webhook_url, is_active)
+           VALUES (?, ?, ?, ?, ?, ?)`,
           [
             cleanName,
             cleanSlug,
             cleanRepo,
             data.github_webhook_secret || null,
-            data.trello_board_id || null,
-            data.trello_done_list_id || null,
             data.discord_webhook_url || null,
             data.is_active ? 1 : 0,
           ]
@@ -116,8 +114,6 @@ export class ProjectRepository {
       slug: cleanSlug,
       github_repo: cleanRepo,
       github_webhook_secret: data.github_webhook_secret,
-      trello_board_id: data.trello_board_id,
-      trello_done_list_id: data.trello_done_list_id,
       discord_webhook_url: data.discord_webhook_url,
       is_active: Boolean(data.is_active),
       created_at: new Date().toISOString(),
@@ -138,12 +134,6 @@ export class ProjectRepository {
         data.github_webhook_secret !== undefined
           ? data.github_webhook_secret.trim()
           : existing.github_webhook_secret,
-      trello_board_id:
-        data.trello_board_id !== undefined ? data.trello_board_id.trim() : existing.trello_board_id,
-      trello_done_list_id:
-        data.trello_done_list_id !== undefined
-          ? data.trello_done_list_id.trim()
-          : existing.trello_done_list_id,
       discord_webhook_url:
         data.discord_webhook_url !== undefined
           ? data.discord_webhook_url.trim()
@@ -155,15 +145,13 @@ export class ProjectRepository {
         await this.db.getPool()!.query(
           `UPDATE projects
            SET name = ?, slug = ?, github_repo = ?, github_webhook_secret = ?,
-               trello_board_id = ?, trello_done_list_id = ?, discord_webhook_url = ?
+               discord_webhook_url = ?
            WHERE id = ?`,
           [
             updated.name,
             updated.slug,
             updated.github_repo,
             updated.github_webhook_secret,
-            updated.trello_board_id,
-            updated.trello_done_list_id,
             updated.discord_webhook_url,
             id,
           ]

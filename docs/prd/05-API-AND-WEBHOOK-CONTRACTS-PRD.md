@@ -57,45 +57,6 @@ Menangkap event push dari GitHub atau Local Git Hook.
 
 ---
 
-### 2.1.2 Trello Inbound Webhook Listener
-Menerima webhook langsung dari Trello.com saat kartu digeser atau dimodifikasi oleh anggota tim di antarmuka Trello.
-
-* **Handshake Verification Method:** `HEAD` / `GET`
-* **Event Receiver Method:** `POST`
-* **Path:** `/api/v1/webhooks/trello` (dan `/api/webhooks/trello`)
-* **Handshake Response:** `200 OK` (Body: `OK`)
-* **Payload Contoh (Action `updateCard`):**
-  ```json
-  {
-    "action": {
-      "type": "updateCard",
-      "data": {
-        "card": {
-          "id": "6aeda6d293f584ec047b6396",
-          "name": "Integrasi Papan Kanban Trello [#TASK-02]"
-        },
-        "listBefore": { "id": "list-prog", "name": "in progress" },
-        "listAfter": { "id": "list-done", "name": "Done" }
-      },
-      "memberCreator": {
-        "username": "patirparkerr",
-        "fullName": "Fatir"
-      }
-    }
-  }
-  ```
-* **Success Response (200 OK):**
-  ```json
-  {
-    "success": true,
-    "message": "Status tugas TASK-02 berhasil diperbarui ke \"Done\" dari Trello inbound webhook.",
-    "taskCode": "TASK-02",
-    "status": "Done"
-  }
-  ```
-
----
-
 ### 2.2 Instant Commit Simulator
 Memicu automasi tugas secara instan tanpa perlu git push fisik (sangat berguna untuk demo cepat).
 
@@ -120,10 +81,10 @@ Memicu automasi tugas secara instan tanpa perlu git push fisik (sangat berguna u
 ---
 
 ### 2.3 Daftar Tugas Proyek
-Mengambil semua daftar tugas lokal/cache Trello.
+Mengambil semua daftar tugas dari database lokal (MySQL/In-Memory).
 
 * **Method:** `GET`
-* **Path:** `/tasks`
+* **Path:** `/tasks` (atau `/api/v1/tasks`)
 * **Success Response (200 OK):**
   ```json
   [
@@ -138,9 +99,9 @@ Mengambil semua daftar tugas lokal/cache Trello.
     {
       "id": 2,
       "task_code": "TASK-02",
-      "title": "Integrasi Halaman Login & Auth",
+      "title": "Integrasi Database & State Engine",
       "status": "Done",
-      "assignee": "denoyey",
+      "assignee": "Patirparkerr",
       "updated_at": "2026-11-06T07:29:02.000Z"
     }
   ]
@@ -148,16 +109,16 @@ Mengambil semua daftar tugas lokal/cache Trello.
 
 ---
 
-### 2.4 Sinkronisasi Manual Trello
-Menarik pembaruan kartu langsung dari board Trello publik/privat ke database lokal.
+### 2.4 Sinkronisasi GitHub Issues ke Tugas
+Menarik issue dari repositori GitHub ke database lokal sebagai kartu tugas.
 
 * **Method:** `POST`
-* **Path:** `/tasks/sync` (atau `/api/v1/tasks/sync-trello`)
+* **Path:** `/api/v1/tasks/sync-github-issues` (atau `/tasks/sync-issues`)
 * **Success Response (200 OK):**
   ```json
   {
     "success": true,
-    "message": "Berhasil sinkronisasi 5 kartu dari Trello",
+    "message": "Berhasil sinkronisasi 5 issue dari GitHub",
     "count": 5
   }
   ```
@@ -247,7 +208,6 @@ Menampilkan status kesiapan koneksi seluruh subsistem.
   ```json
   {
     "mysql": true,
-    "trello": true,
     "discord": true,
     "github": true,
     "uptime": 1420.55,

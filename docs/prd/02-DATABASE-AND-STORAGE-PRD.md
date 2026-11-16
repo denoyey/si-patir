@@ -29,10 +29,9 @@ SI-PATIR menggunakan arsitektur penyimpanan bertingkat ganda (*Dual-Tier Storage
 │ name                    │       ┌───────┤ task_code (UNIQUE)      │
 │ github_username (UNIQUE)│       │       │ title                   │
 │ total_commits           │       │       │ status (ENUM)           │
-│ tasks_done              │       │       │ trello_card_id          │
-│ updated_at              │       │       │ assignee                │
-└─────────────────────────┘       │       │ updated_at              │
-                                  │       └─────────────────────────┘
+│ tasks_done              │       │       │ assignee                │
+│ updated_at              │       │       │ updated_at              │
+└─────────────────────────┘       │       └─────────────────────────┘
                                   │
                                   │       ┌─────────────────────────┐
                                   │       │      activity_logs      │
@@ -73,7 +72,7 @@ CREATE TABLE IF NOT EXISTS members (
 ---
 
 ### 3.2 Tabel `tasks` (Daftar & Status Tugas Proyek)
-Menyimpan pemetaan kartu tugas Trello ke dalam sistem lokal.
+Menyimpan status dan penugasan kartu tugas dalam mesin status internal.
 
 ```sql
 CREATE TABLE IF NOT EXISTS tasks (
@@ -81,7 +80,6 @@ CREATE TABLE IF NOT EXISTS tasks (
   task_code VARCHAR(50) NOT NULL UNIQUE,
   title VARCHAR(255) NOT NULL,
   status ENUM('To Do', 'In Progress', 'Done') DEFAULT 'To Do',
-  trello_card_id VARCHAR(100),
   assignee VARCHAR(100),
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_task_code (task_code)

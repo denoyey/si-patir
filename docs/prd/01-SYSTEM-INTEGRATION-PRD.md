@@ -21,15 +21,15 @@ SI-PATIR bertindak sebagai **Orchestrator Gateway** yang menjembatani protokol I
                                     │                 │                  │
         ┌───────────────────────────┘                 │                  └───────────────────────────┐
         │                                             │                                              │
-[ Inbound Event ]                           [ Outbound Task Sync ]                         [ Outbound Notification ]
+[ Inbound Event ]                           [ Task State Engine ]                          [ Outbound Notification ]
         ▼                                             ▼                                              ▼
 ┌───────────────────────┐                   ┌───────────────────┐                          ┌───────────────────┐
-│     SISTEM 1 (Git)    │                   │ SISTEM 2 (Kanban) │                          │ SISTEM 3 (Chat)   │
-│   GitHub Webhook /    │                   │   Trello REST API │                          │  Discord Webhook  │
-│   Local Git Hook      │                   │                   │                          │                   │
-│                       │                   │ - Search Card     │                          │ - Rich Embed      │
-│ - Push Event Payload  │                   │ - Shift to Done   │                          │ - Color Coding    │
-│ - Author, Message, Url│                   │ - Attach Comment  │                          │ - Direct Git Link │
+│     SISTEM 1 (Git)    │                   │ SISTEM 2 (State)  │                          │ SISTEM 3 (Chat)   │
+│   GitHub Webhook /    │                   │ Task State Engine │                          │  Discord Webhook  │
+│   Local Git Hook      │                   │ (MySQL2 Storage)  │                          │                   │
+│                       │                   │ - Match Task Code │                          │ - Rich Embed      │
+│ - Push Event Payload  │                   │ - Transition Done │                          │ - Color Coding    │
+│ - Author, Message, Url│                   │ - Record Evidence │                          │ - Direct Git Link │
 └───────────────────────┘                   └───────────────────┘                          └───────────────────┘
 ```
 
@@ -63,33 +63,35 @@ Sistem secara otomatis:
 
 ---
 
-## 3. Outbound Pipeline 1: Trello REST API Integration
+## 3. Internal Task State Engine & GitHub Issues Integration
 
-### 3.1 Spesifikasi Komunikasi
-* **Protokol:** HTTPS REST API
-* **Base URL:** `https://api.trello.com/1`
-* **Autentikasi:** Parameter kueri `key` (API Key) dan `token` (Server Token).
-* **Timeout Budget:** 5000 milidetik (mencegah *thread pool starvation* di backend).
+### 3.1 Spesifikasi Komunikasi & Manajemen Status
+* **Penyimpanan:** Relasional MySQL2 (`tasks` table) dengan In-Memory Fallback.
+* **Siklus Hidup Tugas:** `To Do` ➔ `In Progress` ➔ `Done`.
+* **Latency:** < 10 milidetik (eksekusi kueri terindeks lokal).
 
-### 3.2 Langkah Eksekusi Automasi Kartu
-1. **Pencarian Kartu (`GET /boards/{boardId}/cards`)**:
-   Mencari kartu yang judulnya memuat kode tugas, contoh: `c.name.includes("TASK-02")`.
-2. **Pemindahan Kolom (`PUT /cards/{cardId}`)**:
-   Mengirim parameter `idList = TRELLO_DONE_LIST_ID` untuk menggeser kartu ke kolom *Done*.
-3. **Penyematan Komentar Bukti (`POST /cards/{cardId}/actions/comments`)**:
-   Membuat komentar otomatis:
+### 3.2 Langkah Eksekusi Automasi Tugas
+1. **Pencocokan Kode Tugas (`TaskRepository.findByCode`)**:
+   Mencari record tugas berdasarkan kode yang diekstraksi dari pesan commit (contoh: `#TASK-02`).
+2. **Transisi Status Tugas (`TaskRepository.updateStatusByCode`)**:
+   Mengubah status tugas menjadi `Done` dan mencatat timestamp pembaruan di database.
+3. **Penyematan Bukti Aktivitas (`ActivityLogRepository.createLog`)**:
+   Mencatat jejak audit ke tabel `activity_logs`:
    ```text
-   🤖 SI-PATIR Engine: Tugas otomatis ditutup via commit GitHub!
-   Pesan: "Integrasi auth modul login [done #TASK-02]"
-   Bukti: https://github.com/org/repo/commit/7a8b9c1
+   Event: TASK_UPDATED
+   Author: @Patirparkerr
+   Message: Commit [done #TASK-02] - Tugas berhasil diselesaikan
    ```
 
-### 3.3 Graceful Degradation / Mock Mode
-Jika kredensial Trello belum dikonfigurasi di file `.env`, `TrelloIntegrationService` secara otomatis beralih ke mode simulasi, mencetak status log simulasi, dan memperbarui database lokal tanpa menyebabkan *crash* pada server.
+### 3.3 Sinkronisasi Opsional GitHub Issues API
+Sistem mendukung sinkronisasi issue langsung dari repositori GitHub via endpoint `/api/v1/tasks/sync-github-issues`:
+1. Menghubungi GitHub REST API (`GET /repos/{owner}/{repo}/issues`).
+2. Mengonversi issue GitHub menjadi entitas tugas lokal (`#TASK-XX`).
+3. Menyelaraskan status open/closed dengan status internal.
 
 ---
 
-## 4. Outbound Pipeline 2: Discord Webhook Integration
+## 4. Outbound Pipeline: Discord Webhook Integration
 
 ### 4.1 Spesifikasi Komunikasi
 * **Protokol:** HTTPS POST
@@ -100,7 +102,7 @@ Jika kredensial Trello belum dikonfigurasi di file `.env`, `TrelloIntegrationSer
 * **Title:** `✅ Tugas Selesai Otomatis! [SI-PATIR]`
 * **Fields:**
   * `👤 Developer`: Username pengembang yang melakukan commit.
-  * `📌 Tugas Trello`: Kode tugas, judul tugas, dan transisi status (`In Progress ➔ Done`).
+  * `📌 Rincian Tugas`: Kode tugas, judul tugas, dan transisi status (`In Progress ➔ Done`).
   * `💬 Pesan Commit`: Kutipan teks commit asli dari Git.
   * `🔗 Bukti Commit GitHub`: Tautan langsung yang dapat diklik ke halaman commit GitHub.
 * **Footer & Timestamp:** Stempel waktu ISO 8601 dan identitas `SI-PATIR DevOps Lite Integration Engine`.

@@ -29,7 +29,7 @@ export class DiscordNotificationService {
             inline: true,
           },
           {
-            name: '📌 Tugas Trello',
+            name: '📌 Rincian Tugas',
             value: `**${dto.taskCode}** - ${dto.taskTitle}\n\`${dto.oldStatus || 'In Progress'}\` ➔ \`${dto.newStatus || 'Done'}\``,
             inline: false,
           },

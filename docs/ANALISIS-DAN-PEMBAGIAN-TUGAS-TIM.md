@@ -1,10 +1,10 @@
 # ANALISIS GAP PROYEK & PEMBAGIAN TUGAS TIM (SI-PATIR)
 > **Nama Proyek:** SI-PATIR (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repositori*)  
-> **Tanggal Pembaruan Dokumen:** 10 November 2026  
-> **Status:** `ACTIVE SPRINT ROADMAP` | **Versi:** `2.2.0`  
+> **Tanggal Pembaruan Dokumen:** 16 November 2026  
+> **Status:** `ACTIVE SPRINT ROADMAP` | **Versi:** `2.3.0`  
 > **Anggota Tim (4 Orang):** Deni (Lead), Rafli, Fatir, Fajri  
 > **Repositori Resmi:** `https://github.com/denoyey/si-patir`  
-> **Papan Trello Resmi:** `https://trello.com/b/1GJ7t2HK/si-patir-sprint-board`  
+> **Integrasi Utama:** GitHub Webhooks (Inbound) • Discord Webhooks (Outbound) • Internal Task State Engine (MySQL2) • Live WebSockets
 
 ---
 
@@ -14,13 +14,13 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 
 ### 1.1 Apa yang Sudah Selesai (Completed & Verified) ✅
 1. **Frontend Modern & Dashboard UI (React 19 + Tailwind v4 + GSAP + Lenis + Poppins)**:
-   - **Interactive Landing Page**: Hero section interaktif, diagram visual alur kerja Git ➔ Trello ➔ Discord, kartu fitur, preview mockup, dan showcase tim resmi.
+   - **Interactive Landing Page**: Hero section interaktif, diagram visual alur kerja Git Push Webhook ➔ Internal Task State Engine ➔ Discord Rich Embed, kartu fitur, preview mockup, dan showcase tim resmi.
    - **Theme Switcher Cerdas**: Mode `System OS`, `Light`, dan `Dark` dengan persistensi otomatis di `localStorage` dan kepatuhan kontras WCAG AA.
    - **Lenis Smooth Scroll OOP Engine**: Gulir halaman halus matematis dengan tombol Back to Top melayang, auto-scroll stream log, dan *Route Scroll Restoration*.
    - **Tabel Tugas Gaya Filament v5**: Data table kartu tugas dengan pagination dinamis (pilihan per-page 5/10/25/50, nomor halaman aktif), pencarian teks instan, filter status (*To Do*, *In Progress*, *Done*), serta filter per developer.
    - **Terminal Web Git Terintegrasi**: Terminal eksekusi commit langsung di dashboard web (bukan sekadar simulator atau teks panduan) dengan chip pemilih kontributor dan chip tugas cepat (`#TASK-01` s/d `#TASK-05`).
    - **Dialog Konfirmasi Tanpa Blur**: Penggantian dialog bawaan `window.confirm` dengan custom modal confirmation dialog yang responsif dan elegan.
-   - **Real-Time WebSocket Stream & Toast**: Notifikasi toast dinamis saat ada aktivitas commit baru, tugas selesai, perubahan status, atau sinkronisasi data Trello.
+   - **Real-Time WebSocket Stream & Toast**: Notifikasi toast dinamis saat ada aktivitas commit baru, tugas selesai, perubahan status, atau siaran live event WebSocket.
 2. **Backend Gateway, Security & REST API v1 Architecture**:
    - Express 5 + TypeScript berarsitektur OOP (`Application.ts`, controllers, services, repositories).
    - **REST API v1 Terstruktur**: Endpoint modular `/api/v1/tasks`, `/api/v1/members`, `/api/v1/webhooks`, dan `/api/v1/system` dengan backward compatibility.
@@ -29,10 +29,11 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
      - Pencegahan auto-zoom mengganggu pada iOS Safari (`font-size: 16px` pada input mobile).
      - Pencarian live endpoint, filter kategori, copy cURL instan, dan uji tembak API langsung dari browser.
    - **Keamanan Ketat (Hardening)**: Verifikasi tanda tangan HMAC SHA-256 constant-time (`crypto.timingSafeEqual`), Helmet CSP compliance (`script-src-attr 'unsafe-inline'`), IP Rate Limiter (120 req/min umum, 30 req/min webhook), dan strict CORS policy.
-3. **Integrasi Trello API Nyata Dua Arah (Bidirectional Kanban Sync)**:
-   - Papan resmi tim terhubung penuh: `https://trello.com/b/1GJ7t2HK/si-patir-sprint-board`.
-   - Sinkronisasi kartu otomatis: `moveCardToDone()`, `createCard()`, `deleteCard()`, `moveCardByStatus()`, dan `syncBoardToLocalDatabase()`.
-   - Sinkronisasi 100% antara database MySQL dan papan Trello untuk 5 kartu tugas utama (`#TASK-01` s/d `#TASK-05`).
+3. **Internal Task State Engine & GitHub Issues Integration (Native Kanban Engine)**:
+   - Mesin pelacak siklus hidup tugas (*Task State Engine*) internal berbasis MySQL2 + In-Memory Fallback.
+   - Transisi status otomatis saat commit Git mengandung tag penyelesaian (`[done #TASK-XX]` ➔ status berubah menjadi `Done`).
+   - Sinkronisasi dua arah via REST API dan integrasi opsional GitHub Issues (`/api/v1/tasks/sync-github-issues`).
+   - Manajemen penuh 5 kartu tugas utama sprint (`#TASK-01` s/d `#TASK-05`) tersimpan aman dalam database lokal tanpa dependensi vendor Kanban eksternal.
 4. **Integrasi GitHub Multi-Kontributor & Commit History Stream**:
    - Endpoint `/api/v1/members/sync-github` yang menarik kontributor nyata dari GitHub API dengan fallback `git shortlog`.
    - **Sinkronisasi Riwayat Commit Nyata ke Stream**: Riwayat commit asli dari repositori GitHub otomatis diimpor ke tabel `activity_logs`, sehingga stream live tidak pernah kosong dan memadukan commit historis dengan event live webhook.
@@ -45,10 +46,10 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
    - Auto-Push Scripts: `scripts/auto-git-push.sh` & `scripts/auto-git-push.bat` dengan quality gate otomatis (`tsc` + `vite build`).
    - Repository Hygiene: `scripts/clean-merged-branches.sh` & `scripts/clean-merged-branches.bat` (`npm run clean:branches`).
 8. **Konfigurasi Profil Proyek Dinamis & Multi-Repo Workspace (Dynamic Project & Multi-Tenant)**:
-   - **Isolasi Penuh 3-Sistem**: Integrasi repositori GitHub, board Trello, dan webhook Discord dibundel menjadi satu kesatuan profil proyek mandiri untuk mencegah kontaminasi data (*cross-pollution*).
+   - **Isolasi Penuh Antar-Proyek**: Integrasi repositori GitHub, task engine internal, dan webhook Discord dibundel menjadi satu kesatuan profil proyek mandiri untuk mencegah kontaminasi data (*cross-pollution*).
    - **Tabel `projects` & REST API v1 (`/api/v1/projects`)**: CRUD profil proyek lengkap dengan proteksi proyek default ID 1 (SI-PATIR).
    - **Project Switcher & Configuration Modal di Dashboard**: Modal interaktif di frontend untuk beralih proyek aktif, mengedit kredensial integrasi, dan mendaftarkan proyek baru secara live.
-   - **Webhook Routing Cerdas**: Backend secara otomatis mencocokkan repo GitHub pada payload webhook untuk menggerakkan kartu Trello dan mengirim notifikasi Discord ke proyek yang tepat.
+   - **Webhook Routing Cerdas**: Backend secara otomatis mencocokkan repo GitHub pada payload webhook untuk memperbarui status tugas dan mengirim notifikasi Discord ke proyek yang tepat.
 9. **CI/CD Pipeline, Stream Progresif & Penguatan UX/Aksesibilitas**:
    - **GitHub Actions Quality Gate (`.github/workflows/ci.yml`)**: Pipeline paralel untuk `backend` & `frontend` (`tsc --noEmit`, `oxlint`, Vite build, dan `npm test --if-present`) pada setiap push & PR ke `main`.
    - **Aktivitas Webhook Progresif & Modal Riwayat**: Feed sidebar ringkas 5 item terbaru dengan format hari singkat Indonesia (`Sel, 19:14`), *expandable commit message* (`line-clamp-2`), tombol *Muat lebih banyak*, pemisahan card `Terminal Git`, dan `ActivityLogsModal.tsx`.
@@ -60,22 +61,22 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 
 | No | Modul / Kebutuhan | Kondisi Saat Ini | Status | Penanggung Jawab |
 | :--- | :--- | :--- | :---: | :---: |
-| 1 | **Trello Board Nyata** | Papan resmi aktif, kredensial `.env` terkonfigurasi, pergeseran kartu dua arah berfungsi 100%. | **SELESAI (DONE)** ✅ | Fatir |
+| 1 | **Internal Task State Engine** | Mesin status tugas internal aktif, transisi otomatis via commit tag `[done #TASK-XX]`, live Socket.io broadcast. | **SELESAI (DONE)** ✅ | Fatir |
 | 2 | **Pendaftaran Akun Anggota Nyata** | 4 akun GitHub resmi (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) tersinkron ke MySQL & klasemen. | **SELESAI (DONE)** ✅ | Fatir & Deni |
 | 3 | **REST API v1 & Interactive API Explorer** | Endpoint modular v1 aktif, halaman `/api/docs` interaktif dan full support iPhone/mobile. | **SELESAI (DONE)** ✅ | Deni |
-| 4 | **Terminal Web Git di Dashboard** | Terminal langsung di web tanpa perlu buka terminal OS/laptop, otomatis geser Trello & catat riwayat. | **SELESAI (DONE)** ✅ | Rafli & Deni |
+| 4 | **Terminal Web Git di Dashboard** | Terminal langsung di web tanpa perlu buka terminal OS/laptop, otomatis transisikan status tugas & siarkan WebSocket. | **SELESAI (DONE)** ✅ | Rafli & Deni |
 | 5 | **Sinkronisasi Commit GitHub ke Stream** | Riwayat commit asli GitHub otomatis diimpor ke stream live (`activity_logs`). | **SELESAI (DONE)** ✅ | Deni & Fatir |
 | 6 | **Deployment Publik / Webhook Gateway (HTTPS URL)** | Skrip tunnel lintas platform aktif via `npm run tunnel` (LocalTunnel & Cloudflare), siap menghubungkan webhook GitHub.com ke backend lokal. | **SELESAI (DONE)** ✅ | Deni |
 | 7 | **CI/CD Pipeline (GitHub Actions)** | Workflow `.github/workflows/ci.yml` aktif memvalidasi `tsc --noEmit`, `oxlint`, Vite build, dan automated tests saat PR/push ke `main`. | **SELESAI (DONE)** ✅ | Deni |
 | 8 | **Visualisasi Grafik Kontribusi (Analytics Chart)** | Tersedia diagram batang perbandingan commit & diagram donat status sprint berbasis SVG presisi tinggi. | **SELESAI (DONE)** ✅ | Rafli |
-| 9 | **Modal Edit Tugas Lengkap** | Modal interaktif (`EditTaskModal.tsx`) terintegrasi tabel untuk mutasi judul, assignee, dan status dengan sinkronisasi Trello. | **SELESAI (DONE)** ✅ | Rafli |
+| 9 | **Modal Edit Tugas Lengkap** | Modal interaktif (`EditTaskModal.tsx`) terintegrasi tabel untuk mutasi judul, assignee, dan status dengan persistensi database & WebSocket real-time. | **SELESAI (DONE)** ✅ | Rafli |
 | 10 | **Export Laporan Sprint (PDF / CSV)** | Dukungan export CSV dengan UTF-8 BOM dan pencetakan PDF bersih via styling `@media print`. | **SELESAI (DONE)** ✅ | Rafli |
-| 11 | **Trello Webhook Listener (Inbound)** | Belum ada listener webhook otomatis saat kartu digeser langsung di Trello.com. | **PENDING (P3)** ⏳ | Fatir |
+| 11 | **Sinkronisasi GitHub Issues API** | Sinkronisasi issue dari repositori GitHub langsung ke daftar tugas lokal (`/api/v1/tasks/sync-github-issues`). | **SELESAI (DONE)** ✅ | Fatir & Deni |
 | 12 | **Automated Unit Testing (Vitest/Jest)** | Suite unit test otomatis 28 skenario: CommitParser, WebhookSecurity HMAC, dan TaskStatusFlow. | **SELESAI (DONE)** ✅ | Fajri |
 | 13 | **Security Penetration & Load Testing** | Belum ada tabel hasil uji batas rate limiter dan pengujian beban payload. | **PENDING (P2)** ⏳ | Fajri |
 | 14 | **Laporan Akademik Formal (Bab 1–5 & UML)** | Dokumen laporan formal skripsi/tugas besar & diagram arsitektur UML belum selesai. | **PENDING (P1)** ⏳ | Fajri |
 | 15 | **Slide Presentasi & Skenario Demo Dosen** | Bahan tayang presentasi Canva/PPT dan runbook naskah demo belum dibuat. | **PENDING (P1)** ⏳ | Fajri |
-| 16 | **Konfigurasi Profil Proyek Dinamis & Multi-Repo** | Multi-repo terisolasi, modal switcher, per-project Trello board & Discord webhook. | **SELESAI (DONE)** ✅ | Deni & Rafli |
+| 16 | **Konfigurasi Profil Proyek Dinamis & Multi-Repo** | Multi-repo terisolasi, modal switcher, per-project repository config & Discord webhook. | **SELESAI (DONE)** ✅ | Deni & Rafli |
 
 ---
 
@@ -91,7 +92,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
             ▼                               ▼                               ▼
 ┌───────────────────────┐       ┌───────────────────────┐       ┌───────────────────────┐
 │         RAFLI         │       │         FATIR         │       │         FAJRI         │
-│  Frontend & Analytics │       │ Trello & Database Eng │       │ QA, Testing & Docs    │
+│  Frontend & Analytics │       │ Database & System Eng │       │ QA, Testing & Docs    │
 └───────────────────────┘       └───────────────────────┘       └───────────────────────┘
 ```
 
@@ -130,7 +131,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 - [x] **1.8 Arsitektur Backend Multi-Repo & Dynamic Project Configuration Gateway**:
   - Rancang entitas `IProject` dan migrasi tabel `projects` di MySQL dengan fallback in-memory dan proteksi default project ID 1.
   - Implementasikan REST API modular `/api/v1/projects` (List, Active, Create, Update, Activate, Delete) dengan alias `/api/projects`.
-  - Hubungkan `WebhookController`, `TrelloIntegrationService`, dan `DiscordNotificationService` untuk isolasi per-proyek (*anti cross-pollution*).
+  - Hubungkan `WebhookController`, `TaskRepository`, dan `DiscordNotificationService` untuk isolasi per-proyek (*anti cross-pollution*).
 - [x] **1.9 Setup CI/CD Pipeline (GitHub Actions)**:
   - Buat berkas `.github/workflows/ci.yml` yang otomatis menjalankan:
     1. Backend `tsc --noEmit` & `npm run build`
@@ -166,7 +167,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 
 #### Checklist Pekerjaan:
 - [x] **2.1 Desain Dashboard Interaktif & Landing Page**:
-  - Rancang Landing Page informatif dengan showcase tim, diagram integrasi 3-sistem, dan kartu fitur.
+  - Rancang Landing Page informatif dengan showcase tim, diagram alur integrasi webhook, dan kartu fitur.
   - Terapkan kontainer modern `max-w-7xl` dengan ritme layout seragam dan tipografi Poppins.
 - [x] **2.2 Data Table Kartu Tugas Gaya Filament v5**:
   - Implementasikan tabel daftar tugas Filament v5 dengan pagination dinamis (navigasi halaman, pemilih jumlah baris 5/10/25/50).
@@ -181,7 +182,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
   - Terapkan Lenis Smooth Scroll dan tombol Back to Top dinamis.
 - [x] **2.5 Custom Dialog Konfirmasi & Toast Notifikasi**:
   - Buat komponen modal dialog konfirmasi kustom tanpa blur (`ConfirmDialog.tsx`).
-  - Pasang notifikasi toast real-time yang menangani event tugas selesai, pembaruan status, commit, dan sinkronisasi Trello.
+  - Pasang notifikasi toast real-time yang menangani event tugas selesai, pembaruan status, commit, dan siaran live WebSocket.
 - [x] **2.6 Visualisasi Grafik Analitik Kontribusi (Analytics Chart)**:
   - Pasang visualisasi chart SVG presisi tinggi pada dashboard.
   - Tampilkan diagram batang perbandingan jumlah commit per anggota tim.
@@ -208,45 +209,39 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 
 ---
 
-### 👤 3. FATIR (Kanban Trello Integrator & Database Engineer)
-* **Akun GitHub:** `@Patirparkerr` (Database & Trello Specialist • Collaborator)
-* **Peran Utama:** Integrasi Nyata Papan Trello, Otomasi Kolom Tugas, dan Optimalisasi Basis Data MySQL.
+### 👤 3. FATIR (Database & System Integration Engineer)
+* **Akun GitHub:** `@Patirparkerr` (Database & Integrations Specialist • Collaborator)
+* **Peran Utama:** Perancangan Skema Basis Data MySQL, State Engine Tugas Internal, Integrasi REST API, dan Optimasi Query.
 
 #### Checklist Pekerjaan:
-- [x] **3.1 Setup Akun & Papan Trello Resmi Tim**:
-  - Buat papan Trello resmi: `https://trello.com/b/1GJ7t2HK/si-patir-sprint-board`.
-  - Susun kolom standar Kanban: `To Do`, `in progress`, dan `Done`.
+- [x] **3.1 Setup Skema Basis Data Relasional & Indeks Query**:
+  - Rancang DDL tabel `members`, `tasks`, `projects`, dan `activity_logs` di MySQL dengan foreign keys dan index efisien.
+  - Susun kolom standar siklus hidup tugas: `To Do`, `In Progress`, dan `Done`.
   - Daftarkan kartu tugas awal tim (`#TASK-01` s/d `#TASK-05`).
-- [x] **3.2 Konfigurasi API Key & Token Trello**:
-  - Dapatkan API Key dan Server Token dari Trello Developer Portal.
-  - Ambil Board ID (`6aeda5a802922f9870c61315`) dan Done List ID (`6aeda5a902922f9870c61336`), lalu simpan di `.env`.
-- [x] **3.3 Integrasi Nyata Trello API Dua Arah (Bidirectional Integration)**:
-  - Bangun `TrelloIntegrationService.ts` yang mendukung:
-    1. `moveCardToDone()`: Menggeser kartu ke kolom Done dan menempelkan bukti commit.
-    2. `moveCardByStatus()`: Menggeser kartu sesuai perubahan dropdown status di dashboard.
-    3. `createCard()`: Menambah kartu baru di Trello saat tugas dibuat di dashboard.
-    4. `deleteCard()`: Menghapus kartu di Trello saat tugas dihapus di dashboard.
-    5. `syncBoardToLocalDatabase()`: Menarik dan menyamakan semua kartu dari Trello ke MySQL.
-- [x] **3.4 Sinkronisasi Penuh 5 Kartu Tugas Trello & MySQL**:
-  - Pastikan kartu `#TASK-01`, `#TASK-02`, `#TASK-03`, `#TASK-04`, dan `#TASK-05` sinkron 100% antara Trello dan MySQL.
+- [x] **3.2 Arsitektur Internal Task State Engine (Native Kanban Engine)**:
+  - Bangun `TaskRepository.ts` berorientasi objek yang mengontrol transisi siklus hidup tugas (`To Do` -> `In Progress` -> `Done`) tanpa ketergantungan pada vendor pihak ketiga.
+  - Implementasikan metode mutasi status tugas (`upsertTask`, `updateStatusByCode`, `deleteTask`).
+- [x] **3.3 Integrasi REST API Manajemen Tugas & GitHub Issues Sync**:
+  - Sediakan controller dan repository untuk mutasi tugas via REST API v1 (`/api/v1/tasks`).
+  - Sediakan integrasi opsional sinkronisasi issue dari repositori GitHub (`/api/v1/tasks/sync-github-issues`).
+- [x] **3.4 Sinkronisasi Penuh 5 Kartu Tugas Utama & Seeder Database**:
+  - Pastikan kartu `#TASK-01`, `#TASK-02`, `#TASK-03`, `#TASK-04`, dan `#TASK-05` tersimpan rapi di tabel `tasks` dan terhubung dengan developer yang sesuai.
 - [x] **3.5 Skema Database MySQL & In-Memory Fallback**:
   - Rancang dan pelihara skema tabel `members`, `tasks`, dan `activity_logs` di `DatabaseService.ts`.
   - Buat mekanisme in-memory fallback agar aplikasi tidak crash jika koneksi MySQL terputus.
 - [x] **3.6 Database Seeder Kolaborator Resmi**:
   - Daftarkan 4 anggota resmi (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) ke dalam database.
-- [x] **3.7 Trello Inbound Webhook Listener**:
-  - Berhasil merancang endpoint webhook inbound dari Trello (`/api/v1/webhooks/trello` dan `/api/webhooks/trello`) lengkap dengan validasi handshake HEAD/GET, ekstraksi tag tugas `[#TASK-XX]`, sinkronisasi dua arah ke basis data MySQL/in-memory fallback, dan siaran real-time WebSocket ke dashboard.
-- [x] **3.8 Database Backup & Maintenance Script**:
+- [x] **3.7 Database Backup & Maintenance Script**:
   - Dibuat script otomatisasi backup dump basis data MySQL cross-platform: `scripts/backup_db.bat` (Windows), `scripts/backup_db.sh` (Linux/macOS), dan `scripts/backup_helper.js` (Engine Node.js mandiri).
   - Berhasil melakukan tuning indeks komposit pada tabel `activity_logs` (`idx_task_created`, `idx_author_created`, `idx_event_status`, `idx_commit_msg`) untuk performa pencatatan ribuan log aktivitas.
 
 * **Berkas Kerja Utama:**
-  - `backend/src/services/TrelloIntegrationService.ts`
   - `backend/src/controllers/TaskController.ts`
   - `backend/src/database/DatabaseService.ts`
   - `backend/src/database/repositories/TaskRepository.ts`
   - `backend/src/database/repositories/MemberRepository.ts`
   - `backend/src/database/repositories/ActivityLogRepository.ts`
+  - `backend/database/seed_team.sql`
 
 ---
 
@@ -260,7 +255,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 - [x] **4.2 Audit Keamanan Gateway & Header**:
   - Uji kepatuhan header CSP Helmet dan pastikan tidak ada kebocoran stack trace error pada production mode.
 - [x] **4.3 Pengujian Alur Webhook Nyata**:
-  - Validasi alur pengiriman pesan Discord dan sinkronisasi kartu Trello saat webhook dijalankan.
+  - Validasi alur pengiriman pesan Discord dan transisi status tugas internal saat webhook dijalankan.
 - [x] **4.4 Automated Unit Testing Suite (Vitest / Jest)**:
   - Berhasil membuat pengujian otomatis 28 skenario pada folder `backend/tests/`:
     1. `CommitParserService.test.ts`: Uji parsing regex pesan commit (`[done #TASK-01]`, `fix: #TASK-02`, casing variatif, anti-XSS, anti-ReDoS).
@@ -273,13 +268,13 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 - [ ] **4.6 Penyusunan Laporan Akademik Formal (Bab 1 s/d Bab 5)**:
   - Menyusun dokumen laporan resmi tugas besar / skripsi:
     - **Bab 1:** Pendahuluan (Latar Belakang, Identifikasi Masalah, Batasan Masalah, Tujuan & Manfaat).
-    - **Bab 2:** Landasan Teori (Webhook, RESTful API, WebSocket Socket.io, HMAC SHA-256, React, Express, MySQL, Trello API, Discord Webhook).
-    - **Bab 3:** Analisis & Perancangan Sistem (Use Case Diagram, Activity Diagram Integrasi 3-Sistem, Sequence Diagram Webhook, Entity Relationship Diagram / ERD, Perancangan Antarmuka).
+    - **Bab 2:** Landasan Teori (Webhook, RESTful API, WebSocket Socket.io, HMAC SHA-256, React, Express, MySQL, GitHub Webhook API, Discord Webhook).
+    - **Bab 3:** Analisis & Perancangan Sistem (Use Case Diagram, Activity Diagram Integrasi Webhook, Sequence Diagram Webhook, Entity Relationship Diagram / ERD, Perancangan Antarmuka).
     - **Bab 4:** Implementasi & Hasil Pengujian (Tabel Blackbox Test & Uji Integrasi).
     - **Bab 5:** Kesimpulan & Saran Pengembangan Mendatang.
 - [ ] **4.7 Pembuatan Slide Presentasi & Skenario Demo Dosen 30 Detik**:
   - Buat slide presentasi (Canva / PPT) berdesain modern, elegan, dan berbobot akademis.
-  - Susun skenario naskah demo 30 detik: Langkah 1 (Tugas di Trello In Progress) ➔ Langkah 2 (Commit Git dengan tag `[done #TASK-XX]`) ➔ Langkah 3 (Kartu Trello otomatis bergeser ke Done) ➔ Langkah 4 (Notifikasi Discord dan Live Stream muncul seketika).
+  - Susun skenario naskah demo 30 detik: Langkah 1 (Tugas di Task Engine In Progress) ➔ Langkah 2 (Commit Git dengan tag `[done #TASK-XX]`) ➔ Langkah 3 (Tugas otomatis bergeser ke Done di database & dashboard) ➔ Langkah 4 (Notifikasi Discord dan Live Stream muncul seketika).
 
 * **Berkas Kerja Utama:**
   - `backend/tests/CommitParser.test.ts` (Pending)
@@ -293,21 +288,21 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
 ## 4. Jadwal Sprint & Rencana Tindak Lanjut Tim (Sprint Action Plan)
 
 ```
-[ FASE 1: Core Foundation & Integrasi 3-Sistem ] ──> STATUS: 100% SELESAI ✅
+[ FASE 1: Core Foundation & Integrasi Sistem ] ──> STATUS: 100% SELESAI ✅
   ├─ Deni   : Backend Gateway REST API v1, Security Hardening, & Interactive API Docs Explorer
-  ├─ Fatir  : Setup Papan Trello Resmi, Bidirectional Sync API, & Database Seeder 4 Anggota
+  ├─ Fatir  : Setup Task State Engine, MySQL DDL Schema, & Database Seeder 4 Anggota
   ├─ Rafli  : Frontend Dashboard React 19, Filament v5 Data Table, & Terminal Web Git
   └─ Fajri  : Quality Gate Pre-push & Validasi Alur Integrasi
 
 [ FASE 2: Fitur Lanjutan, Visualisasi & Pengujian ] ──> STATUS: SEDANG BERJALAN ⏳
   ├─ Deni   : Setup Public Webhook Gateway (Cloudflare Tunnel / LocalTunnel) & CI/CD Actions [SELESAI ✅]
-  ├─ Fatir  : Trello Inbound Webhook Listener & Backup Maintenance Script
+  ├─ Fatir  : GitHub Issues Sync & Database Backup Maintenance Script
   ├─ Rafli  : Grafik Analitik Kontribusi Tim, Modal Edit Tugas, & Export Laporan PDF/CSV [SELESAI ✅]
   └─ Fajri  : Automated Unit Testing (Vitest) & Security/Load Testing Report
 
 [ FASE 3: Penyusunan Laporan Akademik & Presentasi Demo ] ──> STATUS: MINGGU DEPAN 📅
   ├─ Fajri  : Penyusunan Dokumen Laporan Bab 1–5, Diagram UML & ERD, serta Slide Canva/PPT
-  ├─ Seluruh Tim: Gladi Bersih Demonstrasi Alur 3-Sistem (Git ➔ Trello ➔ Discord ➔ Web)
+  ├─ Seluruh Tim: Gladi Bersih Demonstrasi Alur Integrasi (Git ➔ Task Engine ➔ Discord ➔ Web)
 ```
 
 ---
@@ -320,7 +315,7 @@ Seluruh anggota tim (Deni, Rafli, Fatir, Fajri) **wajib mematuhi** aturan beriku
    Seluruh pengerjaan fitur wajib menggunakan branch tersendiri:
    - Deni: `feat/devops-public-gateway` atau `feat/ci-cd-pipeline`
    - Rafli: `feat/analytics-chart` atau `feat/export-report`
-   - Fatir: `feat/trello-inbound-webhook` atau `feat/db-backup`
+   - Fatir: `feat/db-backup` atau `feat/query-optimization`
    - Fajri: `test/automated-unit-tests` atau `docs/academic-report`
 2. **Gunakan Script Auto-Push Resmi (Mendukung Linux, macOS & Windows)**:
    Gunakan script starter otomatis agar kode diverifikasi sebelum dikirim ke GitHub:

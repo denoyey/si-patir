@@ -54,26 +54,25 @@ Saat giliran Anda presentasi di depan dosen atau penguji, ikuti skenario 30 deti
 ### Langkah 1: Tampilkan Kondisi Awal (10 Detik)
 1. Buka Dashboard SI-PATIR di browser (`http://localhost:3000`).
 2. Tunjukkan ke dosen:
-   * Lampu indikator: `GitHub: Ready 🟢`, `Trello: Synced 🟢`, `Discord: Active 🟢`.
-   * Pada tabel tugas, tunjukkan kartu **`[#TASK-02] Integrasi Halaman Login`** masih berstatus **`In Progress`**.
-   * Buka tab Trello di browser sampingnya dan tunjukkan kartu `#TASK-02` masih ada di kolom *In Progress*.
+   * Lampu indikator: `GitHub: Ready 🟢`, `MySQL: Connected 🟢`, `Discord: Active 🟢`, `WebSocket: Live 🟢`.
+   * Pada tabel tugas, tunjukkan kartu **`[#TASK-02] Integrasi Database & State Engine`** masih berstatus **`In Progress`**.
 
 ### Langkah 2: Lakukan Pemicu Automasi (10 Detik)
 Pilih salah satu dari 2 opsi pemicu:
 * **Opsi A (Paling Cepat)**: Klik tombol putih di header dashboard:  
   **`⚡ Test Commit [done #TASK-02]`**
-* **Opsi B (Paling Keren di Terminal)**: Di terminal repo Git, ketik:  
+* **Opsi B (Paling Keren di Terminal)**: Di terminal repo Git atau Terminal Web di dashboard, ketik:  
   ```bash
-  git commit -m "Selesai modul login auth [done #TASK-02]"
+  git commit -m "Selesai modul database & state engine [done #TASK-02]"
   ```
 
-### Langkah 3: Tunjukkan Bukti Tiga Sistem Berespons (10 Detik)
+### Langkah 3: Tunjukkan Bukti Sistem Berespons (10 Detik)
 1. **Layar Dashboard Web**:
    * Status `#TASK-02` langsung berubah menjadi badge hijau **`Done`**.
-   * Di panel kanan *Live Webhook Stream*, muncul log baru: `Trello card #TASK-02 shifted to Done & Discord notified`.
+   * Di panel kanan *Live Webhook Stream*, muncul log baru: `Task #TASK-02 transitioned to Done & Discord notified`.
    * Poin commit developer bersangkutan di tabel klasemen langsung bertambah otomatis.
-2. **Layar Trello**:
-   * Kartu `#TASK-02` otomatis loncat sendiri ke kolom **`Done`** dan terdapat komentar link bukti commit.
+2. **Layar Basis Data & State Engine**:
+   * Data tugas `#TASK-02` di MySQL otomatis bertransisi ke status **`Done`** dengan bukti pesan commit.
 3. **Layar Discord**:
    * Kanal Discord grup berbunyi notifikasi, menampilkan pesan embed hijau rapi dari *SI-PATIR Bot*.
 
@@ -85,7 +84,7 @@ Pilih salah satu dari 2 opsi pemicu:
 | :--- | :--- | :--- |
 | **MySQL: Memory Fallback 🟡** | Service MySQL lokal belum dinyalakan atau password salah | Cek service MySQL (`sudo service mysql start`) dan pastikan password di `backend/.env` sesuai. Sistem tetap berjalan normal dengan memory fallback. |
 | **Discord Tidak Menerima Notifikasi** | URL Webhook di `.env` masih kosong | Buka Discord -> Channel Settings -> Integrations -> Webhooks -> Buat Webhook baru dan tempel URL-nya di `backend/.env`. |
-| **Trello Tidak Bergeser** | Kredensial Trello belum diisi | Ambil API Key & Token di [trello.com/app-key](https://trello.com/app-key), isi Board ID & Done List ID di `backend/.env`. Jika kosong, sistem otomatis masuk ke mode simulasi sukses. |
+| **GitHub Webhook Gagal Menjangkau Backend** | URL webhook belum dipublikasikan atau tunnel mati | Jalankan `npm run tunnel` untuk membuat domain HTTPS publik (LocalTunnel/Cloudflare) dan pasang di Webhook Settings GitHub. |
 
 ---
 
@@ -101,7 +100,7 @@ Setiap agen pengembang atau developer di proyek SI-PATIR wajib mengikuti alur ke
 * **Format**: `<tipe>/<nama-singkat-fitur-atau-isu>`
 * **Daftar Prefix Resmi**:
   * `feat/*` : Penambahan fungsionalitas baru (misal: `feat/realtime-socket-filter`).
-  * `fix/*` : Perbaikan bug / insiden (misal: `fix/trello-token-fallback`).
+  * `fix/*` : Perbaikan bug / insiden (misal: `fix/hmac-timing-attack`).
   * `refactor/*` : Pembersihan dan restrukturisasi kode (misal: `refactor/repository-oop`).
   * `docs/*` : Pembaruan dokumentasi PRD / panduan (misal: `docs/update-git-workflow-prd`).
   * `chore/*` : Pembaruan skrip otomasi & perkakas (misal: `chore/port-killer-scripts`).

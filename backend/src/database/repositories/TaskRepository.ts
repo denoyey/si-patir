@@ -12,7 +12,7 @@ export class TaskRepository {
     if (this.db.isConnected() && this.db.getPool()) {
       try {
         const [rows] = await this.db.getPool()!.query(
-          'SELECT id, task_code, title, status, trello_card_id, assignee, updated_at FROM tasks ORDER BY id ASC'
+          'SELECT id, task_code, title, status, assignee, updated_at FROM tasks ORDER BY id ASC'
         );
         return rows as ITask[];
       } catch (err: any) {
@@ -135,33 +135,11 @@ export class TaskRepository {
     return null;
   }
 
-  public async updateTrelloCardId(taskCode: string, cardId: string): Promise<boolean> {
-    const cleanCode = taskCode.trim().toUpperCase().replace(/^#/, '');
-    if (this.db.isConnected() && this.db.getPool()) {
-      try {
-        const [result]: any = await this.db.getPool()!.query(
-          'UPDATE tasks SET trello_card_id = ? WHERE UPPER(task_code) = ?',
-          [cardId, cleanCode]
-        );
-        return result.affectedRows > 0;
-      } catch (err: any) {
-        console.error('[TaskRepository] updateTrelloCardId error:', err.message);
-      }
-    }
-    const task = this.db.getMemoryTasks().find((t) => t.task_code.toUpperCase() === cleanCode);
-    if (task) {
-      task.trello_card_id = cardId;
-      return true;
-    }
-    return false;
-  }
-
   public async upsertTask(data: {
     taskCode: string;
     title: string;
     assignee: string;
     status: 'To Do' | 'In Progress' | 'Done';
-    trelloCardId?: string;
   }): Promise<ITask | null> {
     const cleanCode = data.taskCode.trim().toUpperCase().replace(/^#/, '');
     const cleanTitle = data.title.trim();
@@ -170,13 +148,13 @@ export class TaskRepository {
     if (this.db.isConnected() && this.db.getPool()) {
       try {
         await this.db.getPool()!.query(
-          `INSERT INTO tasks (task_code, title, assignee, status, trello_card_id)
-           VALUES (?, ?, ?, ?, ?)
+          `INSERT INTO tasks (task_code, title, assignee, status)
+           VALUES (?, ?, ?, ?)
            ON DUPLICATE KEY UPDATE
              title = VALUES(title),
              status = VALUES(status),
-             trello_card_id = COALESCE(VALUES(trello_card_id), trello_card_id)`,
-          [cleanCode, cleanTitle, cleanAssignee, data.status, data.trelloCardId || null]
+             assignee = VALUES(assignee)`,
+          [cleanCode, cleanTitle, cleanAssignee, data.status]
         );
         return this.findByCode(cleanCode);
       } catch (err: any) {
@@ -189,7 +167,7 @@ export class TaskRepository {
     if (existing) {
       existing.title = cleanTitle;
       existing.status = data.status;
-      if (data.trelloCardId) existing.trello_card_id = data.trelloCardId;
+      existing.assignee = cleanAssignee;
       return existing;
     }
 
@@ -199,7 +177,6 @@ export class TaskRepository {
       title: cleanTitle,
       status: data.status,
       assignee: cleanAssignee,
-      trello_card_id: data.trelloCardId,
     };
     this.db.getMemoryTasks().push(newTask);
     return newTask;

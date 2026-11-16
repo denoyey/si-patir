@@ -20,7 +20,7 @@ export class DatabaseService {
 
   private memoryTasks: ITask[] = [
     { id: 1, task_code: 'TASK-01', title: 'Buat Database & Skema User', status: 'Done', assignee: 'denoyey' },
-    { id: 2, task_code: 'TASK-02', title: 'Integrasi Papan Kanban Trello', status: 'Done', assignee: 'Patirparkerr' },
+    { id: 2, task_code: 'TASK-02', title: 'Integrasi Basis Data & Task State Engine', status: 'Done', assignee: 'Patirparkerr' },
     { id: 3, task_code: 'TASK-03', title: 'Desain Layout Dashboard & UI Realtime', status: 'Done', assignee: 'muhamadrafli16' },
     { id: 4, task_code: 'TASK-04', title: 'Setup Webhook Handler & Logger HMAC', status: 'Done', assignee: 'denoyey' },
     { id: 5, task_code: 'TASK-05', title: 'Testing Otomasi QA & Security Rate Limiter', status: 'In Progress', assignee: 'AATTTRAWRRR' },
@@ -47,8 +47,6 @@ export class DatabaseService {
         slug: 'si-patir',
         github_repo: this.config.githubRepo || 'denoyey/si-patir',
         github_webhook_secret: this.config.githubWebhookSecret || 'sipatir_secret_123',
-        trello_board_id: this.config.trelloBoardId || '',
-        trello_done_list_id: this.config.trelloDoneListId || '',
         discord_webhook_url: this.config.discordWebhookUrl || '',
         is_active: true,
         created_at: new Date().toISOString(),
@@ -123,7 +121,6 @@ export class DatabaseService {
         task_code VARCHAR(50) NOT NULL UNIQUE,
         title VARCHAR(255) NOT NULL,
         status ENUM('To Do', 'In Progress', 'Done') DEFAULT 'To Do',
-        trello_card_id VARCHAR(100),
         assignee VARCHAR(100),
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         INDEX idx_task_code (task_code)
@@ -175,8 +172,6 @@ export class DatabaseService {
         slug VARCHAR(100) NOT NULL UNIQUE,
         github_repo VARCHAR(150) NOT NULL,
         github_webhook_secret VARCHAR(150),
-        trello_board_id VARCHAR(100),
-        trello_done_list_id VARCHAR(100),
         discord_webhook_url TEXT,
         is_active BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -190,15 +185,13 @@ export class DatabaseService {
     const [projectCount]: any = await this.pool.query('SELECT COUNT(*) as count FROM projects');
     if (projectCount[0].count === 0) {
       await this.pool.query(
-        `INSERT INTO projects (id, name, slug, github_repo, github_webhook_secret, trello_board_id, trello_done_list_id, discord_webhook_url, is_active)
-         VALUES (1, ?, 'si-patir', ?, ?, ?, ?, ?, TRUE)
+        `INSERT INTO projects (id, name, slug, github_repo, github_webhook_secret, discord_webhook_url, is_active)
+         VALUES (1, ?, 'si-patir', ?, ?, ?, TRUE)
          ON DUPLICATE KEY UPDATE github_repo = VALUES(github_repo)`,
         [
           'SI-PATIR (DevOps Lite)',
           this.config.githubRepo || 'denoyey/si-patir',
           this.config.githubWebhookSecret || 'sipatir_secret_123',
-          this.config.trelloBoardId || '',
-          this.config.trelloDoneListId || '',
           this.config.discordWebhookUrl || '',
         ]
       );

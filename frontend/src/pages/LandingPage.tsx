@@ -44,13 +44,13 @@ const TEAM_MEMBERS = [
   },
   {
     name: 'Fatir',
-    role: 'Kanban Trello & Database Engineer',
+    role: 'Database & System Integration Engineer',
     username: 'Patirparkerr',
     badge: 'Integrations Lead',
     avatar: 'https://github.com/Patirparkerr.png?size=400',
     description:
-      'Mengintegrasikan Trello REST API untuk pemindahan kartu otomatis, perancangan basis data MySQL, dan sinkronisasi status tugas.',
-    skills: ['Trello API', 'MySQL', 'RESTful API', 'Database Design'],
+      'Merancang arsitektur basis data relasional MySQL, mengimplementasikan state machine status tugas, dan menghubungkan webhook pipeline ke basis data.',
+    skills: ['MySQL', 'Database Design', 'RESTful API', 'State Engine'],
   },
   {
     name: 'Fajri',
@@ -183,7 +183,7 @@ export function LandingPage() {
           <h1 className="text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-950 dark:text-white max-w-4xl mx-auto leading-tight sm:leading-tight px-1">
             Satu Commit Git. <br />
             <span className="bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500 bg-clip-text text-transparent">
-              Tugas Trello Selesai. Tim Discord Terberitahu.
+              Tugas Selesai Otomatis. Tim Discord Terberitahu.
             </span>
           </h1>
 
@@ -223,9 +223,9 @@ export function LandingPage() {
               <span className="font-semibold text-emerald-600 dark:text-emerald-400">Ready</span>
             </div>
             <div className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
-              <span className="text-zinc-500 dark:text-zinc-400">Trello:</span>
-              <span className="font-semibold text-blue-600 dark:text-blue-400">Synced</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+              <span className="text-zinc-500 dark:text-zinc-400">MySQL:</span>
+              <span className="font-semibold text-emerald-600 dark:text-emerald-400">Connected</span>
             </div>
             <div className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
@@ -292,13 +292,13 @@ export function LandingPage() {
                   TAHAP 02
                 </div>
                 <h4 className="text-base font-bold text-zinc-950 dark:text-white mb-2">
-                  Kartu Trello Bergeser ke Done
+                  Status Tugas Otomatis Selesai
                 </h4>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
-                  Backend otomatis mencari kartu yang sesuai di papan Trello dan menggesernya dari kolom <em>In Progress</em> ke <em>Done</em>.
+                  Backend otomatis mengekstrak tag tugas dari commit Git dan memperbarui status kartu di basis data MySQL dari <em>In Progress</em> ke <em>Done</em> secara instan.
                 </p>
                 <div className="p-2.5 rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 text-[11px] text-blue-700 dark:text-blue-300">
-                  Komentar bukti commit dan URL hash otomatis tertempel di kartu Trello.
+                  Bukti hash commit dan URL diff terekam permanen di log audit sistem.
                 </div>
               </div>
               <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800/80 text-[11px] text-zinc-500 flex items-center gap-1.5">
@@ -406,7 +406,7 @@ export function LandingPage() {
               Anggota Tim Pengembang SI-PATIR
             </h3>
             <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
-              Empat pengembang yang berkolaborasi dalam arsitektur, frontend, integrasi Trello, serta penjaminan mutu sistem.
+              Empat pengembang yang berkolaborasi dalam arsitektur, frontend, integrasi basis data, serta penjaminan mutu sistem.
             </p>
           </div>
 

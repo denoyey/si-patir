@@ -3,7 +3,7 @@
 # 🚀 SI-PATIR
 ### **Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repositori (DevOps Lite)**
 
-Platform automasi dan monitoring terpadu yang menghubungkan alur kerja **GitHub Webhook**, **Trello Kanban API**, dan notifikasi **Discord Webhook** ke dalam satu dashboard rekayasa berbasis **WebSocket Real-time** dan basis data **MySQL**.
+Platform automasi dan monitoring terpadu yang menghubungkan alur kerja **GitHub Webhook**, notifikasi **Discord Webhook**, dan **State Engine Tugas** ke dalam satu dashboard rekayasa berbasis **WebSocket Real-time** dan basis data **MySQL**.
 
 [![Version](https://img.shields.io/badge/Release-v2.2.0-6366F1?style=flat-square&logo=git&logoColor=white)](https://github.com/denoyey/si-patir/releases/tag/v2.2.0)
 [![Node.js](https://img.shields.io/badge/Node.js-v20+-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -37,16 +37,16 @@ Platform automasi dan monitoring terpadu yang menghubungkan alur kerja **GitHub 
 ## 💡 1. Latar Belakang & Masalah
 
 Dalam pengerjaan proyek perangkat lunak kolaboratif (tim/kelompok), sering terjadi kendala:
-* **Kartu Tugas Terbengkalai**: Developer telah menyelesaikan fitur dan melakukan `git push`, namun lupa menggeser kartu di Trello.
+* **Status Tugas Terbengkalai**: Developer telah menyelesaikan fitur dan melakukan `git push`, namun lupa memperbarui status tugas proyek di sistem pelacakan.
 * **Sindrom Numpang Nama (*Free-Rider*)**: Sulit melihat kontribusi riil commit dan tugas selesai per anggota secara transparan.
 * **Komunikasi Asinkron yang Lambat**: Anggota tim lain tidak segera mengetahui saat ada modul fundamental yang sudah selesai diintegrasikan.
 
 **Solusi SI-PATIR:**  
-Cukup tambahkan tag kode tugas pada pesan commit Git (contoh: `git commit -m "Selesai halaman login [done #TASK-02]"`), sistem akan secara otomatis memindahkan kartu Trello ke kolom **Done**, mengirim bukti commit ke grup **Discord**, dan memperbarui **Dashboard** secara real-time.
+Cukup tambahkan tag kode tugas pada pesan commit Git (contoh: `git commit -m "Selesai halaman login [done #TASK-02]"`), sistem akan secara otomatis memutakhirkan status tugas ke kolom **Done** di basis data MySQL, mengirim bukti commit ke grup **Discord**, dan memperbarui **Dashboard** secara real-time.
 
 ---
 
-## 🔄 2. Alur Integrasi Tiga Sistem
+## 🔄 2. Alur Integrasi Sistem
 
 ```text
 [ Terminal Developer: git commit & git push ]
@@ -59,15 +59,16 @@ Cukup tambahkan tag kode tugas pada pesan commit Git (contoh: `git commit -m "Se
 │             BACKEND GATEWAY SI-PATIR                   │
 │  - Verifikasi HMAC SHA-256 (Constant-Time Protection)  │
 │  - ReDoS-Safe Regex Commit Parser                      │
-│  - Update Database MySQL / In-Memory State             │
+│  - Task State Engine & Mutasi Status Tugas             │
+│  - Penyimpanan Persisten Relasional MySQL              │
 └────────┬───────────────────────┬───────────────────────┘
          │                       │
-         ▼ (2. Outbound Task)    ▼ (3. Outbound Chat)
+         ▼ (2. Task State Engine)▼ (3. Outbound Notification)
 ┌──────────────────┐    ┌──────────────────┐
-│   TRELLO API     │    │ DISCORD WEBHOOK  │
-│- Geser kartu ke  │    │- Kirim notifikasi│
-│  kolom Done      │    │  Rich Embed hijau│
-│- Sematkan bukti  │    │- Link commit Git │
+│  DATABASE MYSQL  │    │ DISCORD WEBHOOK  │
+│- Status tugas    │    │- Kirim notifikasi│
+│  Done di MySQL   │    │  Rich Embed hijau│
+│- Audit log hash  │    │- Link commit Git │
 └──────────────────┘    └──────────────────┘
          │                       │
          └───────────┬───────────┘
@@ -84,12 +85,12 @@ Cukup tambahkan tag kode tugas pada pesan commit Git (contoh: `git commit -m "Se
 
 ## ✨ 3. Fitur Unggulan
 
-* **Terminal Web Git Terintegrasi (Langsung di Web)**: Eksekusi commit langsung dari dashboard web tanpa perlu membuka terminal laptop/OS; dilengkapi tombol pintas tugas cepat (`#TASK-01` s/d `#TASK-05`) dan pemilih kontributor aktif yang langsung menggeser kartu Trello dan menyiarkan log stream.
-* **Konfigurasi Profil Proyek Dinamis & Multi-Repo Workspace**: Fleksibilitas pemantauan multi-proyek dan repositori GitHub berbeda tanpa hardcode. Pengguna dapat beralih atau mendaftarkan profil proyek baru secara live di mana setiap repositori memiliki konfigurasi terisolasi untuk papan Trello dan kanal notifikasi Discord masing-masing agar data tidak saling tumpang tindih (*anti cross-pollution*).
+* **Terminal Web Git Terintegrasi (Langsung di Web)**: Eksekusi commit langsung dari dashboard web tanpa perlu membuka terminal laptop/OS; dilengkapi tombol pintas tugas cepat (`#TASK-01` s/d `#TASK-05`) dan pemilih kontributor aktif yang langsung memperbarui status tugas di database & notifikasi Discord serta menyiarkan log stream.
+* **Konfigurasi Profil Proyek Dinamis & Multi-Repo Workspace**: Fleksibilitas pemantauan multi-proyek dan repositori GitHub berbeda tanpa hardcode. Pengguna dapat beralih atau mendaftarkan profil proyek baru secara live di mana setiap repositori memiliki konfigurasi terisolasi untuk kanal notifikasi Discord masing-masing agar data tidak saling tumpang tindih (*anti cross-pollution*).
 * **REST API v1 Modular & Interactive API Explorer (`/api/docs`)**: Arsitektur API modular (`/api/v1/tasks`, `/api/v1/members`, `/api/v1/webhooks`, `/api/v1/system`) dengan dokumentasi interaktif yang **100% responsif dan full support iPhone (iOS Safari)**: Safe Area Insets (`viewport-fit=cover`), pencegahan auto-zoom, copy cURL instan, dan live test request.
 * **Tabel Tugas Gaya Filament v5**: Data table kartu tugas modern dengan pagination dinamis (navigasi nomor halaman aktif, pemilih 5/10/25/50 baris per halaman), pencarian teks instan, filter status (*To Do*, *In Progress*, *Done*), serta filter per developer dari klasemen.
 * **Sinkronisasi Riwayat Commit Asli GitHub ke Stream**: Riwayat commit asli repositori GitHub otomatis diimpor ke basis data `activity_logs`, memastikan live audit stream selalu berisi data riil dan memadukan commit historis dengan event live webhook.
-* **Automasi DevOps Bebas Repot**: Tidak perlu membuka web Trello secara manual untuk menggeser kartu kerja; cukup commit dengan tag tugas (misal: `[done #TASK-02]`).
+* **Automasi DevOps Bebas Repot**: Tidak perlu membuka aplikasi pelacak secara manual untuk memperbarui kartu tugas; cukup commit dengan tag tugas (misal: `[done #TASK-02]`).
 * **Interactive Landing Page & Architecture Showcase**: Halaman beranda visual yang menjelaskan alur kerja 3-sistem, demonstrasi pipeline, kartu teknologi, dan profil pengembang.
 * **Sistem Pengalih Tema Cerdas (System OS, Light, Dark)**: Mendeteksi preferensi tema OS secara otomatis, didukung toggle manual, tersimpan secara persisten di `localStorage`, serta memenuhi standar rasio kontras WCAG AA.
 * **Lenis Smooth Scroll & Navigation Restoration**: Pengalaman gulir halaman ultra-mulus berbasis OOP matematika eksponensial dengan isolasi native pada tabel/modal, tombol *Back to Top* melayang, dan reset posisi scroll otomatis ke puncak saat berpindah halaman.
@@ -157,18 +158,12 @@ DB_PORT=3306
 # Discord Webhook URL (Ambil dari Discord Channel Settings -> Integrations -> Webhooks)
 DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/your_webhook_id/your_webhook_token
 
-# Trello API (Ambil dari https://trello.com/app-key)
-TRELLO_API_KEY=your_trello_api_key
-TRELLO_TOKEN=your_trello_token
-TRELLO_BOARD_ID=your_trello_board_id
-TRELLO_DONE_LIST_ID=your_trello_done_list_id
-
 # GitHub Webhook Secret (Opsional untuk verifikasi HMAC signature)
 GITHUB_WEBHOOK_SECRET=sipatir_secret_123
 ```
 
 > 💡 **Tips Pengujian Offline / Tanpa API**:  
-> Jika kredensial Trello atau Discord belum Anda isi, backend secara otomatis beralih ke **Mode Simulasi Mandiri** sehingga seluruh fitur dashboard dan database tetap dapat didemonstrasikan dengan sempurna.
+> Jika kredensial Discord belum Anda isi, backend secara otomatis beralih ke **Mode Simulasi Mandiri** sehingga seluruh fitur dashboard dan database tetap dapat didemonstrasikan dengan sempurna.
 
 ---
 
@@ -229,8 +224,8 @@ Mendukung eksekusi lintas sistem operasi secara penuh (**Linux, macOS, dan Windo
 
 Gunakan skenario cepat ini untuk membuktikan integrasi nyata di hadapan penilai:
 
-1. **Buka Dashboard**: Akses `http://localhost:3000`. Tunjukkan status indikator hijau `GitHub: Ready 🟢`, `Trello: Synced 🟢`, `Discord: Active 🟢`.
-2. **Pilih Tugas Target**: Tunjukkan pada tabel Filament bahwa tugas **`[#TASK-02] Integrasi Halaman Login`** masih berstatus **`In Progress`** (atau kartu lain di Trello).
+1. **Buka Dashboard**: Akses `http://localhost:3000`. Tunjukkan status indikator hijau `GitHub: Ready 🟢`, `Discord: Active 🟢`, `MySQL: Connected 🟢`, `WebSocket: Live 🟢`.
+2. **Pilih Tugas Target**: Tunjukkan pada tabel Filament bahwa tugas **`[#TASK-02] Integrasi Basis Data & Task State Engine`** masih berstatus **`In Progress`**.
 3. **Picukan Automasi**:
    * **Opsi A (Terminal Web Git Langsung di Web)**: Pada panel bawah *Terminal Web Git* di dashboard, klik chip tugas **`#TASK-02`**, pilih penguji (misal: `@denoyey`), lalu klik tombol hijau **`Kirim 🚀`**.
    * **Opsi B (Terminal Laptop / Git Asli)**: Di terminal repo Git lokal Anda, ketik:
@@ -239,7 +234,7 @@ Gunakan skenario cepat ini untuk membuktikan integrasi nyata di hadapan penilai:
      ```
 4. **Perhatikan Respons Seketika (1–2 Detik)**:
    * Status tugas `#TASK-02` di layar langsung berubah menjadi hijau **`Done`**.
-   * Di Trello, kartu `#TASK-02` otomatis loncat sendiri ke kolom *Done* disertai bukti commit.
+   * Di database MySQL, record tugas otomatis termutasi menjadi *Done* dan terekam di log audit.
    * Kanal Discord berbunyi notifikasi pesan kartu embed hijau rapi dari *SI-PATIR Bot*.
    * Panel samping *Live Webhook Stream* mencetak log aktivitas secara real-time.
 
@@ -263,7 +258,7 @@ si-patir/
 │   │   ├── types/interfaces.ts      # Domain Entity Contracts (IMember, ITask, IActivityLog)
 │   │   ├── config/EnvironmentConfig.ts # Singleton Configuration & Secret Masking
 │   │   ├── database/                # DatabaseService & Repositories (Prepared Statements)
-│   │   ├── services/                # Discord, Trello, Security & Commit Parser Services
+│   │   ├── services/                # Discord, Security, GitHub & Commit Parser Services
 │   │   ├── middlewares/             # Helmet, Dual-tier RateLimiter, CORS, Error Sanitizer
 │   │   ├── controllers/             # Webhook, Task, Member & System Controllers
 │   │   ├── Application.ts           # Application Gateway & Socket.io Lifecycle
@@ -347,16 +342,16 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
             ▼                               ▼                               ▼
 ┌───────────────────────┐       ┌───────────────────────┐       ┌───────────────────────┐
 │         RAFLI         │       │         FATIR         │       │         FAJRI         │
-│  Frontend & Analytics │       │ Trello & Database Eng │       │ QA, Testing & Docs    │
+│  Frontend & Analytics │       │ Database & Integrator │       │ QA, Testing & Docs    │
 └───────────────────────┘       └───────────────────────┘       └───────────────────────┘
 ```
 
 | No | Pengembang | Peran & Badge | Tanggung Jawab & Jobdesk Utama | Tech Stack & Fokus |
 |:--:|:-----------|:--------------|:-------------------------------|:-------------------|
 | **1** | **Deni**<br>[@denoyey](https://github.com/denoyey) | `Project Lead`<br>`Lead Architect & DevOps Integrator` | • Memimpin arsitektur gateway SI-PATIR, REST API v1 modular, serta isolasi Multi-Repo Workspace (`/api/v1/projects`).<br>• Merancang Webhook Ingestion Pipeline, engine Terminal Web Git, & verifikasi kriptografi HMAC SHA-256 (`crypto.timingSafeEqual`).<br>• Membangun Interactive REST API Explorer (`/api/docs`) responsif mobile/iPhone serta stream progresif & modal riwayat log (`ActivityLogsModal.tsx`).<br>• Mengonfigurasi WebSocket real-time server, sinkronisasi commit historis GitHub, & format waktu log bahasa Indonesia.<br>• Membangun public HTTPS webhook tunnel (`npm run tunnel`), CI/CD GitHub Actions (`.github/workflows/ci.yml`), serta otomasi branch governance (`auto-git-push` & `clean-merged-branches`). | `Node.js`, `Express`, `TypeScript`, `WebSocket`, `Multi-Repo`, `CI/CD`, `HMAC Security` |
-| **2** | **Rafli**<br>[@muhamadrafli16](https://github.com/muhamadrafli16) | `UI/UX Specialist`<br>`Frontend UI & Data Visualization Engineer` | • Merancang arsitektur antarmuka dashboard modern & landing page interaktif.<br>• Mengembangkan tabel tugas Filament v5 dengan pagination dinamis & filter kontributor.<br>• Membangun Terminal Web Git interaktif langsung di web browser.<br>• Menjamin responsivitas 100% di seluruh perangkat (desktop, tablet, hingga seluruh varian iPhone).<br>• Mengintegrasikan Lenis Smooth Scroll OOP engine & Theme Switcher cerdas.<br>• Membangun visualisasi grafik analitik presisi tinggi (Commit Bar Chart & Donut Chart), modal edit tugas terintegrasi Trello, ekspor laporan sprint (CSV/PDF), dan filter pencarian panel stream. | `React 19`, `Tailwind CSS v4`, `GSAP`, `Lenis Scroll`, `Filament UI`, `SVG Analytics` |
-| **3** | **Fatir**<br>[@Patirparkerr](https://github.com/Patirparkerr) | `Integrations Lead`<br>`Kanban Trello & Database Engineer` | • Mengintegrasikan Trello REST API untuk pemindahan kartu tugas otomatis (*In Progress* ➔ *Done*).<br>• Merancang dan memelihara skema basis data relasional MySQL lokal.<br>• Mengimplementasikan sinkronisasi status tugas real-time antara commit Git dan papan Kanban.<br>• Menyinkronkan 5 kartu tugas utama (`#TASK-01` s/d `#TASK-05`) dan seeder 4 anggota tim. | `Trello REST API`, `MySQL2`, `Database Design`, `RESTful API`, `Data Modeling` |
-| **4** | **Fajri**<br>[@AATTTRAWRRR](https://github.com/AATTTRAWRRR) | `Quality & Docs`<br>`QA, Security Testing & Academic Documentation` | • Menyusun pengujian unit test otomatis dan audit keamanan endpoint webhook.<br>• Melakukan pengujian audit ketahanan terhadap rate limiting, ReDoS, dan serangan DoS.<br>• Merancang laporan akademik lengkap (Bab 1–5), diagram UML (Use Case, Sequence, Activity, Class).<br>• Menyusun skenario demo 30 detik & slide presentasi dosen/penguji. | `Automated QA`, `Security Audit`, `UML Modeling`, `Technical Documentation` |
+| **2** | **Rafli**<br>[@muhamadrafli16](https://github.com/muhamadrafli16) | `UI/UX Specialist`<br>`Frontend UI & Data Visualization Engineer` | • Merancang arsitektur antarmuka dashboard modern & landing page interaktif.<br>• Mengembangkan tabel tugas Filament v5 dengan pagination dinamis & filter kontributor.<br>• Membangun Terminal Web Git interaktif langsung di web browser.<br>• Menjamin responsivitas 100% di seluruh perangkat (desktop, tablet, hingga seluruh varian iPhone).<br>• Mengintegrasikan Lenis Smooth Scroll OOP engine & Theme Switcher cerdas.<br>• Membangun visualisasi grafik analitik presisi tinggi (Commit Bar Chart & Donut Chart), modal edit tugas terintegrasi database, ekspor laporan sprint (CSV/PDF), dan filter pencarian panel stream. | `React 19`, `Tailwind CSS v4`, `GSAP`, `Lenis Scroll`, `Filament UI`, `SVG Analytics` |
+| **3** | **Fatir**<br>[@Patirparkerr](https://github.com/Patirparkerr) | `Integrations Lead`<br>`Database & System Integration Engineer` | • Merancang dan memelihara skema basis data relasional MySQL lokal dan in-memory fallback.<br>• Mengimplementasikan state machine status tugas terintegrasi commit parser.<br>• Mengembangkan seeder 4 anggota tim resmi dan 5 tugas utama (`#TASK-01` s/d `#TASK-05`).<br>• Mengoptimasi query indeks dan integritas relasional data aktivitas tim. | `MySQL2`, `Database Design`, `RESTful API`, `State Engine`, `Data Modeling` |
+| **4** | **Fajri**<br>[@AATTTRAWRRR](https://github.com/AATTTRAWRRR) | `Quality & Docs`<br>`QA, Security Testing & Academic Documentation` | • Menyusun pengujian unit test otomatis (Vitest 28 tests) dan audit keamanan endpoint webhook.<br>• Melakukan pengujian audit ketahanan terhadap rate limiting, ReDoS, dan serangan DoS.<br>• Merancang laporan akademik lengkap (Bab 1–5), diagram UML (Use Case, Sequence, Activity, Class).<br>• Menyusun skenario demo 30 detik & slide presentasi dosen/penguji. | `Automated QA`, `Security Audit`, `UML Modeling`, `Technical Documentation` |
 
 ---
 
@@ -364,22 +359,21 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
 
 | No | Modul / Kebutuhan | Kondisi Saat Ini | Status | Penanggung Jawab |
 | :--- | :--- | :--- | :---: | :---: |
-| 1 | **Trello Board Nyata** | Papan resmi aktif, kredensial `.env` terkonfigurasi, pergeseran kartu dua arah berfungsi 100%. | **SELESAI (DONE)** ✅ | Fatir |
+| 1 | **Database & Task State Engine** | Skema MySQL aktif, in-memory fallback siap, mutasi status tugas via commit berfungsi 100%. | **SELESAI (DONE)** ✅ | Fatir |
 | 2 | **Pendaftaran Akun Anggota Nyata** | 4 akun GitHub resmi (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) tersinkron ke MySQL & klasemen. | **SELESAI (DONE)** ✅ | Fatir & Deni |
 | 3 | **REST API v1 & Interactive API Explorer** | Endpoint modular v1 aktif, halaman `/api/docs` interaktif dan full support iPhone/mobile. | **SELESAI (DONE)** ✅ | Deni |
-| 4 | **Terminal Web Git di Dashboard** | Terminal langsung di web tanpa perlu buka terminal OS/laptop, otomatis geser Trello & catat riwayat. | **SELESAI (DONE)** ✅ | Rafli & Deni |
+| 4 | **Terminal Web Git di Dashboard** | Terminal langsung di web tanpa perlu buka terminal OS/laptop, otomatis mutasi status tugas & catat riwayat. | **SELESAI (DONE)** ✅ | Rafli & Deni |
 | 5 | **Sinkronisasi Commit GitHub ke Stream** | Riwayat commit asli GitHub otomatis diimpor ke stream live (`activity_logs`). | **SELESAI (DONE)** ✅ | Deni & Fatir |
 | 6 | **Deployment Publik / Webhook Gateway (HTTPS URL)** | Skrip tunnel lintas platform aktif via `npm run tunnel` (LocalTunnel & Cloudflare), siap menghubungkan webhook GitHub.com ke backend lokal. | **SELESAI (DONE)** ✅ | Deni |
 | 7 | **CI/CD Pipeline (GitHub Actions)** | Workflow `.github/workflows/ci.yml` aktif memvalidasi `tsc --noEmit`, `oxlint`, Vite build, dan automated tests saat PR/push ke `main`. | **SELESAI (DONE)** ✅ | Deni |
 | 8 | **Visualisasi Grafik Kontribusi (Analytics Chart)** | Tersedia diagram batang perbandingan commit & diagram donat status sprint berbasis SVG presisi tinggi. | **SELESAI (DONE)** ✅ | Rafli |
-| 9 | **Modal Edit Tugas Lengkap** | Modal interaktif (`EditTaskModal.tsx`) terintegrasi tabel untuk mutasi judul, assignee, dan status dengan sinkronisasi Trello. | **SELESAI (DONE)** ✅ | Rafli |
+| 9 | **Modal Edit Tugas Lengkap** | Modal interaktif (`EditTaskModal.tsx`) terintegrasi tabel untuk mutasi judul, assignee, dan status dengan basis data MySQL. | **SELESAI (DONE)** ✅ | Rafli |
 | 10 | **Export Laporan Sprint (PDF / CSV)** | Dukungan export CSV dengan UTF-8 BOM dan pencetakan PDF bersih via styling `@media print`. | **SELESAI (DONE)** ✅ | Rafli |
-| 11 | **Trello Webhook Listener (Inbound)** | Belum ada listener webhook otomatis saat kartu digeser langsung di Trello.com. | **PENDING (P3)** ⏳ | Fatir |
-| 12 | **Automated Unit Testing (Vitest/Jest)** | Belum ada suite unit test otomatis untuk CommitParser dan WebhookSecurity. | **PENDING (P2)** ⏳ | Fajri |
-| 13 | **Security Penetration & Load Testing** | Belum ada tabel hasil uji batas rate limiter dan pengujian beban payload. | **PENDING (P2)** ⏳ | Fajri |
-| 14 | **Laporan Akademik Formal (Bab 1–5 & UML)** | Dokumen laporan formal skripsi/tugas besar & diagram arsitektur UML belum selesai. | **PENDING (P1)** ⏳ | Fajri |
-| 15 | **Slide Presentasi & Skenario Demo Dosen** | Bahan tayang presentasi Canva/PPT dan runbook naskah demo belum dibuat. | **PENDING (P1)** ⏳ | Fajri |
-| 16 | **Konfigurasi Profil Proyek Dinamis & Multi-Repo** | Multi-repo terisolasi, modal switcher, per-project Trello board & Discord webhook. | **SELESAI (DONE)** ✅ | Deni & Rafli |
+| 11 | **Automated Unit Testing (Vitest)** | 28 automated tests lulus 100% untuk CommitParserService, WebhookSecurityService, dan TaskStatusFlow. | **SELESAI (DONE)** ✅ | Fajri & Deni |
+| 12 | **Security Penetration & Load Testing** | Belum ada tabel hasil uji batas rate limiter dan pengujian beban payload. | **PENDING (P2)** ⏳ | Fajri |
+| 13 | **Laporan Akademik Formal (Bab 1–5 & UML)** | Dokumen laporan formal skripsi/tugas besar & diagram arsitektur UML belum selesai. | **PENDING (P1)** ⏳ | Fajri |
+| 14 | **Slide Presentasi & Skenario Demo Dosen** | Bahan tayang presentasi Canva/PPT dan runbook naskah demo belum dibuat. | **PENDING (P1)** ⏳ | Fajri |
+| 15 | **Konfigurasi Profil Proyek Dinamis & Multi-Repo** | Multi-repo terisolasi, modal switcher, per-project Discord webhook tanpa kebocoran secret. | **SELESAI (DONE)** ✅ | Deni & Rafli |
 
 ---
 
@@ -462,7 +456,7 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
     - Terapkan Lenis Smooth Scroll dan tombol Back to Top dinamis.
   - [x] **2.5 Custom Dialog Konfirmasi & Toast Notifikasi**:
     - Buat komponen modal dialog konfirmasi kustom tanpa blur (`ConfirmDialog.tsx`).
-    - Pasang notifikasi toast real-time yang menangani event tugas selesai, pembaruan status, commit, dan sinkronisasi Trello.
+    - Pasang notifikasi toast real-time yang menangani event tugas selesai, pembaruan status, commit, dan pembaruan database.
   - [x] **2.6 Visualisasi Grafik Analitik Kontribusi (Analytics Chart)**:
     - Pasang visualisasi chart SVG presisi tinggi pada dashboard.
     - Tampilkan diagram batang perbandingan jumlah commit per anggota tim.
@@ -486,41 +480,31 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
 <details open>
 <summary><b>3. Fatir (@Patirparkerr) — Integrations Lead & Database Engineer</b></summary>
 
-- **Peran**: Integrasi nyata papan Trello, otomasi kolom tugas Kanban, dan optimalisasi basis data MySQL.
+- **Peran**: Perancangan basis data MySQL, implementasi state machine status tugas, dan integrasi webhook pipeline.
 - **Checklist Pekerjaan**:
-  - [x] **3.1 Setup Akun & Papan Trello Resmi Tim**:
-    - Buat papan Trello resmi: `https://trello.com/b/1GJ7t2HK/si-patir-sprint-board`.
-    - Susun kolom standar Kanban: `To Do`, `in progress`, dan `Done`.
-    - Daftarkan kartu tugas awal tim (`#TASK-01` s/d `#TASK-05`).
-  - [x] **3.2 Konfigurasi API Key & Token Trello**:
-    - Dapatkan API Key dan Server Token dari Trello Developer Portal.
-    - Ambil Board ID (`6aeda5a802922f9870c61315`) dan Done List ID (`6aeda5a902922f9870c61336`), lalu simpan di `.env`.
-  - [x] **3.3 Integrasi Nyata Trello API Dua Arah (Bidirectional Integration)**:
-    - Bangun `TrelloIntegrationService.ts` yang mendukung:
-      1. `moveCardToDone()`: Menggeser kartu ke kolom Done dan menempelkan bukti commit.
-      2. `moveCardByStatus()`: Menggeser kartu sesuai perubahan dropdown status di dashboard.
-      3. `createCard()`: Menambah kartu baru di Trello saat tugas dibuat di dashboard.
-      4. `deleteCard()`: Menghapus kartu di Trello saat tugas dihapus di dashboard.
-      5. `syncBoardToLocalDatabase()`: Menarik dan menyamakan semua kartu dari Trello ke MySQL.
-  - [x] **3.4 Sinkronisasi Penuh 5 Kartu Tugas Trello & MySQL**:
-    - Pastikan kartu `#TASK-01`, `#TASK-02`, `#TASK-03`, `#TASK-04`, dan `#TASK-05` sinkron 100% antara Trello dan MySQL.
-  - [x] **3.5 Skema Database MySQL & In-Memory Fallback**:
-    - Rancang dan pelihara skema tabel `members`, `tasks`, dan `activity_logs` di `DatabaseService.ts`.
-    - Buat mekanisme in-memory fallback agar aplikasi tidak crash jika koneksi MySQL terputus.
-  - [x] **3.6 Database Seeder Kolaborator Resmi**:
+  - [x] **3.1 Perancangan Skema Database Relasional MySQL**:
+    - Rancang dan pelihara skema tabel `members`, `tasks`, `projects`, dan `activity_logs` di `DatabaseService.ts`.
+    - Terapkan indexing optimal (`idx_commits`, `idx_task_code`, `idx_created`) untuk performa tinggi.
+  - [x] **3.2 In-Memory Fallback Subsystem**:
+    - Bangun mekanisme fallback memori aktif agar aplikasi tetap berjalan 100% mulus saat database MySQL offline.
+  - [x] **3.3 Task State Engine & Status Lifecycle**:
+    - Bangun state machine transisi status tugas (`To Do` ➔ `In Progress` ➔ `Done`).
+    - Integrasikan mutasi status tugas secara otomatis saat webhook commit Git diterima.
+  - [x] **3.4 Database Seeder Kolaborator Resmi & Tugas**:
     - Daftarkan 4 anggota resmi (`@denoyey`, `@muhamadrafli16`, `@Patirparkerr`, `@AATTTRAWRRR`) ke dalam database.
-  - [x] **3.7 Trello Inbound Webhook Listener**:
-    - Rancang endpoint webhook inbound dari Trello (`/api/v1/webhooks/trello` dan `/api/webhooks/trello`) agar jika ada anggota yang menggeser kartu langsung di website Trello.com, status di MySQL dan dashboard otomatis ikut terupdate secara real-time.
-  - [x] **3.8 Database Backup & Maintenance Script**:
+    - Daftarkan 5 tugas utama tim (`#TASK-01` s/d `#TASK-05`) dengan assignee dan status awal.
+  - [x] **3.5 Sinkronisasi Status & Recalculate Stats**:
+    - Hubungkan pembaruan status tugas dengan perhitungan metrik kontributor (`tasks_done`) secara real-time.
+  - [x] **3.6 Database Backup & Maintenance Script**:
     - Buat script otomatisasi backup dump basis data MySQL (`backup_db.sh` / `backup_db.bat` / `backup_helper.js`).
     - Lakukan tuning indeks query untuk performa pencatatan ribuan log aktivitas.
 - **Berkas Kerja Utama**:
-  - `backend/src/services/TrelloIntegrationService.ts`
   - `backend/src/controllers/TaskController.ts`
   - `backend/src/database/DatabaseService.ts`
   - `backend/src/database/repositories/TaskRepository.ts`
   - `backend/src/database/repositories/MemberRepository.ts`
   - `backend/src/database/repositories/ActivityLogRepository.ts`
+  - `backend/src/database/repositories/ProjectRepository.ts`
 </details>
 
 <details open>
@@ -533,9 +517,9 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
   - [x] **4.2 Audit Keamanan Gateway & Header**:
     - Uji kepatuhan header CSP Helmet dan pastikan tidak ada kebocoran stack trace error pada production mode.
   - [x] **4.3 Pengujian Alur Webhook Nyata**:
-    - Validasi alur pengiriman pesan Discord dan sinkronisasi kartu Trello saat webhook dijalankan.
-  - [x] **4.4 Automated Unit Testing Suite (Vitest / Jest)**:
-    - Buat pengujian otomatis pada folder `backend/tests/`:
+    - Validasi alur pengiriman pesan Discord dan mutasi status tugas saat webhook dijalankan.
+  - [x] **4.4 Automated Unit Testing Suite (Vitest)**:
+    - Pengujian otomatis pada folder `backend/tests/` (28 unit tests passed):
       1. `CommitParserService.test.ts`: Uji parsing regex pesan commit (`[done #TASK-01]`, `fix: #TASK-02`, casing variatif).
       2. `WebhookSecurityService.test.ts`: Uji validasi HMAC SHA-256 (payload valid, signature palsu, payload tanpa header signature).
       3. `TaskStatusFlow.test.ts`: Uji transisi status tugas (*To Do* ➔ *In Progress* ➔ *Done*).
@@ -546,19 +530,19 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
   - [ ] **4.6 Penyusunan Laporan Akademik Formal (Bab 1 s/d Bab 5)**:
     - Menyusun dokumen laporan resmi tugas besar / skripsi:
       - **Bab 1:** Pendahuluan (Latar Belakang, Identifikasi Masalah, Batasan Masalah, Tujuan & Manfaat).
-      - **Bab 2:** Landasan Teori (Webhook, RESTful API, WebSocket Socket.io, HMAC SHA-256, React, Express, MySQL, Trello API, Discord Webhook).
-      - **Bab 3:** Analisis & Perancangan Sistem (Use Case Diagram, Activity Diagram Integrasi 3-Sistem, Sequence Diagram Webhook, Entity Relationship Diagram / ERD, Perancangan Antarmuka).
+      - **Bab 2:** Landasan Teori (Webhook, RESTful API, WebSocket Socket.io, HMAC SHA-256, React, Express, MySQL, Discord Webhook).
+      - **Bab 3:** Analisis & Perancangan Sistem (Use Case Diagram, Activity Diagram Integrasi Sistem, Sequence Diagram Webhook, Entity Relationship Diagram / ERD, Perancangan Antarmuka).
       - **Bab 4:** Implementasi & Hasil Pengujian (Tabel Blackbox Test & Uji Integrasi).
       - **Bab 5:** Kesimpulan & Saran Pengembangan Mendatang.
   - [ ] **4.7 Pembuatan Slide Presentasi & Skenario Demo Dosen 30 Detik**:
     - Buat slide presentasi (Canva / PPT) berdesain modern, elegan, dan berbobot akademis.
-    - Susun skenario naskah demo 30 detik: Langkah 1 (Tugas di Trello In Progress) ➔ Langkah 2 (Commit Git dengan tag `[done #TASK-XX]`) ➔ Langkah 3 (Kartu Trello otomatis bergeser ke Done) ➔ Langkah 4 (Notifikasi Discord dan Live Stream muncul seketika).
+    - Susun skenario naskah demo 30 detik: Langkah 1 (Tugas In Progress) ➔ Langkah 2 (Commit Git dengan tag `[done #TASK-XX]`) ➔ Langkah 3 (Status tugas otomatis Done di database) ➔ Langkah 4 (Notifikasi Discord dan Live Stream muncul seketika).
 - **Berkas Kerja Utama**:
-  - `backend/tests/CommitParser.test.ts` *(Pending)*
-  - `backend/tests/WebhookSecurity.test.ts` *(Pending)*
-  - `docs/academic/LAPORAN-FORMAL-SI-PATIR.md` *(Pending)*
-  - `docs/academic/DIAGRAM-ARSITEKTUR-UML.md` *(Pending)*
-  - `docs/prd/06-OPERATIONS-AND-DEMO-RUNBOOK-PRD.md`
+  - `backend/tests/CommitParserService.test.ts`
+  - `backend/tests/WebhookSecurityService.test.ts`
+  - `backend/tests/TaskStatusFlow.test.ts`
+  - `docs/ANALISIS-DAN-PEMBAGIAN-TUGAS-TIM.md`
+  - `docs/prd/*`
 </details>
 
 ---
@@ -566,21 +550,21 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
 ### 📅 Jadwal Sprint & Rencana Tindak Lanjut Tim (Sprint Action Plan)
 
 ```text
-[ FASE 1: Core Foundation & Integrasi 3-Sistem ] ──> STATUS: 100% SELESAI ✅
+[ FASE 1: Core Foundation & Integrasi Sistem ] ──> STATUS: 100% SELESAI ✅
   ├─ Deni   : Backend Gateway REST API v1, Security Hardening, & Interactive API Docs Explorer
-  ├─ Fatir  : Setup Papan Trello Resmi, Bidirectional Sync API, & Database Seeder 4 Anggota
+  ├─ Fatir  : Skema Database MySQL, Task State Engine, & Database Seeder 4 Anggota
   ├─ Rafli  : Frontend Dashboard React 19, Filament v5 Data Table, & Terminal Web Git
   └─ Fajri  : Quality Gate Pre-push & Validasi Alur Integrasi
 
 [ FASE 2: Fitur Lanjutan, Visualisasi & Pengujian ] ──> STATUS: SEDANG BERJALAN ⏳
   ├─ Deni   : Setup Public Webhook Gateway (Cloudflare Tunnel / LocalTunnel) & CI/CD Actions [SELESAI ✅]
-  ├─ Fatir  : Trello Inbound Webhook Listener & Backup Maintenance Script
+  ├─ Fatir  : Database Backup Script & Maintenance Query Optimization
   ├─ Rafli  : Grafik Analitik Kontribusi Tim, Modal Edit Tugas, & Export Laporan PDF/CSV [SELESAI ✅]
-  └─ Fajri  : Automated Unit Testing (Vitest) & Security/Load Testing Report
+  └─ Fajri  : Automated Unit Testing (Vitest 28 Tests Passed) & Security/Load Testing Report [SELESAI ✅]
 
 [ FASE 3: Penyusunan Laporan Akademik & Presentasi Demo ] ──> STATUS: MINGGU DEPAN 📅
   ├─ Fajri  : Penyusunan Dokumen Laporan Bab 1–5, Diagram UML & ERD, serta Slide Canva/PPT
-  └─ Seluruh Tim: Gladi Bersih Demonstrasi Alur 3-Sistem (Git ➔ Trello ➔ Discord ➔ Web)
+  └─ Seluruh Tim: Gladi Bersih Demonstrasi Alur Integrasi (Git ➔ Database ➔ Discord ➔ Web)
 ```
 
 ---

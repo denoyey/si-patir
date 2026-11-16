@@ -19,8 +19,6 @@ export interface Project {
   slug: string;
   github_repo: string;
   github_webhook_secret?: string;
-  trello_board_id?: string;
-  trello_done_list_id?: string;
   discord_webhook_url?: string;
   is_active: boolean;
   created_at?: string;
@@ -58,8 +56,6 @@ export function ProjectConfigModal({
   const [newName, setNewName] = useState('');
   const [newRepo, setNewRepo] = useState('');
   const [newSecret, setNewSecret] = useState('sipatir_secret_123');
-  const [newTrelloBoard, setNewTrelloBoard] = useState('');
-  const [newTrelloDoneList, setNewTrelloDoneList] = useState('');
   const [newDiscordWebhook, setNewDiscordWebhook] = useState('');
   const [newSetAsActive, setNewSetAsActive] = useState(true);
 
@@ -67,8 +63,6 @@ export function ProjectConfigModal({
   const [editName, setEditName] = useState('');
   const [editRepo, setEditRepo] = useState('');
   const [editSecret, setEditSecret] = useState('');
-  const [editTrelloBoard, setEditTrelloBoard] = useState('');
-  const [editTrelloDoneList, setEditTrelloDoneList] = useState('');
   const [editDiscordWebhook, setEditDiscordWebhook] = useState('');
 
   useEffect(() => {
@@ -77,8 +71,6 @@ export function ProjectConfigModal({
       setEditName(target.name || '');
       setEditRepo(target.github_repo || '');
       setEditSecret(target.github_webhook_secret || '');
-      setEditTrelloBoard(target.trello_board_id || '');
-      setEditTrelloDoneList(target.trello_done_list_id || '');
       setEditDiscordWebhook(target.discord_webhook_url || '');
     }
   }, [selectedProject, activeProject]);
@@ -137,8 +129,6 @@ export function ProjectConfigModal({
         name: editName.trim(),
         github_repo: editRepo.trim(),
         github_webhook_secret: editSecret.trim() || undefined,
-        trello_board_id: editTrelloBoard.trim() || undefined,
-        trello_done_list_id: editTrelloDoneList.trim() || undefined,
         discord_webhook_url: editDiscordWebhook.trim() || undefined,
       });
 
@@ -168,8 +158,6 @@ export function ProjectConfigModal({
         name: newName.trim(),
         github_repo: newRepo.trim(),
         github_webhook_secret: newSecret.trim() || 'sipatir_secret_123',
-        trello_board_id: newTrelloBoard.trim() || undefined,
-        trello_done_list_id: newTrelloDoneList.trim() || undefined,
         discord_webhook_url: newDiscordWebhook.trim() || undefined,
         is_active: newSetAsActive,
       });
@@ -178,8 +166,6 @@ export function ProjectConfigModal({
       onShowToast(`Proyek "${newName}" ditambahkan`, 'success');
       setNewName('');
       setNewRepo('');
-      setNewTrelloBoard('');
-      setNewTrelloDoneList('');
       setNewDiscordWebhook('');
       setActiveTab('list');
     } catch (err: any) {
@@ -342,8 +328,6 @@ export function ProjectConfigModal({
                         <GitBranch className="w-3 h-3 text-zinc-400 shrink-0" />
                         <span className="truncate">{proj.github_repo}</span>
                         <span>•</span>
-                        <span>Trello: {proj.trello_board_id ? 'OK' : '-'}</span>
-                        <span>•</span>
                         <span>Discord: {proj.discord_webhook_url ? 'OK' : '-'}</span>
                       </div>
                     </div>
@@ -449,37 +433,6 @@ export function ProjectConfigModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div>
-                  <label htmlFor="edit-trello-board" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                    Trello Board ID
-                  </label>
-                  <input
-                    id="edit-trello-board"
-                    name="trello_board_id"
-                    type="text"
-                    value={editTrelloBoard}
-                    onChange={(e) => setEditTrelloBoard(e.target.value)}
-                    autoComplete="off"
-                    className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="edit-trello-donelist" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                    Trello Done List ID
-                  </label>
-                  <input
-                    id="edit-trello-donelist"
-                    name="trello_done_list_id"
-                    type="text"
-                    value={editTrelloDoneList}
-                    onChange={(e) => setEditTrelloDoneList(e.target.value)}
-                    autoComplete="off"
-                    className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
-                  />
-                </div>
-              </div>
-
               <div>
                 <label htmlFor="edit-discord-webhook" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                   Discord Webhook URL
@@ -563,39 +516,6 @@ export function ProjectConfigModal({
                     type="text"
                     value={newSecret}
                     onChange={(e) => setNewSecret(e.target.value)}
-                    autoComplete="off"
-                    className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div>
-                  <label htmlFor="create-trello-board" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                    Trello Board ID (Opsional)
-                  </label>
-                  <input
-                    id="create-trello-board"
-                    name="create_trello_board_id"
-                    type="text"
-                    value={newTrelloBoard}
-                    onChange={(e) => setNewTrelloBoard(e.target.value)}
-                    placeholder="Board ID"
-                    autoComplete="off"
-                    className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="create-trello-donelist" className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                    Trello Done List ID (Opsional)
-                  </label>
-                  <input
-                    id="create-trello-donelist"
-                    name="create_trello_done_list_id"
-                    type="text"
-                    value={newTrelloDoneList}
-                    onChange={(e) => setNewTrelloDoneList(e.target.value)}
-                    placeholder="List ID Done"
                     autoComplete="off"
                     className="w-full h-8 px-2.5 font-mono rounded bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-hidden focus:border-zinc-500"
                   />

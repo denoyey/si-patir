@@ -378,7 +378,7 @@ export function renderApiDocsHtml(): string {
         <input
           type="text"
           id="api-search-input"
-          placeholder="Cari endpoint (misal: /tasks, PATCH, trello, status)..."
+          placeholder="Cari endpoint (misal: /tasks, PATCH, webhook, status)..."
           class="input-text"
           style="padding-left: 2.25rem;"
         />

@@ -233,7 +233,7 @@ export function EditTaskModal({ isOpen, task, members, onClose, onSave }: EditTa
               })}
             </div>
             <p className="text-[10px] text-zinc-500 dark:text-zinc-400 pt-0.5">
-              💡 Perubahan status otomatis disinkronkan ke papan Trello jika API aktif.
+              💡 Perubahan status tersimpan otomatis ke basis data MySQL &amp; analitik sprint.
             </p>
           </div>
 

@@ -65,7 +65,6 @@ interface Task {
 
 interface SystemStatus {
   mysql: boolean;
-  trello: boolean;
   discord: boolean;
   github: boolean;
   repository?: string;
@@ -100,7 +99,6 @@ export function DashboardPage() {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [status, setStatus] = useState<SystemStatus>({
     mysql: false,
-    trello: true,
     discord: true,
     github: true,
     repository: 'denoyey/si-patir',
@@ -108,7 +106,6 @@ export function DashboardPage() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'In Progress' | 'Done' | 'To Do'>('ALL');
-  const [isSyncingTrello, setIsSyncingTrello] = useState(false);
   const [isSyncingGitHub, setIsSyncingGitHub] = useState(false);
   const [activeToast, setActiveToast] = useState<{ title: string; desc: string } | null>(null);
 
@@ -240,19 +237,13 @@ export function DashboardPage() {
       if (event.type === 'TASK_COMPLETED') {
         setActiveToast({
           title: `Tugas #${event.taskCode} Selesai`,
-          desc: `@${event.author || 'tim'} menutup tugas via commit. Papan Trello & Discord terupdate.`,
+          desc: `@${event.author || 'tim'} menutup tugas via commit. Database & Discord terupdate.`,
         });
         setTimeout(() => setActiveToast(null), 4500);
       } else if (event.type === 'TASK_STATUS_UPDATED') {
         setActiveToast({
           title: `Status #${event.taskCode} Diperbarui`,
-          desc: `Status berhasil diubah ke "${event.status}" & tersinkronisasi ke Trello.`,
-        });
-        setTimeout(() => setActiveToast(null), 3500);
-      } else if (event.type === 'TRELLO_SYNCED') {
-        setActiveToast({
-          title: 'Sinkronisasi Trello Berhasil',
-          desc: `${event.count || 0} kartu dari papan Kanban Trello berhasil disinkronkan.`,
+          desc: `Status berhasil diubah ke "${event.status}" & tersimpan ke Database.`,
         });
         setTimeout(() => setActiveToast(null), 3500);
       } else if (event.type === 'TASK_CREATED') {
@@ -522,30 +513,30 @@ export function DashboardPage() {
     }
   };
 
-  // Sync tasks from Trello (bidirectional)
-  const handleSyncTrello = async () => {
-    setIsSyncingTrello(true);
+  // Sync real issues from GitHub repository
+  const handleSyncGitHubIssues = async () => {
+    setIsSyncingGitHub(true);
     try {
-      const res = await axios.post('/api/v1/tasks/sync-trello');
-      await refreshData();
+      const res = await axios.post('/api/tasks/sync-github');
       setActiveToast({
-        title: 'Trello Tersinkronisasi',
-        desc: res.data.message || 'Kartu dan kolom dari papan Trello berhasil disinkronkan.',
+        title: 'Issues Synced',
+        desc: res.data.message || 'Issue dari repositori GitHub berhasil disinkronkan.',
       });
       setTimeout(() => setActiveToast(null), 4000);
+      await refreshData();
     } catch (err: any) {
-      console.error('Trello sync error:', err);
+      console.error('GitHub issues sync error:', err);
       setActiveToast({
-        title: 'Gagal Sinkronisasi Trello',
+        title: 'Gagal Sinkronisasi Issue',
         desc: err.response?.data?.error || err.message,
       });
       setTimeout(() => setActiveToast(null), 4000);
     } finally {
-      setIsSyncingTrello(false);
+      setIsSyncingGitHub(false);
     }
   };
 
-  // Inline update task status with bidirectional Trello move
+  // Inline update task status with database persistence
   const handleUpdateTaskStatus = async (taskId: number, newStatus: 'To Do' | 'In Progress' | 'Done') => {
     setUpdatingTaskId(taskId);
     setTasks((prev) =>
@@ -556,7 +547,7 @@ export function DashboardPage() {
       const res = await axios.patch(`/api/v1/tasks/${taskId}/status`, { status: newStatus });
       setActiveToast({
         title: 'Status Diperbarui',
-        desc: res.data.message || `Tugas #${taskId} diubah ke "${newStatus}". Sinkronisasi Trello aktif.`,
+        desc: res.data.message || `Tugas #${taskId} diubah ke "${newStatus}". Database terupdate.`,
       });
       setTimeout(() => setActiveToast(null), 3500);
       await refreshData();
@@ -719,7 +710,7 @@ export function DashboardPage() {
 
       setActiveToast({
         title: taskCode ? `Simulasi Selesai #${taskCode}` : 'Simulasi Commit Berhasil',
-        desc: `@${effectiveAuthor}: "${commitMsg}". Trello & Klasemen terupdate (Discord tetap tenang tanpa spam).`,
+        desc: `@${effectiveAuthor}: "${commitMsg}". Klasemen & Database terupdate (Discord tetap tenang tanpa spam).`,
       });
       setTimeout(() => setActiveToast(null), 4000);
 
@@ -898,10 +889,10 @@ export function DashboardPage() {
                 aria-expanded={isSyncMenuOpen}
                 aria-label="Menu Sinkronisasi Data"
                 className="h-8 sm:h-8.5 px-2 sm:px-2.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs shrink-0"
-                title="Pilihan sinkronisasi GitHub & Trello"
+                title="Pilihan sinkronisasi GitHub"
               >
                 <RefreshCw
-                  className={`w-3.5 h-3.5 ${isSyncingGitHub || isSyncingTrello
+                  className={`w-3.5 h-3.5 ${isSyncingGitHub
                       ? 'animate-spin text-emerald-500'
                       : 'text-zinc-500 dark:text-zinc-400'
                     }`}
@@ -923,7 +914,7 @@ export function DashboardPage() {
                     Sinkronisasi Data
                   </div>
 
-                  {/* Sync GitHub */}
+                  {/* Sync GitHub Contributors */}
                   <button
                     type="button"
                     role="menuitem"
@@ -939,36 +930,35 @@ export function DashboardPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-xs font-semibold text-zinc-900 dark:text-white flex items-center justify-between">
-                        <span>Sync GitHub</span>
+                        <span>Sync Kontributor GitHub</span>
                         {isSyncingGitHub && <span className="text-[10px] font-normal text-emerald-500">Memproses...</span>}
                       </div>
                       <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5">
-                        Tarik commit nyata repositori
+                        Tarik kontributor nyata repositori
                       </p>
                     </div>
                   </button>
 
-                  {/* Sync Trello */}
+                  {/* Sync GitHub Issues */}
                   <button
                     type="button"
                     role="menuitem"
-                    disabled={isSyncingTrello}
+                    disabled={isSyncingGitHub}
                     onClick={() => {
                       setIsSyncMenuOpen(false);
-                      handleSyncTrello();
+                      handleSyncGitHubIssues();
                     }}
                     className="w-full p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left flex items-start gap-2.5 transition cursor-pointer disabled:opacity-50"
                   >
                     <div className="p-1.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0 mt-0.5">
-                      <CheckSquare className={`w-3.5 h-3.5 ${isSyncingTrello ? 'animate-spin' : ''}`} />
+                      <CheckSquare className="w-3.5 h-3.5" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-xs font-semibold text-zinc-900 dark:text-white flex items-center justify-between">
-                        <span>Sync Trello</span>
-                        {isSyncingTrello && <span className="text-[10px] font-normal text-blue-500">Memproses...</span>}
+                        <span>Sync GitHub Issues</span>
                       </div>
                       <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5">
-                        Perbarui kartu dari papan Trello
+                        Tarik issue resmi dari repositori
                       </p>
                     </div>
                   </button>
@@ -1111,17 +1101,17 @@ export function DashboardPage() {
 
             <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs font-mono">
               <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-              <span className="text-zinc-700 dark:text-zinc-300 font-medium">Trello</span>
-            </div>
-
-            <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs font-mono">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
               <span className="text-zinc-700 dark:text-zinc-300 font-medium">Discord</span>
             </div>
 
             <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs font-mono">
               <Database className={`w-3 h-3 ${status.mysql ? 'text-emerald-500' : 'text-amber-500'} shrink-0`} />
               <span className="text-zinc-700 dark:text-zinc-300 font-medium">MySQL</span>
+            </div>
+
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-800 text-[11px] shadow-xs font-mono">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
+              <span className="text-zinc-700 dark:text-zinc-300 font-medium">WebSocket</span>
             </div>
           </div>
         </div>

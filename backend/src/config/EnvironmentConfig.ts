@@ -13,10 +13,6 @@ export class EnvironmentConfig {
   public readonly dbName: string;
   public readonly dbPort: number;
   public readonly discordWebhookUrl: string;
-  public readonly trelloApiKey: string;
-  public readonly trelloToken: string;
-  public readonly trelloBoardId: string;
-  public readonly trelloDoneListId: string;
   public readonly githubWebhookSecret: string;
   public readonly githubRepo: string;
   public readonly corsOrigins: string[];
@@ -37,12 +33,8 @@ export class EnvironmentConfig {
     this.dbName = process.env.DB_NAME || 'sipatir_db';
     this.dbPort = this.parseInteger(process.env.DB_PORT, 3306);
 
-    // External Integrations
+    // External Integrations (GitHub Webhooks & Discord Webhooks)
     this.discordWebhookUrl = process.env.DISCORD_WEBHOOK_URL || '';
-    this.trelloApiKey = process.env.TRELLO_API_KEY || '';
-    this.trelloToken = process.env.TRELLO_TOKEN || '';
-    this.trelloBoardId = process.env.TRELLO_BOARD_ID || '';
-    this.trelloDoneListId = process.env.TRELLO_DONE_LIST_ID || '';
     this.githubWebhookSecret = process.env.GITHUB_WEBHOOK_SECRET || 'sipatir_secret_123';
     this.githubRepo = process.env.GITHUB_REPO || 'denoyey/si-patir';
 
@@ -72,7 +64,6 @@ export class EnvironmentConfig {
       dbName: this.dbName,
       dbUser: this.dbUser,
       discordConfigured: Boolean(this.discordWebhookUrl),
-      trelloConfigured: Boolean(this.trelloApiKey && this.trelloToken && this.trelloDoneListId),
       githubSecretProtected: Boolean(this.githubWebhookSecret),
       githubRepo: this.githubRepo,
     };

@@ -26,7 +26,7 @@ export class ActivityLogRepository {
   }
 
   public async record(
-    eventType: 'PUSH_EVENT' | 'TASK_COMPLETED' | 'TRELLO_SYNC' | 'SYSTEM_ALERT',
+    eventType: 'PUSH_EVENT' | 'TASK_COMPLETED' | 'TASK_UPDATED' | 'SYSTEM_ALERT',
     author: string,
     commitMsg: string,
     taskCode: string = '',
@@ -59,7 +59,7 @@ export class ActivityLogRepository {
   }
 
   public async recordIfNew(
-    eventType: 'PUSH_EVENT' | 'TASK_COMPLETED' | 'TRELLO_SYNC' | 'SYSTEM_ALERT',
+    eventType: 'PUSH_EVENT' | 'TASK_COMPLETED' | 'TASK_UPDATED' | 'SYSTEM_ALERT',
     author: string,
     commitMsg: string,
     taskCode: string = '',

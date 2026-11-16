@@ -48,17 +48,17 @@ Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-genera
 ┌───────────────────────────────────────────────────────────────────────────────────────────────┐
 │ [SP] SI-PATIR  Sistem Monitoring    [Beranda] [🖥️/☀️/🌙 Theme] [Sync GitHub] [⚡ Test Commit]   │
 ├───────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Target Repo: denoyey/si-patir:main ↗ │ GitHub: Ready 🟢 │ Trello: Synced 🟢 │ Discord: Active 🟢│
+│ Target Repo: denoyey/si-patir:main ↗ │ GitHub: Ready 🟢 │ MySQL: Connected 🟢 │ Discord: Active 🟢│
 ├───────────────────────────────────────────────────────────────────────────────────────────────┤
 │ ✦ PIPELINE AUTOMASI 3-SISTEM                                                                  │
-│ [1. Git Commit: #TASK-XX] ──➔ [2. Trello Sync: Geser Done] ──➔ [3. Discord: Notifikasi Live]   │
+│ [1. Git Commit: #TASK-XX] ──➔ [2. Task Engine: Status Done] ──➔ [3. Discord: Notifikasi Live]   │
 ├──────────────────────────────────────┬────────────────────────────────────────────────────────┤
 │ [Total Commits: 15]                  │ [Tasks Done: 4 / 5]  │ [Rate: 80%] │ [Sec: HMAC-256]    │
 ├──────────────────────────────────────┴──────────────────────┬─────────────────────────────────┤
 │ 🏆 KLASEMEN KONTRIBUSI ANGGOTA (AVATAR & RATIO)             │ 💻 LIVE WEBHOOK AUDIT STREAM    │
 │ #1 👤 denoyey (@denoyey) • 15 commits • 3 task (Lead)       │ [PUSH_EVENT] @denoyey           │
 │    [+ Tambah Anggota]  [Hapus Dummy]                        │ "feat(ui): add landing page"    │
-│                                                             │ Trello #TASK-03 shifted to Done │
+│                                                             │ Task #TASK-03 shifted to Done   │
 ├─────────────────────────────────────────────────────────────┤ & Discord notified              │
 │ 📋 DAFTAR KARTU TUGAS (BORDER STATUS ACCENTS)               │                                 │
 │ [Filter: ALL | In Progress | Done | To Do]   [+ Tambah Tugas]│                                │
@@ -76,16 +76,16 @@ Frontend SI-PATIR secara tegas menolak tren desain generatif dangkal (*AI-genera
 ### 3.2 Visual Pipeline Automation Guide (Penjelas Alur Orang Awam)
 Panduan visual 3 langkah (*3-Step Interactive Pipeline*) yang diletakkan tepat di atas ringkasan metrik:
 1. **Tahap 1 (Git Commit):** Menjelaskan format tag tugas pada commit (`[done #TASK-XX]`).
-2. **Tahap 2 (Trello Sync):** Menjelaskan pergeseran kartu otomatis ke kolom *Done* beserta link commit.
+2. **Tahap 2 (Task Engine):** Menjelaskan transisi status tugas otomatis ke *Done* beserta link commit di database.
 3. **Tahap 3 (Discord Broadcast):** Menjelaskan siaran notifikasi instan ke kanal tim.
 Komponen ini secara dramatis mempermudah pemahaman alur sistem bagi dosen, mahasiswa, dan evaluator non-teknis.
 
 ### 3.2 Connectivity & Dynamic Repository Strip
 Menampilkan target repositori asli secara dinamis (`denoyey/si-patir:main`) dan status kesehatan seluruh subsistem eksternal secara berdampingan:
 * `GitHub: Ready 🟢`
-* `Trello: Synced 🟢`
-* `Discord: Active 🟢`
 * `MySQL: Connected 🟢` (atau `Memory Fallback 🟡` jika database lokal offline).
+* `Discord: Active 🟢`
+* `WebSocket: Connected 🟢`
 
 ### 3.3 Manajemen Anggota & Tugas Nyata (Interactive Modals)
 * Tombol **"+ Tambah Anggota"**: Mendaftarkan anggota kelompok nyata beserta username GitHub aslinya ke dalam sistem.
@@ -95,7 +95,7 @@ Menampilkan target repositori asli secara dinamis (`denoyey/si-patir:main`) dan 
 ### 3.3 Summary Metrics Cards
 Empat metrik visual berpresisi tinggi:
 1. **Total Commits**: Akumulasi seluruh commit yang masuk ke sistem.
-2. **Tugas Selesai**: Rasio tugas selesai terhadap total tugas yang tercatat di Trello.
+2. **Tugas Selesai**: Rasio tugas selesai terhadap total tugas yang tercatat di database.
 3. **Tingkat Penyelesaian**: Progress bar dinamis dengan persentase kemajuan sprint kelompok.
 4. **Protokol Keamanan**: Indikator enkripsi aktif (*HMAC SHA-256 & Anti-ReDoS*).
 
@@ -106,7 +106,7 @@ Empat metrik visual berpresisi tinggi:
 ### 3.5 Live Webhook Audit Stream
 * Konsol terminal *dark mode* di sisi kanan layar.
 * Menerima event push detik demi detik via **WebSocket**.
-* Memberikan umpan balik instan saat kartu Trello bergeser atau pesan Discord terkirim.
+* Memberikan umpan balik instan saat status tugas bergeser atau pesan Discord terkirim.
 
 ---
 
@@ -199,7 +199,7 @@ Mengatasi kelemahan fundamental layar sentuh ponsel (di mana *hover state* tidak
 Antarmuka telah dioptimalkan secara presisi untuk seluruh spektrum iPhone (iPhone SE 320px, iPhone Mini, iPhone 11/12/13/14/15/16 Pro Max dengan Dynamic Island):
 * **Safe-Area Notch & Dynamic Island Inset**: Header bilah navigasi menggunakan padding dinamis `pt-[env(safe-area-inset-top,0px)]` dan tinggi adaptif `min-h-[3.5rem]` sehingga konten tidak pernah terpotong oleh notch fisik atau pill Dynamic Island kamera depan.
 * **Anti-Truncation pada Navbar Sempit**: Elemen header disesuaikan secara cerdas pada layar kecil (<640px) dengan menyembunyikan badge versi `v2.0` dan memperpendek label tombol menjadi `Dashboard` (dari `Buka Dashboard` di desktop), mencegah tombol terpotong pada layar 320px–375px.
-* **Grid Konektivitas 2x2 pada Mobile**: Empat pill indikator status sistem (GitHub, Trello, Discord, Socket) tersusun rapi dalam grid 2 kolom 2 baris yang seimbang pada layar ponsel, dan membentang fleksibel secara horizontal pada desktop.
+* **Grid Konektivitas 2x2 pada Mobile**: Empat pill indikator status sistem (GitHub, MySQL, Discord, WebSocket) tersusun rapi dalam grid 2 kolom 2 baris yang seimbang pada layar ponsel, dan membentang fleksibel secara horizontal pada desktop.
 * **Proteksi Tumpang-Tindih Tombol Melayang (Back-to-Top Safe Margin)**:
   - Tombol melayang `BackToTop` diposisikan secara aman di atas indikator navigasi gestur iOS: `bottom-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+0.75rem))]`.
   - Seluruh footer dan kontainer halaman bawah diberi padding `pb-24 sm:pb-8` sehingga tombol kembali ke atas tidak pernah menutupi teks, tautan GitHub, atau tombol aksi lainnya.
@@ -210,8 +210,8 @@ Antarmuka telah dioptimalkan secara presisi untuk seluruh spektrum iPhone (iPhon
 
 Untuk memisahkan presentasi publik proyek dan sistem operasional pemantauan real-time tanpa *full page reload*, antarmuka menggunakan pustaka `react-router-dom`:
 
-* **Route `/` (`LandingPage`)**: Halaman landing interaktif berstandar enterprise yang memperkenalkan platform SI-PATIR, diagram interaktif alur webhook 3-tahap (GitHub -> Trello -> Discord), showcase fitur teknis (HMAC SHA-256, Anti-DoS, Real-time WebSockets), serta profil tim inti.
-* **Route `/dashboard` (`DashboardPage`)**: Ruang kerja operasional pemantauan real-time yang memuat metrik komit, klasemen kontributor nyata, sinkronisasi Trello API, form penambahan tugas/anggota, serta konsol log audit live stream.
+* **Route `/` (`LandingPage`)**: Halaman landing interaktif berstandar enterprise yang memperkenalkan platform SI-PATIR, diagram interaktif alur webhook 3-tahap (GitHub -> Task Engine -> Discord), showcase fitur teknis (HMAC SHA-256, Anti-DoS, Real-time WebSockets), serta profil tim inti.
+* **Route `/dashboard` (`DashboardPage`)**: Ruang kerja operasional pemantauan real-time yang memuat metrik komit, klasemen kontributor nyata, sinkronisasi Task State Engine & GitHub Issues API, form penambahan tugas/anggota, serta konsol log audit live stream.
 * **Catch-all Route `*`**: Mengarahkan seluruh URL yang tidak valid kembali ke `/` secara otomatis dengan flag `replace`.
 
 ---
@@ -244,7 +244,7 @@ Sesuai spesifikasi tim proyek, seluruh anggota tim memiliki nama dan tanggung ja
 | :--- | :--- | :--- | :--- |
 | **Deni** | Lead Architect & DevOps Integrator | `@denoyey` (Repo Owner) | Arsitektur integrasi sistem & REST API v1, webhook GitHub & validasi HMAC SHA-256, Multi-Repo isolation (`/api/v1/projects`), Interactive API Explorer, public tunnel, GitHub Actions CI/CD, stream progresif & modal riwayat log, serta penguatan aksesibilitas & scroll lock UI. |
 | **Rafli** | Frontend UI & Data Visualization | `@muhamadrafli16` (Collaborator) | Antarmuka interaktif React 19, animasi GSAP OOP, smooth scroll Lenis, komponen tema, visualisasi analitik SVG (Bar & Donut Charts), modal interaktif edit tugas, filter stream live, dan ekspor laporan sprint (CSV/PDF). |
-| **Fatir** | Kanban Trello & Database Engineer | `@Patirparkerr` (Collaborator) | Integrasi REST API Trello untuk mutasi kartu otomatis, manajemen basis data MySQL, dan sinkronisasi tugas. |
+| **Fatir** | Database & System Integration Engineer | `@Patirparkerr` (Collaborator) | Perancangan skema basis data relasional MySQL2, arsitektur Task State Engine internal, REST API tugas, dan optimasi query. |
 | **Fajri** | QA, Security Testing & Documentation | `@AATTTRAWRRR` (Collaborator / Fajrii) | Pengujian unit otomatis, audit ketahanan rate limiting & anti-DoS, diagram arsitektur UML, dan laporan akademik. |
 
 ### 11.1 Desain Kartu Showcase Anggota (Heroic High-Resolution Team Cards)
@@ -323,7 +323,7 @@ Antarmuka SI-PATIR dilengkapi sistem tema cerdas yang mematuhi preferensi sistem
   - Mode Terang: `bg-slate-900 text-white hover:bg-slate-800`
   - Mode Gelap: `dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700`
   - Menghilangkan anomali tombol teks putih di atas latar putih buram yang sulit dibaca.
-* **Badge Status Adaptif**: Badge status Trello, GitHub, dan Discord memiliki teks dengan kontras tinggi (`text-zinc-800 dark:text-zinc-200`) dan latar bergaris tepi halus (`border-zinc-300 dark:border-zinc-700`).
+* **Badge Status Adaptif**: Badge status GitHub, MySQL, Discord, dan WebSocket memiliki teks dengan kontras tinggi (`text-zinc-800 dark:text-zinc-200`) dan latar bergaris tepi halus (`border-zinc-300 dark:border-zinc-700`).
 
 ---
 
@@ -347,7 +347,7 @@ Untuk memastikan pengalaman monitoring di perangkat seluler setara dengan deskto
   2. **Input Judul Interaktif**: Input teks dengan penanganan validasi kosong.
   3. **Pemilih Penanggung Jawab (Assignee Dropdown)**: Menampilkan seluruh anggota tim terdaftar dengan awalan `@username` dan nama asli.
   4. **Trio Status Chips**: Tombol pilihan status bergaya segment chip dengan aksen warna alami (*Emerald* untuk Done, *Amber* untuk In Progress, *Blue* untuk To Do).
-  5. **Sinkronisasi Dua Arah**: Begitu status diubah, sistem secara otomatis menyelaraskan kartu di papan Trello dan menyiarkan pembaruan via Socket.io.
+  5. **Sinkronisasi Dua Arah & Persistensi Real-Time**: Begitu status diubah, sistem secara otomatis menyimpan perubahan ke database MySQL dan menyiarkan pembaruan via Socket.io.
   6. **Aksesibilitas & Anti-Lock**: Mendukung penutupan modal via tombol Escape dan klik backdrop di luar dialog.
 
 ### 17.2 Fitur Pencarian, Stream Progresif & Modal Riwayat Log (`DashboardPage.tsx`, `ActivityLogsModal.tsx`)

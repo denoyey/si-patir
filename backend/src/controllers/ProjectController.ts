@@ -61,8 +61,6 @@ export class ProjectController {
         slug,
         github_repo,
         github_webhook_secret,
-        trello_board_id,
-        trello_done_list_id,
         discord_webhook_url,
         is_active = false,
       } = req.body;
@@ -80,8 +78,6 @@ export class ProjectController {
         slug: slug ? slug.trim() : '',
         github_repo: github_repo.trim(),
         github_webhook_secret: github_webhook_secret ? github_webhook_secret.trim() : undefined,
-        trello_board_id: trello_board_id ? trello_board_id.trim() : undefined,
-        trello_done_list_id: trello_done_list_id ? trello_done_list_id.trim() : undefined,
         discord_webhook_url: discord_webhook_url ? discord_webhook_url.trim() : undefined,
         is_active: Boolean(is_active),
       });

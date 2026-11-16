@@ -2,20 +2,17 @@ import { Request, Response } from 'express';
 import { Server as SocketServer } from 'socket.io';
 import { TaskRepository } from '../database/repositories/TaskRepository.js';
 import { MemberRepository } from '../database/repositories/MemberRepository.js';
-import { TrelloIntegrationService } from '../services/TrelloIntegrationService.js';
 import { GitHubIntegrationService } from '../services/GitHubIntegrationService.js';
 
 export class TaskController {
   private taskRepo: TaskRepository;
   private memberRepo: MemberRepository;
-  private trelloService: TrelloIntegrationService;
   private githubService: GitHubIntegrationService;
   private io?: SocketServer;
 
   constructor(io?: SocketServer) {
     this.taskRepo = new TaskRepository();
     this.memberRepo = new MemberRepository();
-    this.trelloService = new TrelloIntegrationService();
     this.githubService = new GitHubIntegrationService();
     this.io = io;
   }
@@ -57,16 +54,6 @@ export class TaskController {
         return;
       }
       const task = await this.taskRepo.createTask(taskCode, title, assignee, status);
-
-      // Sinkronisasi otomatis pembuatan kartu di papan Trello
-      try {
-        const trelloRes = await this.trelloService.createCard(title, taskCode, status);
-        if (trelloRes.cardId) {
-          await this.taskRepo.updateTrelloCardId(taskCode, trelloRes.cardId);
-        }
-      } catch (trelloErr: any) {
-        console.warn('[TaskController] Trello card creation notice:', trelloErr.message);
-      }
 
       if (this.io) {
         this.io.emit('activity_update', {
@@ -112,20 +99,6 @@ export class TaskController {
         status,
       });
 
-      // Sinkronisasi status ke Trello jika status berubah
-      let trelloSyncNotice = '';
-      if (status && status !== existingTask.status) {
-        try {
-          const trelloResult = await this.trelloService.moveCardByStatus(
-            existingTask.trello_card_id || existingTask.task_code,
-            status
-          );
-          trelloSyncNotice = trelloResult.message;
-        } catch (trelloErr: any) {
-          trelloSyncNotice = `Trello sync skipped: ${trelloErr.message}`;
-        }
-      }
-
       // Hitung ulang perolehan task selesai untuk anggota
       await this.memberRepo.recalculateTasksDone();
 
@@ -141,7 +114,6 @@ export class TaskController {
       res.status(200).json({
         success: true,
         message: `Tugas ${existingTask.task_code} berhasil diperbarui.`,
-        trello_notice: trelloSyncNotice,
         task: updatedTask || { ...existingTask, title: title || existingTask.title, assignee: assignee || existingTask.assignee, status: status || existingTask.status },
       });
     } catch (err: any) {
@@ -174,18 +146,6 @@ export class TaskController {
 
       const updatedTask = await this.taskRepo.updateStatusById(existingTask.id, status);
 
-      // Sinkronisasi dua arah ke Trello
-      let trelloSyncNotice = '';
-      try {
-        const trelloResult = await this.trelloService.moveCardByStatus(
-          existingTask.trello_card_id || existingTask.task_code,
-          status
-        );
-        trelloSyncNotice = trelloResult.message;
-      } catch (trelloErr: any) {
-        trelloSyncNotice = `Trello sync skipped: ${trelloErr.message}`;
-      }
-
       // Hitung ulang perolehan task selesai untuk anggota
       await this.memberRepo.recalculateTasksDone();
 
@@ -202,7 +162,6 @@ export class TaskController {
       res.status(200).json({
         success: true,
         message: `Status tugas ${existingTask.task_code} berhasil diperbarui ke "${status}".`,
-        trello_notice: trelloSyncNotice,
         task: updatedTask || { ...existingTask, status },
       });
     } catch (err: any) {
@@ -214,10 +173,6 @@ export class TaskController {
     try {
       const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const id = parseInt(idParam, 10);
-      const existing = await this.taskRepo.findById(id);
-      if (existing?.trello_card_id) {
-        this.trelloService.deleteCard(existing.trello_card_id).catch(() => {});
-      }
       const success = await this.taskRepo.deleteTask(id);
       if (this.io) {
         this.io.emit('activity_update', { type: 'TASK_DELETED', id });
@@ -225,90 +180,6 @@ export class TaskController {
       res.status(200).json({ success });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
-    }
-  };
-
-  public syncFromTrello = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const [lists, cards] = await Promise.all([
-        this.trelloService.fetchBoardLists(),
-        this.trelloService.fetchBoardCards(),
-      ]);
-
-      if (!cards || !Array.isArray(cards) || cards.length === 0) {
-        res.status(200).json({
-          success: true,
-          message: 'Papan Trello kosong atau koneksi API Trello belum dikonfigurasi.',
-          count: 0,
-        });
-        return;
-      }
-
-      // Buat mapping status dari nama list di Trello
-      const listStatusMap = new Map<string, 'To Do' | 'In Progress' | 'Done'>();
-      if (lists && Array.isArray(lists)) {
-        for (const list of lists) {
-          const lname = list.name.toLowerCase();
-          if (lname.includes('done')) {
-            listStatusMap.set(list.id, 'Done');
-          } else if (lname.includes('progress') || lname.includes('doing')) {
-            listStatusMap.set(list.id, 'In Progress');
-          } else {
-            listStatusMap.set(list.id, 'To Do');
-          }
-        }
-      }
-
-      let syncedCount = 0;
-      for (const card of cards) {
-        // Ekstrak kode task dari format nama: [#TASK-01], #TASK-01, TASK-01
-        const taskCodeMatch = card.name.match(/(?:#)?(TASK-\d+)/i);
-        const taskCode = taskCodeMatch ? taskCodeMatch[1].toUpperCase() : `TRL-${card.idShort || card.id.slice(-4)}`;
-
-        // Bersihkan title dari tag kode
-        const cleanTitle = card.name
-          .replace(/\[\s*(?:#)?TASK-\d+\s*\]/gi, '')
-          .replace(/(?:#)?TASK-\d+/gi, '')
-          .trim() || card.name;
-
-        // Tentukan status dari list
-        const status = listStatusMap.get(card.idList) || (card.idList === lists?.[2]?.id ? 'Done' : 'In Progress');
-
-        // Pertahankan assignee jika task sudah ada di DB, atau tetapkan default
-        const existing = await this.taskRepo.findByCode(taskCode);
-        const assignee = existing?.assignee || 'denoyey';
-
-        await this.taskRepo.upsertTask({
-          taskCode,
-          title: cleanTitle,
-          assignee,
-          status,
-          trelloCardId: card.id,
-        });
-        syncedCount++;
-      }
-
-      // Hitung ulang perolehan task selesai untuk klasemen anggota
-      await this.memberRepo.recalculateTasksDone();
-
-      const allTasks = await this.taskRepo.findAll();
-
-      if (this.io) {
-        this.io.emit('activity_update', {
-          type: 'TRELLO_SYNCED',
-          count: syncedCount,
-        });
-      }
-
-      res.status(200).json({
-        success: true,
-        message: `Berhasil menyinkronkan ${syncedCount} kartu nyata dari papan Kanban Trello ke sistem.`,
-        count: syncedCount,
-        tasks: allTasks,
-      });
-    } catch (err: any) {
-      console.error('[TaskController] Trello sync failure:', err);
-      res.status(500).json({ success: false, error: err.message || 'Trello sync failure' });
     }
   };
 

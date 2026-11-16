@@ -41,17 +41,17 @@ const ENDPOINTS: EndpointItem[] = [
     method: 'PATCH',
     path: '/api/v1/tasks/1/status',
     category: 'Tasks',
-    summary: 'Ubah Status Tugas & Auto-Sync Trello',
-    description: 'Mengubah status kartu tugas di MySQL dan memindahkan kartu secara otomatis di papan Kanban Trello.',
+    summary: 'Ubah Status Tugas & Broadcast Real-Time',
+    description: 'Mengubah status kartu tugas di MySQL dan menyiarkan pembaruan via WebSocket.',
     defaultPayload: { status: 'Done' },
   },
   {
-    id: 'sync-trello',
+    id: 'sync-github-issues',
     method: 'POST',
-    path: '/api/v1/tasks/sync-trello',
+    path: '/api/v1/tasks/sync-github',
     category: 'Tasks',
-    summary: 'Sinkronisasi Nyata dari Papan Trello',
-    description: 'Menarik seluruh kartu nyata dari board Trello resmi dan memperbarui data database.',
+    summary: 'Sinkronisasi Issue dari GitHub',
+    description: 'Menarik seluruh issue resmi dari repositori GitHub aktif dan memperbarui daftar tugas di sistem.',
   },
   {
     id: 'get-members',
@@ -75,7 +75,7 @@ const ENDPOINTS: EndpointItem[] = [
     path: '/api/v1/system/status',
     category: 'System',
     summary: 'Status Kesehatan Integrasi (Healthcheck)',
-    description: 'Mengecek ketersediaan koneksi MySQL, Trello, Discord, GitHub, dan uptime backend.',
+    description: 'Mengecek ketersediaan koneksi MySQL, Discord, GitHub, dan uptime backend.',
   },
   {
     id: 'system-logs',
@@ -209,7 +209,7 @@ export function ApiExplorerModal({ isOpen, onClose }: ApiExplorerModalProps) {
                 </span>
               </div>
               <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Katalog endpoint terstandarisasi untuk monitoring tugas, integrasi Trello, Discord, &amp; GitHub
+                Katalog endpoint terstandarisasi untuk monitoring tugas, integrasi Discord, &amp; GitHub
               </p>
             </div>
           </div>
@@ -407,7 +407,7 @@ export function ApiExplorerModal({ isOpen, onClose }: ApiExplorerModalProps) {
                   Alur Webhook Real-Time GitHub
                 </h4>
                 <p className="text-[11.5px] leading-relaxed">
-                  Setiap kali developer melakukan <code>git push</code> dengan tag tugas di pesan commit, GitHub langsung memicu webhook ke endpoint backend SI-PATIR. Kartu Trello otomatis dipindahkan ke Done dan notifikasi dikirim ke Discord.
+                  Setiap kali developer melakukan <code>git push</code> dengan tag tugas di pesan commit, GitHub langsung memicu webhook ke endpoint backend SI-PATIR. Status tugas di database otomatis selesai dan notifikasi dikirim ke Discord.
                 </p>
               </div>
 

@@ -6,7 +6,7 @@
 
 ## 1. Executive Summary & System Philosophy
 
-**SI-PATIR** adalah platform kontrol dan pemantau aktivitas tugas tim berbasis integrasi *DevOps Lite*. Sistem ini menghubungkan tiga ekosistem perangkat lunak eksternal yang heterogen (**GitHub**, **Trello**, dan **Discord**) ke dalam satu aplikasi dashboard monitoring berbasis **WebSocket Real-time** dan basis data **MySQL**.
+**SI-PATIR** adalah platform kontrol dan pemantau aktivitas tugas tim berbasis integrasi *DevOps Lite*. Sistem ini menghubungkan repositori **GitHub** dan kanal kolaborasi **Discord** melalui **GitHub Webhook API** dan **Discord Webhook API** ke dalam satu aplikasi dashboard monitoring berbasis **WebSocket Real-time** dan basis data **MySQL** dengan mesin pelacak status tugas internal (*Task State Engine*).
 
 ### Nilai Inti Rekayasa:
 1. **Strict Object-Oriented Programming (OOP)**: Arsitektur berlapis (*Layered Architecture*) berbasis *Singleton*, *Repository Pattern*, *Service Layer*, dan *Dependency Injection*.
@@ -44,13 +44,12 @@ backend/src/
 ├── services/
 │   ├── WebhookSecurityService.ts   # Service: HMAC SHA-256 & timing attack shield
 │   ├── CommitParserService.ts      # Service: ReDoS-safe regex & data sanitization
-│   ├── DiscordNotificationService.ts # Service: HTTP client & Discord rich embed
-│   └── TrelloIntegrationService.ts # Service: Trello REST API card manipulation
+│   └── DiscordNotificationService.ts # Service: HTTP client & Discord rich embed
 ├── middlewares/
 │   └── SecurityMiddleware.ts    # Middleware: Helmet, RateLimiter, CORS, ErrorSanitizer
 ├── controllers/
 │   ├── WebhookController.ts     # Controller: Orkestrasi event push GitHub
-│   ├── TaskController.ts        # Controller: Query & sinkronisasi kartu Trello
+│   ├── TaskController.ts        # Controller: Query & manajemen status tugas (Task State Engine)
 │   ├── MemberController.ts      # Controller: Klasemen kontributor
 │   └── SystemController.ts      # Controller: Health check & activity stream
 ├── Application.ts               # Gateway App: Setup Express, Socket.io, & Lifecycle
@@ -60,7 +59,7 @@ backend/src/
 ### Pola Desain (*Design Patterns*) yang Diterapkan:
 * **Singleton Pattern**: Diterapkan pada `EnvironmentConfig` dan `DatabaseService` guna menjamin efisiensi pemakaian memori dan konsistensi *connection pool*.
 * **Repository Pattern**: Mengisolasi logika akses data dari *business logic*. Semua kueri SQL menggunakan *Parameterized Statements* (`?`) untuk mencegah injeksi kode.
-* **Service Layer Pattern**: Memisahkan tanggung jawab integrasi pihak ketiga (`DiscordNotificationService`, `TrelloIntegrationService`, `WebhookSecurityService`).
+* **Service Layer Pattern**: Memisahkan tanggung jawab integrasi pihak ketiga (`DiscordNotificationService`, `WebhookSecurityService`, `CommitParserService`).
 * **Dependency Injection**: `WebhookController` menerima instansiasi `SocketServer` dan *service dependencies* melalui konstruktor, memudahkan *unit testing* dan *mocking*.
 
 ---

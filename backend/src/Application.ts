@@ -101,14 +101,6 @@ export class Application {
     this.app.post('/api/v1/webhooks/simulate', webhookController.handleSimulate);
     this.app.post('/api/simulate-commit', webhookController.handleSimulate);
 
-    // Trello Inbound Webhook Listener (Task 3.7)
-    this.app.head('/api/v1/webhooks/trello', webhookController.handleTrelloWebhookValidation);
-    this.app.get('/api/v1/webhooks/trello', webhookController.handleTrelloWebhookValidation);
-    this.app.post('/api/v1/webhooks/trello', webhookController.handleTrelloWebhook);
-    this.app.head('/api/webhooks/trello', webhookController.handleTrelloWebhookValidation);
-    this.app.get('/api/webhooks/trello', webhookController.handleTrelloWebhookValidation);
-    this.app.post('/api/webhooks/trello', webhookController.handleTrelloWebhook);
-
     // ==========================================
     // 3. Tasks API (CRUD, Status Update, Sync)
     // ==========================================
@@ -132,9 +124,7 @@ export class Application {
     this.app.delete('/api/v1/tasks/:id', taskController.deleteTask);
     this.app.delete('/api/tasks/:id', taskController.deleteTask);
 
-    // Sync Trello & GitHub
-    this.app.post('/api/v1/tasks/sync-trello', taskController.syncFromTrello);
-    this.app.post('/api/tasks/sync', taskController.syncFromTrello);
+    // Sync GitHub
     this.app.post('/api/v1/tasks/sync-github', taskController.syncFromGitHubIssues);
     this.app.post('/api/tasks/sync-github', taskController.syncFromGitHubIssues);
     this.app.post('/api/v1/tasks/clear-dummy', taskController.clearDummy);

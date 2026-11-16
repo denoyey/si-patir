@@ -25,7 +25,6 @@ CREATE TABLE IF NOT EXISTS `tasks` (
   `task_code` VARCHAR(50) NOT NULL UNIQUE,
   `title` VARCHAR(255) NOT NULL,
   `status` ENUM('To Do', 'In Progress', 'Done') DEFAULT 'To Do',
-  `trello_card_id` VARCHAR(100) NULL,
   `assignee` VARCHAR(100) NULL,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX `idx_task_code` (`task_code`)
@@ -67,7 +66,7 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO `tasks` (`task_code`, `title`, `status`, `assignee`)
 VALUES 
   ('TASK-01', 'Buat Database & Skema User', 'Done', 'denoyey'),
-  ('TASK-02', 'Integrasi Papan Kanban Trello', 'Done', 'Patirparkerr'),
+  ('TASK-02', 'Integrasi Basis Data & Task State Engine', 'Done', 'Patirparkerr'),
   ('TASK-03', 'Desain Layout Dashboard & UI Realtime', 'Done', 'muhamadrafli16'),
   ('TASK-04', 'Setup Webhook Handler & Logger HMAC', 'Done', 'denoyey'),
   ('TASK-05', 'Testing Otomasi QA & Security Rate Limiter', 'In Progress', 'AATTTRAWRRR')

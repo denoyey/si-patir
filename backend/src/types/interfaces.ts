@@ -17,14 +17,13 @@ export interface ITask {
   task_code: string;
   title: string;
   status: 'To Do' | 'In Progress' | 'Done';
-  trello_card_id?: string;
   assignee: string;
   updated_at?: string;
 }
 
 export interface IActivityLog {
   id: number;
-  event_type: 'PUSH_EVENT' | 'TASK_COMPLETED' | 'TRELLO_SYNC' | 'SYSTEM_ALERT';
+  event_type: 'PUSH_EVENT' | 'TASK_COMPLETED' | 'TASK_UPDATED' | 'SYSTEM_ALERT';
   author: string;
   commit_message: string;
   task_code?: string;
@@ -63,7 +62,6 @@ export interface IWebhookPayload {
 
 export interface ISystemStatus {
   mysql: boolean;
-  trello: boolean;
   discord: boolean;
   github: boolean;
   repository: string;
@@ -88,8 +86,6 @@ export interface IProject {
   slug: string;
   github_repo: string;
   github_webhook_secret?: string;
-  trello_board_id?: string;
-  trello_done_list_id?: string;
   discord_webhook_url?: string;
   is_active: boolean;
   created_at?: string;
