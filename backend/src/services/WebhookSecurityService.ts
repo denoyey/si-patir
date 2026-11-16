@@ -15,12 +15,12 @@ export class WebhookSecurityService {
   public verifyGitHubSignature(rawBody: string | Buffer, signatureHeader: string | undefined): boolean {
     const secret = this.config.githubWebhookSecret;
 
-    // Jika secret tidak dikonfigurasi (mode lokal dev), izinkan
-    if (!secret || secret === 'sipatir_secret_123') {
-      return true;
-    }
-
+    // Jika signature header tidak disertakan
     if (!signatureHeader || !signatureHeader.startsWith('sha256=')) {
+      // Izinkan hanya jika secret tidak dikonfigurasi sama sekali (mode darurat lokal)
+      if (!secret) {
+        return true;
+      }
       return false;
     }
 

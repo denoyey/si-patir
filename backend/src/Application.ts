@@ -172,6 +172,8 @@ export class Application {
     // ==========================================
     this.app.get('/api/v1/system/status', systemController.getStatus);
     this.app.get('/api/status', systemController.getStatus);
+    this.app.get('/api/v1/system/security/status', systemController.getSecurityReport);
+    this.app.post('/api/v1/system/security/verify-hmac', systemController.verifyHmacSimulation);
     this.app.get('/api/v1/system/logs', systemController.getLogs);
     this.app.get('/api/logs', systemController.getLogs);
 

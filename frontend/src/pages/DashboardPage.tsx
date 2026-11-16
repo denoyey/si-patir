@@ -803,6 +803,17 @@ export function DashboardPage() {
               <span className="lg:hidden text-xs font-medium">API</span>
             </button>
 
+            {/* Desktop & Mobile: Full Docs & Security Link */}
+            <Link
+              to="/docs"
+              className="inline-flex h-8 sm:h-8.5 px-2 sm:px-2.5 rounded-md bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/40 text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-white border border-blue-200 dark:border-blue-800 active:scale-95 text-xs font-semibold items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs shrink-0"
+              title="Portal Dokumentasi API & Lab Keamanan"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+              <span className="hidden lg:inline text-xs font-medium">Docs &amp; Security</span>
+              <span className="lg:hidden text-xs font-medium">Docs</span>
+            </Link>
+
             {/* Desktop & Tablet: Consolidated Export Dropdown */}
             <div ref={exportMenuRef} className="relative shrink-0 hidden sm:block">
               <button

@@ -366,6 +366,47 @@ export const API_ENDPOINTS: IApiEndpointSpec[] = [
       },
     },
   },
+  {
+    method: 'GET',
+    path: '/api/v1/system/security/status',
+    category: 'System',
+    summary: 'Laporan Matriks Keamanan Siber (Security Shield)',
+    description: 'Menampilkan konfigurasi aktif seluruh lapisan pertahanan: HMAC SHA-256 constant-time, IP rate limiting, Helmet CSP, proteksi SQL Injection, dan sanitasi ReDoS/XSS.',
+    exampleResponse: {
+      status: 200,
+      body: {
+        success: true,
+        security: {
+          hmacVerification: { algorithm: 'HMAC-SHA256', timingAttackProtection: true, method: 'crypto.timingSafeEqual' },
+          rateLimiting: { generalLimit: '120 req / minute per IP', webhookLimit: '30 req / minute per IP' },
+          sqlInjectionDefense: { driver: 'MySQL2 Prepared Statements', parameterizedQueries: '100%' },
+        },
+      },
+    },
+  },
+  {
+    method: 'POST',
+    path: '/api/v1/system/security/verify-hmac',
+    category: 'System',
+    summary: 'Uji Validasi Kriptografi HMAC SHA-256',
+    description: 'Melakukan komputasi digest HMAC SHA-256 dan evaluasi constant-time buffer comparison secara interaktif untuk pembuktian integritas webhook.',
+    headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
+    body: {
+      payload: { event: 'push', commits: [{ message: 'feat: secure commit [done #TASK-01]' }] },
+      signature: 'sha256=abcdef123456...',
+    },
+    exampleResponse: {
+      status: 200,
+      body: {
+        success: true,
+        valid: true,
+        algorithm: 'HMAC-SHA256',
+        timingSafeUsed: true,
+        executionDurationNs: 125000,
+        message: 'Tanda tangan VALID: Integritas payload terjamin.',
+      },
+    },
+  },
 
   // PROJECTS (Dynamic Multi-Repo Configuration)
   {

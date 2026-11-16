@@ -1,7 +1,7 @@
 import { API_METADATA, API_ENDPOINTS } from './apiSpec.js';
 
 export function renderApiDocsHtml(): string {
-  const categories = ['Tasks', 'Members', 'Webhooks', 'System'] as const;
+  const categories = ['Tasks', 'Members', 'Webhooks', 'Projects', 'System'] as const;
 
   return `<!DOCTYPE html>
 <html lang="id">
@@ -364,7 +364,8 @@ export function renderApiDocsHtml(): string {
           </p>
         </div>
         <div class="header-actions">
-          <a href="http://localhost:3000/dashboard" class="btn btn-secondary">← Ke Web Dashboard</a>
+          <a href="http://localhost:3000/docs" class="btn" style="background:#2563eb; color:white; font-weight:700;">🛡️ Docs &amp; Security Lab</a>
+          <a href="http://localhost:3000/dashboard" class="btn btn-secondary">← Web Dashboard</a>
           <a href="/api/v1/system/docs" target="_blank" class="btn btn-secondary">JSON OpenAPI</a>
         </div>
       </div>

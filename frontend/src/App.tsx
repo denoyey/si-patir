@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { ThemeProvider } from './context/ThemeContext';
 import { LandingPage } from './pages/LandingPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { DocumentationPage } from './pages/DocumentationPage';
 import { BackToTop } from './components/BackToTop';
 import { LenisScrollEngine } from './services/scroll/LenisScrollEngine';
 
@@ -41,6 +42,8 @@ export function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/docs" element={<DocumentationPage />} />
+          <Route path="/api-docs" element={<DocumentationPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <BackToTop />

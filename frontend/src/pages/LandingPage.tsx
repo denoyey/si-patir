@@ -114,6 +114,14 @@ export function LandingPage() {
 
           {/* Navigation Links (Desktop) */}
           <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+            <Link
+              to="/docs"
+              className="flex items-center gap-1.5 font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition"
+              title="Dokumentasi API & Simulasi Keamanan"
+            >
+              <ShieldCheck className="w-4 h-4 text-blue-500" />
+              <span>Dokumentasi &amp; Security</span>
+            </Link>
             <a
               href="#alur"
               onClick={(e) => handleNavClick(e, '#alur')}
@@ -148,6 +156,16 @@ export function LandingPage() {
 
           {/* Right Controls: Theme Switcher & Dashboard CTA */}
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            <Link
+              to="/docs"
+              className="h-8.5 px-2.5 sm:px-3 rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs cursor-pointer shrink-0"
+              title="Dokumentasi API & Lab Keamanan"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-500" />
+              <span className="hidden lg:inline">Docs &amp; Security</span>
+              <span className="lg:hidden">Docs</span>
+            </Link>
+
             <ThemeSwitcher />
 
             <Link
