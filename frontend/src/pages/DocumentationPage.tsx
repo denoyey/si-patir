@@ -735,7 +735,7 @@ export function DocumentationPage() {
               </div>
 
               <div className="overflow-x-auto no-scrollbar touch-scroll -mx-1 px-1 sm:mx-0 sm:px-0">
-                <table className="w-full min-w-[560px] text-left text-xs border-collapse">
+                <table className="w-full min-w-140 text-left text-xs border-collapse">
                   <thead>
                     <tr className="border-b border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400">
                       <th className="pb-2.5 font-semibold">Protokol</th>
@@ -1052,31 +1052,6 @@ export function DocumentationPage() {
                   code={activeUml.code}
                   title={`${activeUml.number}. ${activeUml.title}`}
                 />
-
-                {/* Academic Presentation & Focus Notes */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Focus notes */}
-                  <div className="p-4 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50/40 dark:bg-blue-950/20 text-xs text-blue-900 dark:text-blue-200 space-y-1.5">
-                    <div className="font-semibold flex items-center gap-1.5 text-blue-700 dark:text-blue-300">
-                      <span>💡 Poin Kunci Penilaian Dosen</span>
-                    </div>
-                    <p className="leading-relaxed opacity-90">
-                      {activeUml.focusNotes}
-                    </p>
-                  </div>
-
-                  {/* Key Points */}
-                  <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] text-xs space-y-1.5">
-                    <div className="font-semibold text-zinc-900 dark:text-white">
-                      📌 Rincian Teknis di Diagram
-                    </div>
-                    <ul className="space-y-1 text-zinc-600 dark:text-zinc-400 list-disc list-inside leading-relaxed">
-                      {activeUml.keyPoints.map((point, i) => (
-                        <li key={i}>{point}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
               </div>
             )}
           </div>
