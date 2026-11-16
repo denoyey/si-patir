@@ -80,13 +80,17 @@ export class MemberRepository {
   }
 
   public async clearDummyMembers(): Promise<void> {
-    const dummyUsernames = ['andi_dev', 'budi99', 'citra_ui', 'doni_backend'];
+    const officialUsernames = ['denoyey', 'muhamadrafli16', 'patirparkerr', 'aatttrawrrr'];
 
     if (this.db.isConnected() && this.db.getPool()) {
       try {
         await this.db.getPool()!.query(
-          'DELETE FROM members WHERE github_username IN (?, ?, ?, ?)',
-          dummyUsernames
+          'DELETE FROM members WHERE LOWER(github_username) NOT IN (?, ?, ?, ?)',
+          officialUsernames
+        );
+        await this.db.getPool()!.query(
+          'DELETE FROM activity_logs WHERE author NOT IN (?, ?, ?, ?, ?)',
+          ['denoyey', 'muhamadrafli16', 'Patirparkerr', 'AATTTRAWRRR', 'system']
         );
       } catch (err: any) {
         console.error('[MemberRepository] clearDummyMembers error:', err.message);
@@ -95,7 +99,7 @@ export class MemberRepository {
 
     // Clear memory fallback dummy
     const memory = this.db.getMemoryMembers();
-    const filtered = memory.filter((m) => !dummyUsernames.includes(m.github_username.toLowerCase()));
+    const filtered = memory.filter((m) => officialUsernames.includes(m.github_username.toLowerCase()));
     this.db.setMemoryMembers(filtered);
   }
 

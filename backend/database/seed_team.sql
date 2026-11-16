@@ -53,10 +53,10 @@ CREATE TABLE IF NOT EXISTS `activity_logs` (
 -- Seed Anggota Tim Resmi
 INSERT INTO `members` (`name`, `github_username`, `total_commits`, `tasks_done`)
 VALUES 
-  ('Deni', 'denoyey', 18, 2),
-  ('Rafli', 'muhamadrafli16', 0, 1),
-  ('Fatir', 'Patirparkerr', 0, 1),
-  ('Fajri', 'AATTTRAWRRR', 0, 0)
+  ('Deni', 'denoyey', 74, 1),
+  ('Rafli', 'muhamadrafli16', 4, 1),
+  ('Fatir', 'Patirparkerr', 4, 1),
+  ('Fajri', 'AATTTRAWRRR', 4, 1)
 ON DUPLICATE KEY UPDATE 
   `name` = VALUES(`name`),
   `total_commits` = VALUES(`total_commits`),

@@ -23,10 +23,10 @@ export interface IGitHubIssue {
 }
 
 export const OFFICIAL_TEAM_COLLABORATORS = [
-  { name: 'Deni', username: 'denoyey', defaultCommits: 42, defaultTasksDone: 2 },
-  { name: 'Rafli', username: 'muhamadrafli16', defaultCommits: 0, defaultTasksDone: 1 },
-  { name: 'Fatir', username: 'Patirparkerr', defaultCommits: 2, defaultTasksDone: 1 },
-  { name: 'Fajri', username: 'AATTTRAWRRR', defaultCommits: 0, defaultTasksDone: 0 },
+  { name: 'Deni', username: 'denoyey', defaultCommits: 74, defaultTasksDone: 1 },
+  { name: 'Rafli', username: 'muhamadrafli16', defaultCommits: 4, defaultTasksDone: 1 },
+  { name: 'Fatir', username: 'Patirparkerr', defaultCommits: 4, defaultTasksDone: 1 },
+  { name: 'Fajri', username: 'AATTTRAWRRR', defaultCommits: 4, defaultTasksDone: 1 },
 ];
 
 export class GitHubIntegrationService {

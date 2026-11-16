@@ -216,8 +216,8 @@ export const API_ENDPOINTS: IApiEndpointSpec[] = [
     description: 'Mendaftarkan anggota/developer tim baru secara manual ke dalam sistem klasemen.',
     headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
     body: {
-      name: 'Budi Santoso',
-      username: 'budisantoso',
+      name: 'Kontributor Baru',
+      username: 'kontributor_dev',
     },
     exampleResponse: {
       status: 201,
@@ -225,8 +225,8 @@ export const API_ENDPOINTS: IApiEndpointSpec[] = [
         success: true,
         member: {
           id: 10,
-          name: 'Budi Santoso',
-          github_username: 'budisantoso',
+          name: 'Kontributor Baru',
+          github_username: 'kontributor_dev',
           total_commits: 0,
           tasks_done: 0,
         },

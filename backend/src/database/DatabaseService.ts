@@ -12,10 +12,10 @@ export class DatabaseService {
   private memoryProjects: IProject[] = [];
 
   private memoryMembers: IMember[] = [
-    { id: 1, name: 'Deni', github_username: 'denoyey', total_commits: 42, tasks_done: 2 },
-    { id: 2, name: 'Fatir', github_username: 'Patirparkerr', total_commits: 2, tasks_done: 1 },
-    { id: 3, name: 'Rafli', github_username: 'muhamadrafli16', total_commits: 0, tasks_done: 1 },
-    { id: 4, name: 'Fajri', github_username: 'AATTTRAWRRR', total_commits: 0, tasks_done: 0 },
+    { id: 1, name: 'Deni', github_username: 'denoyey', total_commits: 74, tasks_done: 1 },
+    { id: 2, name: 'Fatir', github_username: 'Patirparkerr', total_commits: 4, tasks_done: 1 },
+    { id: 3, name: 'Rafli', github_username: 'muhamadrafli16', total_commits: 4, tasks_done: 1 },
+    { id: 4, name: 'Fajri', github_username: 'AATTTRAWRRR', total_commits: 4, tasks_done: 1 },
   ];
 
   private memoryTasks: ITask[] = [
