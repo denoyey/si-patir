@@ -20,6 +20,9 @@ import {
   HelpCircle,
   Activity,
   Filter,
+  Send,
+  Radio,
+  FileCode,
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 
@@ -45,8 +48,9 @@ const ENDPOINTS_DATA: EndpointDoc[] = [
     method: 'POST',
     path: '/api/v1/webhooks/github',
     category: 'Webhooks',
-    summary: 'Webhook Push dari GitHub',
-    description: 'Menerima payload push commit dari GitHub. Diverifikasi dengan signature HMAC SHA-256.',
+    summary: 'Menerima Notifikasi Commit dari GitHub (Webhook Inbound)',
+    description:
+      'Endpoint otomatis yang dipanggil oleh GitHub setiap kali anggota tim melakukan push commit. Memeriksa tanda tangan HMAC SHA-256 dan mendeteksi tag tugas.',
     headers: [
       { name: 'Content-Type', value: 'application/json', required: true },
       { name: 'X-Hub-Signature-256', value: 'sha256=<hmac_sha256_hex>', required: true },
@@ -75,8 +79,9 @@ const ENDPOINTS_DATA: EndpointDoc[] = [
     method: 'POST',
     path: '/api/v1/webhooks/simulate',
     category: 'Webhooks',
-    summary: 'Simulasi Commit Lokal',
-    description: 'Mengirim simulasi commit langsung dari dashboard web tanpa perlu push ke GitHub.',
+    summary: 'Simulasi Commit Langsung dari Web',
+    description:
+      'Menguji alur integrasi commit secara langsung dari peramban tanpa perlu membuka terminal laptop. Memperbarui status tugas, database, dan Discord.',
     headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
     defaultBody: {
       developer: 'denoyey',
@@ -97,8 +102,9 @@ const ENDPOINTS_DATA: EndpointDoc[] = [
     method: 'GET',
     path: '/api/v1/tasks',
     category: 'Tasks',
-    summary: 'Daftar Semua Tugas',
-    description: 'Mengambil seluruh daftar kartu tugas dari basis data MySQL beserta status dan assignee.',
+    summary: 'Melihat Seluruh Daftar Kartu Tugas',
+    description:
+      'Mengambil seluruh daftar tugas tim yang tersimpan di basis data MySQL, termasuk status pengerjaan (To Do, In Progress, Done) dan anggota penanggung jawab.',
     exampleResponse: [
       {
         id: 2,
@@ -123,8 +129,9 @@ const ENDPOINTS_DATA: EndpointDoc[] = [
     method: 'GET',
     path: '/api/v1/tasks/TASK-02',
     category: 'Tasks',
-    summary: 'Detail Tugas Tertentu',
-    description: 'Mengambil data satu tugas berdasarkan kode tugas (misal: TASK-02) atau ID numerik.',
+    summary: 'Melihat Detail Satu Tugas Tertentu',
+    description:
+      'Mengambil rincian data satu tugas berdasarkan kode pengenal (contoh: TASK-02) atau nomor ID database.',
     params: [{ name: 'id', type: 'string | number', description: 'Kode unik tugas atau ID integer', required: true }],
     exampleResponse: {
       success: true,
@@ -142,8 +149,9 @@ const ENDPOINTS_DATA: EndpointDoc[] = [
     method: 'PATCH',
     path: '/api/v1/tasks/2/status',
     category: 'Tasks',
-    summary: 'Perbarui Status Tugas',
-    description: 'Mengubah status pengerjaan kartu tugas menjadi To Do, In Progress, atau Done.',
+    summary: 'Mengubah Status Pengerjaan Tugas',
+    description:
+      'Memperbarui status tugas secara manual melalui REST API ke salah satu dari tiga status: To Do, In Progress, atau Done.',
     headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
     defaultBody: {
       status: 'Done',
@@ -158,8 +166,9 @@ const ENDPOINTS_DATA: EndpointDoc[] = [
     method: 'POST',
     path: '/api/v1/tasks',
     category: 'Tasks',
-    summary: 'Tambah Tugas Baru',
-    description: 'Membuat kartu tugas baru ke dalam database.',
+    summary: 'Menambahkan Kartu Tugas Baru',
+    description:
+      'Membuat catatan tugas baru ke dalam database proyek lengkap dengan kode unik, judul, penanggung jawab, dan status awal.',
     headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
     defaultBody: {
       taskCode: 'TASK-06',
@@ -186,13 +195,14 @@ const ENDPOINTS_DATA: EndpointDoc[] = [
     method: 'GET',
     path: '/api/v1/members',
     category: 'Members',
-    summary: 'Daftar Anggota Tim',
-    description: 'Mengambil daftar anggota tim beserta statistik jumlah commit dan tugas selesai.',
+    summary: 'Daftar Anggota Tim & Rekap Kontribusi',
+    description:
+      'Mengambil daftar seluruh anggota pengembang beserta statistik riil jumlah commit dan jumlah tugas yang telah berhasil diselesaikan.',
     exampleResponse: [
-      { id: 1, name: 'Deni', github_username: 'denoyey', total_commits: 42, tasks_done: 2 },
-      { id: 2, name: 'Fatir', github_username: 'Patirparkerr', total_commits: 2, tasks_done: 1 },
-      { id: 3, name: 'Rafli', github_username: 'muhamadrafli16', total_commits: 0, tasks_done: 1 },
-      { id: 4, name: 'Fajri', github_username: 'AATTTRAWRRR', total_commits: 0, tasks_done: 1 },
+      { id: 1, name: 'Deni', github_username: 'denoyey', total_commits: 74, tasks_done: 1 },
+      { id: 2, name: 'Fatir', github_username: 'Patirparkerr', total_commits: 4, tasks_done: 1 },
+      { id: 3, name: 'Rafli', github_username: 'muhamadrafli16', total_commits: 4, tasks_done: 1 },
+      { id: 4, name: 'Fajri', github_username: 'AATTTRAWRRR', total_commits: 4, tasks_done: 1 },
     ],
   },
 
@@ -202,8 +212,9 @@ const ENDPOINTS_DATA: EndpointDoc[] = [
     method: 'GET',
     path: '/api/v1/projects',
     category: 'Projects',
-    summary: 'Daftar Profil Proyek',
-    description: 'Mengambil daftar repositori yang dipantau beserta konfigurasi webhook masing-masing.',
+    summary: 'Daftar Profil Proyek & Repositori yang Dipantau',
+    description:
+      'Melihat daftar proyek multi-repo beserta konfigurasi webhook Discord masing-masing agar notifikasi terisolasi rapi.',
     exampleResponse: {
       success: true,
       projects: [
@@ -224,8 +235,9 @@ const ENDPOINTS_DATA: EndpointDoc[] = [
     method: 'GET',
     path: '/api/v1/system/status',
     category: 'System',
-    summary: 'Status Sistem & Database',
-    description: 'Mengecek konektivitas database MySQL, status realtime WebSocket, dan konfigurasi environment.',
+    summary: 'Cek Status Kesehatan Server & Database',
+    description:
+      'Memeriksa status operasional server, apakah database MySQL terhubung normal atau sedang dalam mode in-memory fallback, dan kesiapan WebSocket.',
     exampleResponse: {
       status: 'operational',
       database: 'connected (MySQL)',
@@ -238,8 +250,9 @@ const ENDPOINTS_DATA: EndpointDoc[] = [
     method: 'GET',
     path: '/api/v1/system/security/status',
     category: 'System',
-    summary: 'Laporan Konfigurasi Keamanan',
-    description: 'Menampilkan status verifikasi HMAC, batasan rate limiter, dan proteksi SQL Injection.',
+    summary: 'Laporan Konfigurasi Keamanan Aktif',
+    description:
+      'Menampilkan status lapisan keamanan yang aktif: algoritma verifikasi HMAC, batasan laju request (Rate Limiter), dan perlindungan SQL Injection.',
     exampleResponse: {
       success: true,
       security: {
@@ -254,8 +267,9 @@ const ENDPOINTS_DATA: EndpointDoc[] = [
     method: 'POST',
     path: '/api/v1/system/security/verify-hmac',
     category: 'System',
-    summary: 'Uji Kriptografi HMAC SHA-256',
-    description: 'Menghitung hash digest HMAC SHA-256 dan melakukan komparasi buffer konstan.',
+    summary: 'Uji Validasi Kriptografi HMAC SHA-256',
+    description:
+      'Menghitung kode hash HMAC SHA-256 dari data payload lalu membandingkannya menggunakan buffer konstan waktu (anti-timing attack).',
     headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
     defaultBody: {
       payload: { event: 'push', commit: 'fix bug [done #TASK-02]' },
@@ -306,7 +320,7 @@ export function DocumentationPage() {
     axios
       .get('/api/v1/system/security/status')
       .then((res) => setSecurityStatus(res.data?.security))
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
   const copyToClipboard = (text: string, key: string) => {
@@ -430,7 +444,7 @@ export function DocumentationPage() {
         const log = {
           reqId: i,
           status: res.status,
-          text: `Request #${i}: 200 OK`,
+          text: `Request #${i}: 200 OK (Berhasil)`,
         };
         newLogs.push(log);
         setRateLimitLogs([...newLogs]);
@@ -439,7 +453,7 @@ export function DocumentationPage() {
         const log = {
           reqId: i,
           status,
-          text: status === 429 ? `Request #${i}: 429 Too Many Requests (Blocked)` : `Request #${i}: Error ${status}`,
+          text: status === 429 ? `Request #${i}: 429 Terlalu Banyak Request (Diblokir)` : `Request #${i}: Error ${status}`,
         };
         newLogs.push(log);
         setRateLimitLogs([...newLogs]);
@@ -459,13 +473,13 @@ export function DocumentationPage() {
       setSqliResult({
         status: res.status,
         data: res.data,
-        message: 'Kueri dieksekusi dengan aman menggunakan prepared statement.',
+        message: 'Kueri aman: Input dicari sebagai teks nama tugas murni, bukan perintah SQL.',
       });
     } catch (err: any) {
       setSqliResult({
         status: err.response?.status || 404,
         data: err.response?.data || { message: 'Tugas tidak ditemukan' },
-        message: 'Aman: Input diproses sebagai string literal murni, bukan instruksi SQL.',
+        message: 'Aman: Input diproses sebagai nilai parameter biasa, database tidak tertembus.',
       });
     } finally {
       setSqliLoading(false);
@@ -474,17 +488,17 @@ export function DocumentationPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0c0f17] text-zinc-900 dark:text-zinc-100 flex flex-col font-sans transition-colors">
-      {/* Header */}
+      {/* Header Bar */}
       <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#111420]/95 border-b border-zinc-200 dark:border-zinc-800 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link to="/" className="flex items-center gap-2 cursor-pointer">
-              <div className="w-8 h-8 rounded-md bg-blue-600 text-white font-bold flex items-center justify-center text-xs">
+              <div className="w-8 h-8 rounded-md bg-blue-600 text-white font-bold flex items-center justify-center text-xs shadow-xs">
                 SP
               </div>
               <span className="font-bold text-sm tracking-tight text-zinc-950 dark:text-white">SI-PATIR</span>
               <span className="text-xs px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-medium">
-                Docs
+                Docs &amp; Lab
               </span>
             </Link>
           </div>
@@ -492,10 +506,10 @@ export function DocumentationPage() {
           <div className="flex items-center gap-2">
             <Link
               to="/dashboard"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition cursor-pointer shadow-xs"
             >
               <Activity className="w-3.5 h-3.5" />
-              <span>Dashboard</span>
+              <span>Buka Dashboard</span>
             </Link>
 
             <a
@@ -517,28 +531,59 @@ export function DocumentationPage() {
 
       {/* Main Container */}
       <main className="max-w-6xl mx-auto px-4 py-8 flex-1 w-full space-y-6">
-        {/* Simple Page Header */}
-        <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-semibold mb-2 border border-blue-200 dark:border-blue-900/50">
-            <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-            <span>Dokumentasi Sistem</span>
+        {/* Simple & Clear Page Intro */}
+        <div className="p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-semibold border border-blue-200 dark:border-blue-900/50">
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>Mata Kuliah: Pemrograman Integratif</span>
+            </span>
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">
+              Panduan Praktis Sidang &amp; Demonstrasi Sistem
+            </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-950 dark:text-white">
-            Dokumentasi API &amp; Keamanan
-          </h1>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1 max-w-2xl">
-            Panduan integrasi GitHub Webhook, Discord Bot, MySQL, serta simulasi keamanan sistem.
-          </p>
+
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-950 dark:text-white">
+              Dokumentasi API, Alur Integrasi &amp; Keamanan
+            </h1>
+            <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
+              Halaman ini menjelaskan bagaimana sistem <strong>SI-PATIR</strong> menghubungkan layanan{' '}
+              <strong>GitHub Webhook</strong>, bot pesan <strong>Discord</strong>, basis data <strong>MySQL</strong>,
+              dan streaming <strong>WebSocket</strong> secara otomatis tanpa perlu refresh halaman. Disediakan juga lab uji coba langsung
+              untuk keperluan presentasi ke dosen penguji.
+            </p>
+          </div>
+
+          {/* Quick Summary Highlights */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
+            <div className="p-2.5 rounded-md bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Metode Integrasi</span>
+              <span className="text-xs font-bold text-zinc-900 dark:text-white">Event-Driven (Push)</span>
+            </div>
+            <div className="p-2.5 rounded-md bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Keamanan Webhook</span>
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">HMAC SHA-256</span>
+            </div>
+            <div className="p-2.5 rounded-md bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Keamanan Database</span>
+              <span className="text-xs font-bold text-blue-600 dark:text-blue-400">Prepared Statements</span>
+            </div>
+            <div className="p-2.5 rounded-md bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400 block">Penyajian Data</span>
+              <span className="text-xs font-bold text-purple-600 dark:text-purple-400">Real-Time WebSocket</span>
+            </div>
+          </div>
         </div>
 
         {/* Navigation Tabs */}
         <div className="flex items-center gap-1.5 border-b border-zinc-200 dark:border-zinc-800 pb-2 overflow-x-auto">
           {[
-            { key: 'architecture', label: 'Arsitektur', icon: Layers },
-            { key: 'catalog', label: 'Katalog API', icon: Code2 },
-            { key: 'security', label: 'Keamanan', icon: Shield },
-            { key: 'simulator', label: 'Simulasi Lab', icon: Play },
-            { key: 'qa', label: 'Tanya Jawab', icon: HelpCircle },
+            { key: 'architecture', label: '1. Alur Sistem', icon: Layers },
+            { key: 'catalog', label: '2. Katalog API', icon: Code2 },
+            { key: 'security', label: '3. Proteksi Keamanan', icon: Shield },
+            { key: 'simulator', label: '4. Lab Pengujian', icon: Play },
+            { key: 'qa', label: '5. Tanya Jawab Dosen', icon: HelpCircle },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
@@ -547,10 +592,11 @@ export function DocumentationPage() {
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key as TabKey)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition cursor-pointer ${isActive
-                  ? 'bg-blue-600 text-white shadow-xs'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-800/60'
-                  }`}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition cursor-pointer ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-800/60'
+                }`}
               >
                 <Icon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
@@ -559,116 +605,161 @@ export function DocumentationPage() {
           })}
         </div>
 
-        {/* TAB 1: ARSITEKTUR INTEGRASI */}
+        {/* TAB 1: ALUR KERJA SISTEM */}
         {activeTab === 'architecture' && (
           <div className="space-y-6">
-            {/* Step Pipeline */}
-            <div className="p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs">
-              <h2 className="text-sm font-semibold text-zinc-900 dark:text-white mb-1">
-                Alur Integrasi Sistem
-              </h2>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-4">
-                Bagaimana commit dari GitHub diproses otomatis hingga tercatat di database dan diteruskan ke Discord.
-              </p>
+            {/* Step by Step Explanation */}
+            <div className="p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-4">
+              <div>
+                <h2 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">
+                  Bagaimana Sistem Ini Bekerja Otomatis?
+                </h2>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                  Dari baris kode yang ditulis mahasiswa di laptop hingga muncul di layar web dan grup Discord.
+                </p>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <div className="p-3.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40">
-                  <span className="text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900/40">
-                    Langkah 1
-                  </span>
-                  <h3 className="font-semibold text-xs text-zinc-900 dark:text-white mt-2">Git Commit</h3>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
-                    Developer melakukan push commit berformat tugas, contoh:
+                {/* Step 1 */}
+                <div className="p-3.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900/40">
+                      Langkah 1
+                    </span>
+                    <span className="text-[11px] text-zinc-400">Git Commit</span>
+                  </div>
+                  <h3 className="font-semibold text-xs text-zinc-900 dark:text-white">
+                    Mahasiswa Push Kode
+                  </h3>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                    Pengembang melakukan commit dan push kode ke GitHub dengan menyertakan tanda tugas, contohnya:
                   </p>
-                  <code className="block mt-2 text-[11px] font-mono px-2 py-1 rounded-md bg-zinc-200/70 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200">
+                  <code className="block text-[11px] font-mono px-2 py-1 rounded-md bg-zinc-200/70 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 break-all">
                     git commit -m &quot;Fix [done #TASK-02]&quot;
                   </code>
                 </div>
 
-                <div className="p-3.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40">
-                  <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900/40">
-                    Langkah 2
-                  </span>
-                  <h3 className="font-semibold text-xs text-zinc-900 dark:text-white mt-2">GitHub Webhook</h3>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
-                    GitHub mengirim HTTP POST payload ke backend dengan signature:
+                {/* Step 2 */}
+                <div className="p-3.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900/40">
+                      Langkah 2
+                    </span>
+                    <span className="text-[11px] text-zinc-400">GitHub Webhook</span>
+                  </div>
+                  <h3 className="font-semibold text-xs text-zinc-900 dark:text-white">
+                    GitHub Mengirim Sinyal
+                  </h3>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                    GitHub otomatis menembakkan data JSON ke server kita dan menyertakan tanda tangan rahasia:
                   </p>
-                  <code className="block mt-2 text-[11px] font-mono px-2 py-1 rounded-md bg-zinc-200/70 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200">
+                  <code className="block text-[11px] font-mono px-2 py-1 rounded-md bg-zinc-200/70 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 break-all">
                     X-Hub-Signature-256
                   </code>
                 </div>
 
-                <div className="p-3.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40">
-                  <span className="text-[10px] font-mono font-bold text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-900/40">
-                    Langkah 3
-                  </span>
-                  <h3 className="font-semibold text-xs text-zinc-900 dark:text-white mt-2">Verifikasi &amp; DB</h3>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
-                    Backend validasi signature HMAC SHA-256 lalu update status tugas ke database MySQL:
+                {/* Step 3 */}
+                <div className="p-3.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-900/40">
+                      Langkah 3
+                    </span>
+                    <span className="text-[11px] text-zinc-400">Server &amp; MySQL</span>
+                  </div>
+                  <h3 className="font-semibold text-xs text-zinc-900 dark:text-white">
+                    Cek Keamanan &amp; Simpan
+                  </h3>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                    Server mencocokkan stempel HMAC. Jika sah, status tugas <code className="font-mono text-[11px]">#TASK-02</code> langsung diubah jadi <strong>Done</strong> di MySQL:
                   </p>
-                  <code className="block mt-2 text-[11px] font-mono px-2 py-1 rounded-md bg-zinc-200/70 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200">
+                  <code className="block text-[11px] font-mono px-2 py-1 rounded-md bg-zinc-200/70 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 break-all">
                     UPDATE tasks SET status = ?
                   </code>
                 </div>
 
-                <div className="p-3.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40">
-                  <span className="text-[10px] font-mono font-bold text-purple-600 dark:text-purple-400 px-1.5 py-0.5 rounded-md bg-purple-100 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-900/40">
-                    Langkah 4
-                  </span>
-                  <h3 className="font-semibold text-xs text-zinc-900 dark:text-white mt-2">Discord &amp; Realtime</h3>
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
-                    Sistem mengirim pesan embed ke Discord dan broadcast event WebSocket ke browser:
+                {/* Step 4 */}
+                <div className="p-3.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-900/40">
+                      Langkah 4
+                    </span>
+                    <span className="text-[11px] text-zinc-400">Discord &amp; Web</span>
+                  </div>
+                  <h3 className="font-semibold text-xs text-zinc-900 dark:text-white">
+                    Kabar Terkirim Seketika
+                  </h3>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                    Bot mengirim ringkasan ke grup Discord, dan server menyiarkan data via WebSocket agar layar web berubah tanpa refresh:
                   </p>
-                  <code className="block mt-2 text-[11px] font-mono px-2 py-1 rounded-md bg-zinc-200/70 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200">
+                  <code className="block text-[11px] font-mono px-2 py-1 rounded-md bg-zinc-200/70 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 break-all">
                     io.emit(&apos;activity_update&apos;)
                   </code>
                 </div>
               </div>
             </div>
 
-            {/* Protocol Comparison Table */}
-            <div className="p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs">
-              <h2 className="text-sm font-semibold text-zinc-900 dark:text-white mb-1">
-                Perbandingan Protokol Integrasi
-              </h2>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-4">
-                Karakteristik teknis protokol yang digunakan dalam arsitektur SI-PATIR.
-              </p>
+            {/* Protocol Comparison Table (Clear & Simple for Lecturers) */}
+            <div className="p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-3">
+              <div>
+                <h2 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">
+                  Mengapa Kami Memilih Kombinasi Protokol Ini?
+                </h2>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                  Tabel alasan teknis penggunaan protokol integrasi dalam proyek mata kuliah Pemrograman Integratif.
+                </p>
+              </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="border-b border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400">
                       <th className="pb-2.5 font-semibold">Protokol</th>
-                      <th className="pb-2.5 font-semibold">Pola Komunikasi</th>
-                      <th className="pb-2.5 font-semibold">Beban Jaringan</th>
-                      <th className="pb-2.5 font-semibold">Penggunaan di Sistem</th>
+                      <th className="pb-2.5 font-semibold">Cara Kerjanya</th>
+                      <th className="pb-2.5 font-semibold">Beban Server &amp; Kuota</th>
+                      <th className="pb-2.5 font-semibold">Fungsi Nyata di SI-PATIR</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 text-zinc-700 dark:text-zinc-300">
                     <tr>
-                      <td className="py-2.5 font-semibold text-zinc-900 dark:text-white">Webhook</td>
-                      <td className="py-2.5">Event-driven (Push)</td>
-                      <td className="py-2.5">Sangat hemat (hanya saat ada commit)</td>
-                      <td className="py-2.5">Menerima event push GitHub dan kirim embed Discord</td>
+                      <td className="py-2.5 font-semibold text-zinc-900 dark:text-white">
+                        <div className="flex items-center gap-1.5">
+                          <Send className="w-3.5 h-3.5 text-emerald-500" />
+                          <span>Webhook</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5">Otomatis mengirim data saat ada kejadian (Push)</td>
+                      <td className="py-2.5 text-emerald-600 dark:text-emerald-400 font-medium">Sangat hemat (hanya jalan saat ada commit)</td>
+                      <td className="py-2.5">Menerima push commit dari GitHub dan meneruskan pesan ke Discord</td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 font-semibold text-zinc-900 dark:text-white">REST API</td>
-                      <td className="py-2.5">Request - Response (Pull)</td>
-                      <td className="py-2.5">Sesuai kebutuhan request</td>
-                      <td className="py-2.5">CRUD kartu tugas, anggota, dan profil repositori</td>
+                      <td className="py-2.5 font-semibold text-zinc-900 dark:text-white">
+                        <div className="flex items-center gap-1.5">
+                          <Radio className="w-3.5 h-3.5 text-purple-500" />
+                          <span>WebSocket</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5">Jalur koneksi dua arah yang selalu terbuka (Real-Time)</td>
+                      <td className="py-2.5">Efisien (hanya kirim pesan kecil saat status berubah)</td>
+                      <td className="py-2.5">Memperbarui tampilan tabel tugas dan grafik web secara instan tanpa reload</td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 font-semibold text-zinc-900 dark:text-white">WebSocket</td>
-                      <td className="py-2.5">Full-Duplex Realtime</td>
-                      <td className="py-2.5">Koneksi tetap aktif (persistent)</td>
-                      <td className="py-2.5">Update realtime tabel dashboard dan live stream aktivitas</td>
+                      <td className="py-2.5 font-semibold text-zinc-900 dark:text-white">
+                        <div className="flex items-center gap-1.5">
+                          <FileCode className="w-3.5 h-3.5 text-blue-500" />
+                          <span>REST API</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5">Klien meminta data, server membalas (Request - Response)</td>
+                      <td className="py-2.5">Sesuai permintaan pengguna</td>
+                      <td className="py-2.5">Mengambil data awal, mengedit kartu tugas, dan melihat daftar anggota</td>
                     </tr>
-                    <tr>
-                      <td className="py-2.5 font-semibold text-zinc-900 dark:text-white">Polling</td>
-                      <td className="py-2.5">Request Terjadwal (Loop)</td>
-                      <td className="py-2.5">Boros (tetap kirim meski data kosong)</td>
-                      <td className="py-2.5">Dihindari, digantikan oleh Webhook dan WebSocket</td>
+                    <tr className="bg-rose-50/40 dark:bg-rose-950/10">
+                      <td className="py-2.5 font-semibold text-zinc-900 dark:text-white line-through opacity-70">
+                        Polling Berkala
+                      </td>
+                      <td className="py-2.5 text-zinc-500">Klien berulang kali bertanya ke server tiap beberapa detik</td>
+                      <td className="py-2.5 text-rose-600 dark:text-rose-400 font-medium">Boros kuota &amp; CPU (tetap kirim meski tidak ada data baru)</td>
+                      <td className="py-2.5 text-zinc-500 italic">Ditinggalkan, kami ganti dengan Webhook &amp; WebSocket</td>
                     </tr>
                   </tbody>
                 </table>
@@ -677,10 +768,10 @@ export function DocumentationPage() {
           </div>
         )}
 
-        {/* TAB 2: KATALOG REST API */}
+        {/* TAB 2: KATALOG API & LIVE RUNNER */}
         {activeTab === 'catalog' && (
           <div className="space-y-4">
-            {/* Filter & Search Bar */}
+            {/* Filter Bar */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420]">
               <div className="flex items-center gap-1.5 overflow-x-auto">
                 <span className="text-xs text-zinc-400 font-medium px-1 flex items-center gap-1">
@@ -692,10 +783,11 @@ export function DocumentationPage() {
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition cursor-pointer ${selectedCategory === cat
-                      ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
-                      : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
-                      }`}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition cursor-pointer ${
+                      selectedCategory === cat
+                        ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
+                        : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                    }`}
                   >
                     {cat === 'All' ? 'Semua' : cat}
                   </button>
@@ -714,7 +806,7 @@ export function DocumentationPage() {
               </div>
             </div>
 
-            {/* Split View: List on Left, Runner on Right */}
+            {/* Split View */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
               {/* Endpoint List */}
               <div className="lg:col-span-5 space-y-2">
@@ -733,15 +825,14 @@ export function DocumentationPage() {
                     <div
                       key={ep.id}
                       onClick={() => handleSelectEndpoint(ep)}
-                      className={`p-3 rounded-lg border transition cursor-pointer text-left ${isSelected
-                        ? 'border-blue-500 bg-blue-50/40 dark:bg-blue-950/20 shadow-xs'
-                        : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] hover:border-zinc-300 dark:hover:border-zinc-700'
-                        }`}
+                      className={`p-3 rounded-lg border transition cursor-pointer text-left ${
+                        isSelected
+                          ? 'border-blue-500 bg-blue-50/40 dark:bg-blue-950/20 shadow-xs'
+                          : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] hover:border-zinc-300 dark:hover:border-zinc-700'
+                      }`}
                     >
                       <div className="flex items-center gap-2 mb-1">
-                        <span
-                          className={`px-1.5 py-0.5 rounded-md font-mono text-[10px] font-bold border ${methodColor}`}
-                        >
+                        <span className={`px-1.5 py-0.5 rounded-md font-mono text-[10px] font-bold border ${methodColor}`}>
                           {ep.method}
                         </span>
                         <span className="font-mono text-xs font-semibold text-zinc-900 dark:text-white truncate">
@@ -803,7 +894,7 @@ export function DocumentationPage() {
                     </p>
                   </div>
 
-                  {/* Headers if any */}
+                  {/* Headers */}
                   {selectedEndpoint.headers && (
                     <div>
                       <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 block mb-1">
@@ -823,11 +914,11 @@ export function DocumentationPage() {
                     </div>
                   )}
 
-                  {/* Request Body Editor */}
+                  {/* Request Body */}
                   {['POST', 'PATCH'].includes(selectedEndpoint.method) && (
                     <div>
                       <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 block mb-1">
-                        Request Body (JSON):
+                        Data Body (Format JSON):
                       </span>
                       <textarea
                         rows={6}
@@ -849,12 +940,12 @@ export function DocumentationPage() {
                       {runnerLoading ? (
                         <>
                           <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                          <span>Mengirim...</span>
+                          <span>Mengirim Request...</span>
                         </>
                       ) : (
                         <>
                           <Play className="w-3.5 h-3.5 fill-current" />
-                          <span>Kirim Request</span>
+                          <span>Kirim Request Langsung</span>
                         </>
                       )}
                     </button>
@@ -862,10 +953,11 @@ export function DocumentationPage() {
                     {runnerResult && (
                       <div className="flex items-center gap-2 text-xs font-mono">
                         <span
-                          className={`font-bold px-1.5 py-0.5 rounded-md ${runnerResult.status >= 200 && runnerResult.status < 300
-                            ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
-                            : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300'
-                            }`}
+                          className={`font-bold px-1.5 py-0.5 rounded-md ${
+                            runnerResult.status >= 200 && runnerResult.status < 300
+                              ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
+                              : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300'
+                          }`}
                         >
                           HTTP {runnerResult.status}
                         </span>
@@ -877,12 +969,16 @@ export function DocumentationPage() {
                   {/* Response Box */}
                   <div>
                     <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 block mb-1">
-                      Respon Server:
+                      Balasan dari Server (Response):
                     </span>
                     <pre className="p-3 text-[11px] font-mono rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-950 text-emerald-400 overflow-x-auto max-h-72">
                       {runnerResult
                         ? JSON.stringify(runnerResult.data, null, 2)
-                        : JSON.stringify(selectedEndpoint.exampleResponse || { note: 'Klik "Kirim Request" untuk melihat respon langsung.' }, null, 2)}
+                        : JSON.stringify(
+                            selectedEndpoint.exampleResponse || { note: 'Klik tombol "Kirim Request Langsung" untuk mencoba.' },
+                            null,
+                            2
+                          )}
                     </pre>
                   </div>
                 </div>
@@ -891,96 +987,115 @@ export function DocumentationPage() {
           </div>
         )}
 
-        {/* TAB 3: MATRIKS KEAMANAN */}
+        {/* TAB 3: PROTEKSI KEAMANAN SIBER */}
         {activeTab === 'security' && (
           <div className="space-y-6">
-            {/* Server Security Status */}
+            {/* Status Bar */}
             <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
                 <h2 className="text-sm font-semibold text-zinc-900 dark:text-white">
-                  Status Proteksi Keamanan Backend
+                  6 Lapisan Keamanan pada Server Backend SI-PATIR
                 </h2>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                  Konfigurasi proteksi aktif pada gateway Node.js / Express SI-PATIR.
+                  Proteksi aktif yang melindungi endpoint dari serangan peretas, spam, dan manipulasi data.
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Proteksi Aktif</span>
-                </span>
-              </div>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Semua Proteksi Aktif</span>
+              </span>
             </div>
 
-            {/* 6 Security Cards Grid */}
+            {/* 6 Security Cards (Written in clear human language) */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Card 1 */}
               <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-2">
                 <div className="w-7 h-7 rounded-md bg-blue-100 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                   <Lock className="w-4 h-4" />
                 </div>
-                <h3 className="font-semibold text-sm text-zinc-900 dark:text-white">HMAC SHA-256</h3>
+                <h3 className="font-semibold text-sm text-zinc-900 dark:text-white">
+                  1. Verifikasi Webhook (HMAC-SHA256)
+                </h3>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Memvalidasi integritas payload webhook dari GitHub menggunakan fungsi{' '}
+                  Memastikan data yang masuk benar-benar berasal dari GitHub resmi menggunakan kunci rahasia bersama.
+                  Pencocokan menggunakan fungsi waktu konstan{' '}
                   <code className="text-[11px] font-mono px-1 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800">
                     crypto.timingSafeEqual
                   </code>{' '}
-                  agar terhindar dari celah <em>timing attack</em>.
+                  agar penyerang tidak bisa menebak kunci rahasia lewat perbedaan waktu respons.
                 </p>
               </div>
 
+              {/* Card 2 */}
               <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-2">
                 <div className="w-7 h-7 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                   <Database className="w-4 h-4" />
                 </div>
-                <h3 className="font-semibold text-sm text-zinc-900 dark:text-white">Prepared Statements</h3>
+                <h3 className="font-semibold text-sm text-zinc-900 dark:text-white">
+                  2. Anti SQL Injection (Prepared Statements)
+                </h3>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Semua kueri basis data menggunakan MySQL2 parameterized query (<code className="font-mono">?</code>) untuk
-                  memisahkan kode SQL dari input data, menjamin keamanan dari serangan <em>SQL Injection</em>.
+                  Semua kueri ke MySQL menggunakan tanda tanya (<code className="font-mono">?</code>). Database mengompilasi
+                  perintah SQL terlebih dahulu sebelum memasukkan data. Karakter aneh seperti kutip satu tidak akan pernah
+                  bisa membobol database.
                 </p>
               </div>
 
+              {/* Card 3 */}
               <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-2">
                 <div className="w-7 h-7 rounded-md bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
                   <Zap className="w-4 h-4" />
                 </div>
-                <h3 className="font-semibold text-sm text-zinc-900 dark:text-white">IP Rate Limiting</h3>
+                <h3 className="font-semibold text-sm text-zinc-900 dark:text-white">
+                  3. Pembatas Laju Request (Rate Limiting)
+                </h3>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Membatasi frekuensi request IP per menit (30 req/m untuk endpoint webhook dan 120 req/m untuk API publik)
-                  guna memblokir percobaan brute force dan banjir DoS.
+                  Mencegah banjir spam atau serangan DoS dengan membatasi jumlah request per alamat IP per menit:
+                  maksimal <strong>30 request/menit</strong> untuk webhook dan <strong>120 request/menit</strong> untuk API umum.
+                  Kelebihan request langsung ditolak dengan kode 429.
                 </p>
               </div>
 
-              <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-2">
-                <div className="w-7 h-7 rounded-md bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-                  <Shield className="w-4 h-4" />
-                </div>
-                <h3 className="font-semibold text-sm text-zinc-900 dark:text-white">Security Headers (Helmet)</h3>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Mengonfigurasi Content-Security-Policy (CSP), <code className="font-mono">X-Frame-Options: DENY</code> (anti
-                  clickjacking), dan <code className="font-mono">X-Content-Type-Options: nosniff</code>.
-                </p>
-              </div>
-
+              {/* Card 4 */}
               <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-2">
                 <div className="w-7 h-7 rounded-md bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center">
                   <Server className="w-4 h-4" />
                 </div>
-                <h3 className="font-semibold text-sm text-zinc-900 dark:text-white">Batas Payload 100kb</h3>
+                <h3 className="font-semibold text-sm text-zinc-900 dark:text-white">
+                  4. Batas Ukuran Data (Payload Maks 100kb)
+                </h3>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Ukuran body JSON request dibatasi maksimal 100kb (<code className="font-mono">limit: &apos;100kb&apos;</code>)
-                  untuk mencegah server mengalami kehabisan memori akibat serangan <em>JSON bomb</em>.
+                  Ukuran berkas data yang dikirim dibatasi maksimal 100 kilobyte. Ini melindungi server agar memorinya
+                  tidak jebol jika ada orang yang sengaja mengirimkan data JSON raksasa berukuran puluhan megabyte (<em>JSON Bomb</em>).
                 </p>
               </div>
 
+              {/* Card 5 */}
               <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-2">
                 <div className="w-7 h-7 rounded-md bg-teal-100 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center">
                   <Code2 className="w-4 h-4" />
                 </div>
-                <h3 className="font-semibold text-sm text-zinc-900 dark:text-white">Sanitasi Pesan Commit</h3>
+                <h3 className="font-semibold text-sm text-zinc-900 dark:text-white">
+                  5. Pembersihan Pesan (Sanitasi Input)
+                </h3>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                  Karakter baris baru (<code className="font-mono">\r</code>, <code className="font-mono">\n</code>) dan tag
-                  HTML pada pesan commit dibersihkan secara otomatis sebelum dicatat ke tabel riwayat aktivitas.
+                  Pesan commit yang dikirim oleh developer otomatis dibersihkan dari tag HTML dan karakter baris baru palsu.
+                  Hal ini mencegah peretasan jenis <em>Cross-Site Scripting (XSS)</em> pada web dashboard.
+                </p>
+              </div>
+
+              {/* Card 6 */}
+              <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-2">
+                <div className="w-7 h-7 rounded-md bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                  <Shield className="w-4 h-4" />
+                </div>
+                <h3 className="font-semibold text-sm text-zinc-900 dark:text-white">
+                  6. Header Pengaman Browser (Helmet CSP)
+                </h3>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  Memasang header pelindung seperti <code className="font-mono">X-Frame-Options: DENY</code> agar website
+                  tidak bisa disematkan sembarangan ke dalam iframe oleh pihak asing untuk penipuan klik (<em>clickjacking</em>).
                 </p>
               </div>
             </div>
@@ -989,7 +1104,7 @@ export function DocumentationPage() {
             {securityStatus && (
               <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 text-xs">
                 <span className="font-semibold text-zinc-700 dark:text-zinc-300 block mb-2">
-                  Konfigurasi Aktif Runtime:
+                  Status Pengaturan Aktif di Server Saat Ini:
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-[11px]">
                   <div className="p-2 rounded-md bg-white dark:bg-[#111420] border border-zinc-200 dark:border-zinc-800">
@@ -999,7 +1114,7 @@ export function DocumentationPage() {
                     </span>
                   </div>
                   <div className="p-2 rounded-md bg-white dark:bg-[#111420] border border-zinc-200 dark:border-zinc-800">
-                    <span className="text-zinc-400 block">Batas Webhook:</span>
+                    <span className="text-zinc-400 block">Batas Request Webhook:</span>
                     <span className="font-semibold text-zinc-800 dark:text-zinc-200">
                       {securityStatus.rateLimiting?.webhookLimit || '30 req / min'}
                     </span>
@@ -1016,22 +1131,31 @@ export function DocumentationPage() {
           </div>
         )}
 
-        {/* TAB 4: SIMULASI LAB INTERAKTIF */}
+        {/* TAB 4: SIMULASI LAB INTERAKTIF (UNTUK DEMO DOSEN) */}
         {activeTab === 'simulator' && (
           <div className="space-y-6">
+            <div className="p-4 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-950/20 text-xs text-blue-800 dark:text-blue-300 flex items-center gap-2">
+              <Play className="w-4 h-4 shrink-0 text-blue-600 dark:text-blue-400" />
+              <span>
+                <strong>Panduan Presentasi:</strong> Bagian ini disiapkan untuk simulasi langsung di depan dosen penguji.
+                Klik tombol-tombol di bawah untuk membuktikan keandalan sistem secara nyata.
+              </span>
+            </div>
+
             {/* Simulasi 1: Uji HMAC */}
             <div className="p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-4">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded-md font-mono text-xs font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900/40">
-                    Simulasi 1
+                    Uji Coba 1
                   </span>
                   <h2 className="text-sm font-semibold text-zinc-900 dark:text-white">
-                    Uji Validasi Kriptografi HMAC SHA-256
+                    Uji Keaslian Tanda Tangan Webhook (HMAC SHA-256)
                   </h2>
                 </div>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                  Membuktikan sistem menolak webhook palsu dan menerima webhook dengan signature yang valid.
+                  Membuktikan bahwa server menolak kiriman data jika stempel tanda tangannya palsu (401 Unauthorized),
+                  dan hanya menerima kiriman dengan stempel yang valid (200 OK).
                 </p>
               </div>
 
@@ -1040,43 +1164,46 @@ export function DocumentationPage() {
                   type="button"
                   disabled={hmacLoading}
                   onClick={() => handleTestHmac('valid')}
-                  className="px-3 py-1.5 rounded-md text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition cursor-pointer disabled:opacity-50"
+                  className="px-3 py-1.5 rounded-md text-xs font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition cursor-pointer disabled:opacity-50 shadow-xs"
                 >
-                  Uji Signature Valid
+                  Uji Tanda Tangan Sah (Valid)
                 </button>
                 <button
                   type="button"
                   disabled={hmacLoading}
                   onClick={() => handleTestHmac('spoofed')}
-                  className="px-3 py-1.5 rounded-md text-xs font-medium bg-rose-600 hover:bg-rose-700 text-white transition cursor-pointer disabled:opacity-50"
+                  className="px-3 py-1.5 rounded-md text-xs font-medium bg-rose-600 hover:bg-rose-700 text-white transition cursor-pointer disabled:opacity-50 shadow-xs"
                 >
-                  Uji Signature Palsu
+                  Uji Tanda Tangan Palsu (Ditolak)
                 </button>
               </div>
 
               {hmacSignature && (
                 <div className="text-xs font-mono p-2.5 rounded-md bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 break-all">
-                  <span className="text-zinc-400 block text-[10px]">Header X-Hub-Signature-256 Terkirim:</span>
+                  <span className="text-zinc-400 block text-[10px]">Header X-Hub-Signature-256 yang Diuji:</span>
                   <span className="text-zinc-800 dark:text-zinc-200">{hmacSignature}</span>
                 </div>
               )}
 
               {hmacSimResult && (
                 <div
-                  className={`p-3.5 rounded-lg border text-xs font-mono space-y-1 ${hmacSimResult.response.valid
-                    ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
-                    : 'bg-rose-50 dark:bg-rose-950/30 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200'
-                    }`}
+                  className={`p-3.5 rounded-lg border text-xs font-mono space-y-1 ${
+                    hmacSimResult.response.valid
+                      ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
+                      : 'bg-rose-50 dark:bg-rose-950/30 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200'
+                  }`}
                 >
                   <div className="flex items-center justify-between font-bold">
                     <span>
-                      {hmacSimResult.response.valid ? 'TANDA TANGAN VALID' : 'TANDA TANGAN DITOLAK (UNAUTHORIZED)'}
+                      {hmacSimResult.response.valid
+                        ? 'HASIL: TANDA TANGAN ASLI & DITERIMA'
+                        : 'HASIL: DITOLAK KARENA TANDA TANGAN PALSU'}
                     </span>
                     <span>HTTP {hmacSimResult.status}</span>
                   </div>
                   <p className="text-[11px] font-sans pt-1">{hmacSimResult.response.message}</p>
                   <p className="text-[10px] text-zinc-500 pt-1">
-                    Waktu Komparasi Buffer: {hmacSimResult.response.executionDurationNs} ns (Constant-time)
+                    Durasi Pemeriksaan Waktu Konstan: {hmacSimResult.response.executionDurationNs} ns
                   </p>
                 </div>
               )}
@@ -1087,14 +1214,15 @@ export function DocumentationPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded-md font-mono text-xs font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40">
-                    Simulasi 2
+                    Uji Coba 2
                   </span>
                   <h2 className="text-sm font-semibold text-zinc-900 dark:text-white">
-                    Uji Ketahanan IP Rate Limiter (Spam Test)
+                    Uji Ketahanan Serangan Spam (Rate Limiter Flood)
                   </h2>
                 </div>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                  Kirim 35 request secara cepat. Request 1–30 akan lolos (200 OK), dan request 31 ke atas otomatis diblokir (429 Too Many Requests).
+                  Kirim 35 request bertubi-tubi dalam hitungan detik. Request ke 1–30 akan lolos (200 OK), dan mulai
+                  request ke-31 server akan otomatis memblokir dengan kode <strong>429 Too Many Requests</strong>.
                 </p>
               </div>
 
@@ -1103,17 +1231,17 @@ export function DocumentationPage() {
                   type="button"
                   disabled={isRateTesting}
                   onClick={handleTestRateLimiter}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white transition cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white transition cursor-pointer disabled:opacity-50 shadow-xs"
                 >
                   {isRateTesting ? (
                     <>
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Mengirim 35 Request...</span>
+                      <span>Sedang Mengirim 35 Request...</span>
                     </>
                   ) : (
                     <>
                       <Play className="w-3.5 h-3.5 fill-current" />
-                      <span>Mulai Tes Rate Limiter</span>
+                      <span>Mulai Kirim 35 Request Cepat</span>
                     </>
                   )}
                 </button>
@@ -1122,11 +1250,11 @@ export function DocumentationPage() {
               {rateLimitLogs.length > 0 && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs text-zinc-500">
-                    <span>Progres: {rateLimitLogs.length} / 35 Request</span>
+                    <span>Total Request Terkirim: {rateLimitLogs.length} / 35</span>
                     <span>
-                      Diblokir:{' '}
+                      Jumlah yang Diblokir:{' '}
                       <strong className="text-rose-600">
-                        {rateLimitLogs.filter((l) => l.status === 429).length}
+                        {rateLimitLogs.filter((l) => l.status === 429).length} Request
                       </strong>
                     </span>
                   </div>
@@ -1150,14 +1278,15 @@ export function DocumentationPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded-md font-mono text-xs font-bold bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-900/40">
-                    Simulasi 3
+                    Uji Coba 3
                   </span>
                   <h2 className="text-sm font-semibold text-zinc-900 dark:text-white">
-                    Uji Parameterized Query (Anti SQL Injection)
+                    Uji Ketahanan Terhadap Serangan SQL Injection
                   </h2>
                 </div>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                  Kirim string payload SQL Injection untuk menguji apakah query terproteksi oleh MySQL2 prepared statements.
+                  Kirim teks injeksi berbahaya seperti <code className="font-mono text-purple-600">&apos; OR &apos;1&apos;=&apos;1</code>.
+                  Database akan membuktikannya aman karena input hanya diperlakukan sebagai teks biasa.
                 </p>
               </div>
 
@@ -1172,18 +1301,18 @@ export function DocumentationPage() {
                   type="button"
                   disabled={sqliLoading}
                   onClick={handleTestSqli}
-                  className="px-3 py-1.5 rounded-md text-xs font-medium bg-purple-600 hover:bg-purple-700 text-white transition cursor-pointer disabled:opacity-50 whitespace-nowrap"
+                  className="px-3 py-1.5 rounded-md text-xs font-medium bg-purple-600 hover:bg-purple-700 text-white transition cursor-pointer disabled:opacity-50 whitespace-nowrap shadow-xs"
                 >
-                  {sqliLoading ? 'Memeriksa...' : 'Kirim Uji'}
+                  {sqliLoading ? 'Memeriksa...' : 'Kirim Uji SQLi'}
                 </button>
               </div>
 
               {sqliResult && (
                 <div className="p-3.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40 text-xs space-y-1">
                   <div className="flex items-center justify-between font-semibold text-zinc-900 dark:text-white">
-                    <span>Hasil Evaluasi:</span>
+                    <span>Hasil Pemeriksaan Database:</span>
                     <span className="font-mono text-[11px] px-1.5 py-0.5 rounded-md bg-zinc-200 dark:bg-zinc-800">
-                      Status: {sqliResult.status}
+                      HTTP Status: {sqliResult.status}
                     </span>
                   </div>
                   <p className="text-zinc-600 dark:text-zinc-300 pt-1 leading-relaxed">{sqliResult.message}</p>
@@ -1193,29 +1322,37 @@ export function DocumentationPage() {
           </div>
         )}
 
-        {/* TAB 5: TANYA JAWAB SIDANG */}
+        {/* TAB 5: TANYA JAWAB SIDANG (PANDUAN LENGKAP MAHASISWA & DOSEN) */}
         {activeTab === 'qa' && (
           <div className="space-y-3">
             {[
               {
-                q: '1. Mengapa memilih arsitektur Webhook dibanding Polling berkala?',
-                a: 'Webhook bersifat event-driven (push). Server hanya bekerja saat developer melakukan push commit, sehingga menghemat bandwidth dan resource CPU. Sebaliknya, polling membebani server dengan request berkala meskipun tidak ada aktivitas baru.',
+                q: '1. Apa perbedaan mendasar antara Webhook dan REST API biasa?',
+                a: 'REST API bersifat "Pull" (klien harus meminta secara manual agar server membalas). Sebaliknya, Webhook bersifat "Push" atau Event-Driven (server pengirim langsung menembakkan data secara otomatis begitu ada kejadian baru). Di proyek kami, saat anggota tim melakukan push commit ke GitHub, GitHub langsung mengirim data ke backend SI-PATIR tanpa backend kami harus repot bertanya terus-menerus.',
               },
               {
-                q: '2. Bagaimana sistem memverifikasi bahwa webhook benar-benar dari GitHub?',
-                a: 'GitHub mengirim header X-Hub-Signature-256 yang berisi hash HMAC SHA-256 dari seluruh payload menggunakan secret key bersama. Backend menghitung ulang hash tersebut dan membandingkannya.',
+                q: '2. Bagaimana server kita tahu bahwa kiriman Webhook itu asli dari GitHub, bukan kiriman palsu?',
+                a: 'Melalui verifikasi tanda tangan digital HMAC SHA-256. Server dan GitHub memegang satu kata sandi rahasia (Secret Key) yang sama. GitHub meng-hash seluruh isi payload JSON dengan kunci tersebut dan menaruh hasilnya di header X-Hub-Signature-256. Saat data sampai, server kita menghitung ulang hash tersebut. Jika hasilnya cocok, maka data terbukti asli dan belum dimanipulasi.',
               },
               {
-                q: '3. Mengapa menggunakan crypto.timingSafeEqual dan bukan operator ===?',
-                a: 'Operator perbandingan biasa (===) berhenti pada karakter pertama yang berbeda (early-exit), sehingga rentan terhadap serangan timing attack di mana penyerang menebak signature berdasarkan perbedaan waktu eksekusi. timingSafeEqual membandingkan buffer dengan durasi konstan.',
+                q: '3. Mengapa verifikasi HMAC menggunakan crypto.timingSafeEqual dan bukan tanda sama dengan biasa (===)?',
+                a: 'Operator perbandingan biasa (===) memeriksa karakter demi karakter dari depan dan langsung berhenti begitu menemukan huruf pertama yang salah (early-exit). Peretas bisa mengukur perbedaan waktu respons server dalam satuan nanodetik untuk menebak kunci rahasia (Timing Attack). crypto.timingSafeEqual memastikan proses pencocokan buffer selalu memakan durasi waktu yang sama konstan dari awal hingga akhir.',
               },
               {
-                q: '4. Bagaimana sistem mencegah serangan SQL Injection?',
-                a: 'Semua kueri SQL menggunakan prepared statements dengan placeholder (?) dari library mysql2/promise. Database mengompilasi struktur kueri terlebih dahulu sebelum memasukkan data, sehingga input pengguna selalu diperlakukan sebagai nilai string biasa, bukan perintah SQL.',
+                q: '4. Bagaimana cara sistem melindungi basis data dari serangan SQL Injection?',
+                a: 'Kami menggunakan Prepared Statements (parameterized query) dari driver mysql2/promise. Kueri SQL disiapkan terlebih dahulu menggunakan simbol placeholder (?). Nilai input pengguna dipisahkan secara tegas dari struktur kueri database, sehingga karakter manipulasi seperti kutip satu (\') murni dianggap teks pencarian biasa dan tidak bisa mengeksekusi perintah SQL jahat.',
               },
               {
-                q: '5. Apa yang terjadi jika database MySQL mati atau belum aktif saat commit masuk?',
-                a: 'Sistem menerapkan in-memory fallback. Data tugas dan riwayat aktivitas sementara dialihkan ke penyimpanan memori aplikasi, dan notifikasi Discord tetap terkirim tanpa menyebabkan server crash.',
+                q: '5. Bagaimana tampilan web dashboard bisa berubah otomatis seketika tanpa perlu klik tombol refresh?',
+                a: 'Sistem menggunakan koneksi WebSocket (Socket.io). Setelah webhook berhasil diterima dan database MySQL selesai diperbarui, server langsung memancarkan (broadcast) event bernama "activity_update" ke browser. Web React yang mendengarkan event tersebut langsung memperbarui state tabel dan diagram kontribusi saat itu juga.',
+              },
+              {
+                q: '6. Apa yang terjadi jika server database MySQL lokal mati atau sedang down saat commit masuk?',
+                a: 'Sistem memiliki fitur In-Memory Fallback. Jika koneksi database terputus, backend tidak akan mengalami crash melainkan otomatis mengalihkan penyimpanan data tugas dan log ke dalam memori RAM sementara. Notifikasi ke Discord tetap terkirim lancar, dan saat koneksi MySQL pulih sistem dapat dihubungkan kembali.',
+              },
+              {
+                q: '7. Mengapa kalian membatasi ukuran data request maksimal 100 Kilobyte?',
+                a: 'Untuk mencegah serangan DoS jenis JSON Bomb. Jika ukuran request tidak dibatasi, penyerang bisa mengirimkan payload JSON berukuran puluhan megabyte yang membebani kerja memori server saat melakukan proses parsing JSON dan bisa menyebabkan server kehabisan memori (Out of Memory).',
               },
             ].map((item, idx) => (
               <div
@@ -1235,7 +1372,7 @@ export function DocumentationPage() {
         )}
       </main>
 
-      {/* Footer */}
+      {/* Clean & Simple Footer */}
       <footer className="border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] py-4 px-4 text-center text-xs text-zinc-500">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>Dokumentasi SI-PATIR • Mata Kuliah Pemrograman Integratif</span>
