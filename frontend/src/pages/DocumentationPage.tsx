@@ -1673,6 +1673,14 @@ export function DocumentationPage() {
               Dashboard
             </Link>
             <a
+              href="https://github.com/denoyey/si-patir/blob/main/docs/PANDUAN-PENGUJIAN-DAN-OPERASIONAL.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline text-blue-600 dark:text-blue-400 font-medium"
+            >
+              Panduan Pengujian
+            </a>
+            <a
               href="https://github.com/denoyey/si-patir"
               target="_blank"
               rel="noopener noreferrer"
