@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import {
   Shield,
@@ -23,10 +23,14 @@ import {
   Send,
   Radio,
   FileCode,
+  Workflow,
+  Calendar,
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
+import { UmlViewer } from '../components/UmlViewer';
+import { UML_DIAGRAMS } from '../data/umlDiagrams';
 
-type TabKey = 'architecture' | 'catalog' | 'security' | 'simulator' | 'qa';
+type TabKey = 'architecture' | 'uml' | 'catalog' | 'security' | 'simulator' | 'qa';
 
 interface EndpointDoc {
   id: string;
@@ -286,7 +290,23 @@ const ENDPOINTS_DATA: EndpointDoc[] = [
 ];
 
 export function DocumentationPage() {
-  const [activeTab, setActiveTab] = useState<TabKey>('architecture');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = (searchParams.get('tab') as TabKey) || 'architecture';
+  const [activeTab, setActiveTab] = useState<TabKey>(
+    ['architecture', 'uml', 'catalog', 'security', 'simulator', 'qa'].includes(initialTab)
+      ? initialTab
+      : 'architecture'
+  );
+  const initialDiagram = searchParams.get('diagram') || UML_DIAGRAMS[0].id;
+  const [selectedUmlId, setSelectedUmlId] = useState<string>(
+    UML_DIAGRAMS.some((d) => d.id === initialDiagram) ? initialDiagram : UML_DIAGRAMS[0].id
+  );
+
+  const activeUml = useMemo(
+    () => UML_DIAGRAMS.find((d) => d.id === selectedUmlId) || UML_DIAGRAMS[0],
+    [selectedUmlId]
+  );
+
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointDoc>(ENDPOINTS_DATA[0]);
@@ -580,10 +600,11 @@ export function DocumentationPage() {
         <div className="flex items-center gap-1.5 border-b border-zinc-200 dark:border-zinc-800 pb-2 overflow-x-auto">
           {[
             { key: 'architecture', label: '1. Alur Sistem', icon: Layers },
-            { key: 'catalog', label: '2. Katalog API', icon: Code2 },
-            { key: 'security', label: '3. Proteksi Keamanan', icon: Shield },
-            { key: 'simulator', label: '4. Lab Pengujian', icon: Play },
-            { key: 'qa', label: '5. Tanya Jawab Dosen', icon: HelpCircle },
+            { key: 'uml', label: '2. Diagram UML (6)', icon: Workflow },
+            { key: 'catalog', label: '3. Katalog API', icon: Code2 },
+            { key: 'security', label: '4. Proteksi Keamanan', icon: Shield },
+            { key: 'simulator', label: '5. Lab Pengujian', icon: Play },
+            { key: 'qa', label: '6. Tanya Jawab Dosen', icon: HelpCircle },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
@@ -591,7 +612,10 @@ export function DocumentationPage() {
               <button
                 key={tab.key}
                 type="button"
-                onClick={() => setActiveTab(tab.key as TabKey)}
+                onClick={() => {
+                  setActiveTab(tab.key as TabKey);
+                  setSearchParams({ tab: tab.key });
+                }}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition cursor-pointer ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-xs'
@@ -765,10 +789,299 @@ export function DocumentationPage() {
                 </table>
               </div>
             </div>
+
+            {/* Sprint Action Plan (Jadwal Sprint & Rencana Tindak Lanjut Tim) */}
+            <div className="p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-start sm:items-center gap-2.5">
+                  <div className="p-2 rounded-md bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 shrink-0 mt-0.5 sm:mt-0">
+                    <Calendar className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm sm:text-base font-bold text-zinc-950 dark:text-white">
+                      Jadwal Sprint &amp; Rencana Tindak Lanjut Tim (Sprint Action Plan)
+                    </h2>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                      Peta jalan rekayasa perangkat lunak dan pembagian tugas 4 anggota tim (Deni, Fatir, Rafli, Fajri) untuk mata kuliah Pemrograman Integratif.
+                    </p>
+                  </div>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold self-start sm:self-auto shrink-0">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Semua Fase Tuntas &amp; Siap Presentasi</span>
+                </div>
+              </div>
+
+              <div className="space-y-3.5 pt-1">
+                {/* FASE 1 */}
+                <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/40 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                        FASE 1
+                      </span>
+                      <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white">
+                        Core Foundation &amp; Integrasi Sistem
+                      </h3>
+                    </div>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-100/60 dark:bg-emerald-950/50 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                      <CheckCircle2 className="w-3 h-3" />
+                      100% Selesai
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <div className="p-2.5 rounded-md bg-white dark:bg-[#111420] border border-zinc-200/80 dark:border-zinc-800 flex items-start gap-2">
+                      <span className="font-semibold text-blue-600 dark:text-blue-400 shrink-0 min-w-10">Deni</span>
+                      <span className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        Backend Gateway REST API v1, Security Hardening, &amp; Interactive API Docs Explorer
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-md bg-white dark:bg-[#111420] border border-zinc-200/80 dark:border-zinc-800 flex items-start gap-2">
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0 min-w-10">Fatir</span>
+                      <span className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        Skema Database MySQL, Task State Engine, &amp; Database Seeder 4 Anggota
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-md bg-white dark:bg-[#111420] border border-zinc-200/80 dark:border-zinc-800 flex items-start gap-2">
+                      <span className="font-semibold text-purple-600 dark:text-purple-400 shrink-0 min-w-10">Rafli</span>
+                      <span className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        Frontend Dashboard React 19, Filament v5 Data Table, &amp; Terminal Web Git
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-md bg-white dark:bg-[#111420] border border-zinc-200/80 dark:border-zinc-800 flex items-start gap-2">
+                      <span className="font-semibold text-amber-600 dark:text-amber-400 shrink-0 min-w-10">Fajri</span>
+                      <span className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        Quality Gate Pre-push &amp; Validasi Alur Integrasi End-to-End
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* FASE 2 */}
+                <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/40 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                        FASE 2
+                      </span>
+                      <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white">
+                        Fitur Lanjutan, Visualisasi &amp; Pengujian Mutu
+                      </h3>
+                    </div>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-100/60 dark:bg-emerald-950/50 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                      <CheckCircle2 className="w-3 h-3" />
+                      100% Selesai
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <div className="p-2.5 rounded-md bg-white dark:bg-[#111420] border border-zinc-200/80 dark:border-zinc-800 flex items-start gap-2">
+                      <span className="font-semibold text-blue-600 dark:text-blue-400 shrink-0 min-w-10">Deni</span>
+                      <span className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        Setup Public Webhook Gateway (<code className="text-[10px] font-mono">npm run tunnel</code>) &amp; CI/CD GitHub Actions
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-md bg-white dark:bg-[#111420] border border-zinc-200/80 dark:border-zinc-800 flex items-start gap-2">
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0 min-w-10">Fatir</span>
+                      <span className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        Notifikasi Outbound Discord Webhook (Rich Embeds) &amp; Script Backup MySQL
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-md bg-white dark:bg-[#111420] border border-zinc-200/80 dark:border-zinc-800 flex items-start gap-2">
+                      <span className="font-semibold text-purple-600 dark:text-purple-400 shrink-0 min-w-10">Rafli</span>
+                      <span className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        Grafik Analitik Kontribusi Tim (SVG Bar &amp; Donut Charts) &amp; Modal Edit Tugas
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-md bg-white dark:bg-[#111420] border border-zinc-200/80 dark:border-zinc-800 flex items-start gap-2">
+                      <span className="font-semibold text-amber-600 dark:text-amber-400 shrink-0 min-w-10">Fajri</span>
+                      <span className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        Automated Unit Testing (28 Vitest Test Suites Passed) &amp; Lab Uji Penetrasi Keamanan
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* FASE 3 */}
+                <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50 dark:bg-zinc-900/40 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                        FASE 3
+                      </span>
+                      <h3 className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-white">
+                        Dokumen UML Akademik &amp; Kesiapan Demonstrasi Presentasi
+                      </h3>
+                    </div>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-100/60 dark:bg-purple-950/50 px-2 py-0.5 rounded-md border border-purple-200 dark:border-purple-800">
+                      🚀 Siap Presentasi
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <div className="p-2.5 rounded-md bg-white dark:bg-[#111420] border border-zinc-200/80 dark:border-zinc-800 flex items-start gap-2">
+                      <span className="font-semibold text-blue-600 dark:text-blue-400 shrink-0 min-w-10">Deni</span>
+                      <span className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        Standarisasi Multi-Repo Project &amp; Verifikasi Kriptografi HMAC SHA-256 (<code className="text-[10px] font-mono">crypto.timingSafeEqual</code>)
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-md bg-white dark:bg-[#111420] border border-zinc-200/80 dark:border-zinc-800 flex items-start gap-2">
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0 min-w-10">Fatir</span>
+                      <span className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        Sanitasi Input Parameterized Query (Anti-SQLi) &amp; Mekanisme In-Memory Failover
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-md bg-white dark:bg-[#111420] border border-zinc-200/80 dark:border-zinc-800 flex items-start gap-2">
+                      <span className="font-semibold text-purple-600 dark:text-purple-400 shrink-0 min-w-10">Rafli</span>
+                      <span className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        Tampilan Antarmuka Human-Crafted Responsif Multi-Device dengan Radius Konsisten &amp; Lenis Engine
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-md bg-white dark:bg-[#111420] border border-zinc-200/80 dark:border-zinc-800 flex items-start gap-2">
+                      <span className="font-semibold text-amber-600 dark:text-amber-400 shrink-0 min-w-10">Fajri</span>
+                      <span className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                        Penyusunan 6 Diagram Arsitektur UML Formal, Naskah Presentasi PPT, &amp; Skenario Live Demo 30 Detik
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-2.5 rounded-md bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/40 text-xs text-blue-900 dark:text-blue-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <span className="font-medium leading-relaxed">
+                      🎯 <strong>Seluruh Tim (Deni, Fatir, Rafli, Fajri):</strong> Gladi bersih demonstrasi alur integrasi end-to-end (Git Commit ➔ MySQL ➔ Discord Bot ➔ Web Dashboard).
+                    </span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-blue-200 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-bold shrink-0">
+                      TUNTAS
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* TAB 2: KATALOG API & LIVE RUNNER */}
+        {/* TAB 2: DIAGRAM ARSITEKTUR UML (INTERACTIVE PAN & ZOOM) */}
+        {activeTab === 'uml' && (
+          <div className="space-y-6">
+            {/* Header Description Card */}
+            <div className="p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-start sm:items-center gap-2.5">
+                  <div className="p-2 rounded-md bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 shrink-0 mt-0.5 sm:mt-0">
+                    <Workflow className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-zinc-950 dark:text-white">
+                      6 Diagram Arsitektur UML Resmi (SI-PATIR)
+                    </h2>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                      Standar pemodelan rekayasa perangkat lunak formal untuk evaluasi akademik tugas mata kuliah Pemrograman Integratif.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 self-start sm:self-auto">
+                  <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900/40 font-mono text-[11px] font-semibold">
+                    SVG Vektor HD
+                  </span>
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40 font-mono text-[11px] font-semibold">
+                    Pan &amp; Zoom Aktif
+                  </span>
+                </div>
+              </div>
+
+              {/* Diagram Navigation Selector Pills */}
+              <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 touch-scroll">
+                  {UML_DIAGRAMS.map((diag) => {
+                    const isSelected = selectedUmlId === diag.id;
+                    return (
+                      <button
+                        key={diag.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedUmlId(diag.id);
+                          setSearchParams({ tab: 'uml', diagram: diag.id });
+                        }}
+                        className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                          isSelected
+                            ? 'bg-blue-600 text-white shadow-xs'
+                            : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-950 dark:hover:text-white border border-zinc-200 dark:border-zinc-700/80'
+                        }`}
+                      >
+                        <span
+                          className={`w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold font-mono ${
+                            isSelected
+                              ? 'bg-white/20 text-white'
+                              : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300'
+                          }`}
+                        >
+                          {diag.number}
+                        </span>
+                        <span>{diag.title.split('(')[0].trim()}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Active Diagram Details & Pan-Zoom Viewer */}
+            {activeUml && (
+              <div className="space-y-4">
+                {/* Diagram Metadata Card */}
+                <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900/50 font-semibold">
+                        {activeUml.category}
+                      </span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+                        {activeUml.badge}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-bold text-zinc-950 dark:text-white">
+                      {activeUml.number}. {activeUml.title}
+                    </h3>
+                    <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                      {activeUml.summary}
+                    </p>
+                  </div>
+                </div>
+
+                {/* The Interactive Pan & Zoom Canvas */}
+                <UmlViewer
+                  id={activeUml.id}
+                  code={activeUml.code}
+                  title={`${activeUml.number}. ${activeUml.title}`}
+                />
+
+                {/* Academic Presentation & Focus Notes */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Focus notes */}
+                  <div className="p-4 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50/40 dark:bg-blue-950/20 text-xs text-blue-900 dark:text-blue-200 space-y-1.5">
+                    <div className="font-semibold flex items-center gap-1.5 text-blue-700 dark:text-blue-300">
+                      <span>💡 Poin Kunci Penilaian Dosen</span>
+                    </div>
+                    <p className="leading-relaxed opacity-90">
+                      {activeUml.focusNotes}
+                    </p>
+                  </div>
+
+                  {/* Key Points */}
+                  <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] text-xs space-y-1.5">
+                    <div className="font-semibold text-zinc-900 dark:text-white">
+                      📌 Rincian Teknis di Diagram
+                    </div>
+                    <ul className="space-y-1 text-zinc-600 dark:text-zinc-400 list-disc list-inside leading-relaxed">
+                      {activeUml.keyPoints.map((point, i) => (
+                        <li key={i}>{point}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 3: KATALOG API & LIVE RUNNER */}
         {activeTab === 'catalog' && (
           <div className="space-y-4">
             {/* Filter Bar */}

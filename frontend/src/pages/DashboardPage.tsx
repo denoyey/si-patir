@@ -31,6 +31,7 @@ import {
   FolderGit2,
   MoreVertical,
   Maximize2,
+  Workflow,
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { useNavbarVisibility } from '../services/scroll/hooks/useNavbarVisibility';
@@ -751,6 +752,17 @@ export function DashboardPage() {
               <span className="lg:hidden text-xs font-medium">Docs</span>
             </Link>
 
+            {/* Desktop: UML Diagrams Link */}
+            <Link
+              to="/docs?tab=uml"
+              className="hidden md:inline-flex h-8 sm:h-8.5 px-2 sm:px-2.5 rounded-md bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/40 text-purple-700 hover:text-purple-900 dark:text-purple-300 dark:hover:text-white border border-purple-200 dark:border-purple-800 active:scale-95 text-xs font-semibold items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs shrink-0"
+              title="6 Diagram Arsitektur UML Resmi (Zoom & Geser)"
+            >
+              <Workflow className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+              <span className="hidden lg:inline text-xs font-medium">Diagram UML</span>
+              <span className="lg:hidden text-xs font-medium">UML</span>
+            </Link>
+
             {/* Desktop & Tablet: Theme Switcher */}
             <div className="hidden sm:block">
               <ThemeSwitcher />
@@ -896,6 +908,15 @@ export function DashboardPage() {
                   <div className="px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-mono">
                     Menu Cepat
                   </div>
+                  <Link
+                    to="/docs?tab=uml"
+                    role="menuitem"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left flex items-center gap-2.5 transition cursor-pointer text-xs font-medium text-zinc-800 dark:text-zinc-200"
+                  >
+                    <Workflow className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                    <span>Diagram UML (6)</span>
+                  </Link>
                   <button
                     type="button"
                     role="menuitem"
