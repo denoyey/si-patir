@@ -26,6 +26,12 @@ import {
   Workflow,
   Calendar,
   ListChecks,
+  Terminal,
+  BookOpen,
+  ChevronRight,
+  ChevronDown,
+  UserCheck,
+  Sparkles,
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { UmlViewer } from '../components/UmlViewer';
@@ -389,6 +395,160 @@ const QA_TEST_CASES: QaTestCase[] = [
   },
 ];
 
+interface QaTutorialInstruction {
+  title: string;
+  desc: string;
+  code?: string;
+  link?: string;
+  linkText?: string;
+}
+
+interface QaTutorialStep {
+  step: number;
+  tabLabel: string;
+  title: string;
+  tag: string;
+  summary: string;
+  instructions: QaTutorialInstruction[];
+  tips: string;
+}
+
+const QA_TUTORIAL_STEPS: QaTutorialStep[] = [
+  {
+    step: 1,
+    tabLabel: '1. Uji Otomatis CLI',
+    title: 'Sanity Check & Uji Otomatis Terminal (CLI Test Suite)',
+    tag: 'Automated Testing',
+    summary: 'Pastikan server aktif dan seluruh skenario pengujian unit & integrasi Vitest lulus 100%.',
+    instructions: [
+      {
+        title: 'Verifikasi Ketersediaan Server Backend & Frontend',
+        desc: 'Backend harus aktif di port 5000 dan antarmuka web frontend aktif di port 3000.',
+        code: '# Jalankan backend dan frontend (pada terminal terpisah jika belum aktif):\nnpm run dev --prefix backend\nnpm run dev --prefix frontend',
+      },
+      {
+        title: 'Jalankan 37 Skenario Automated Unit & Integration Tests',
+        desc: 'Mengeksekusi seluruh pengujian vitest: CommitParser, WebhookSecurity, TaskStatusFlow, dan SecurityLoadTest. Seluruh 37 tes harus berstatus PASS.',
+        code: 'npm test --prefix backend',
+      },
+      {
+        title: 'Verifikasi Kompilasi Bundle Produksi Frontend',
+        desc: 'Memastikan tidak ada galat TypeScript, error build Vite, maupun breaking changes pada UI frontend.',
+        code: 'npm run build --prefix frontend',
+      },
+    ],
+    tips: 'Hasil test suite 37/37 passed membuktikan bahwa logika bisnis backend dan perlindungan keamanan berfungsi sesuai spesifikasi sebelum diuji di web.',
+  },
+  {
+    step: 2,
+    tabLabel: '2. Uji Web Dashboard',
+    title: 'Pengujian Antarmuka Web Dashboard & Real-Time Sync',
+    tag: 'End-to-End UI Testing',
+    summary: 'Validasi sinkronisasi live Socket.io, Terminal Web Git, tabel Filament v5, dan leaderboard tim.',
+    instructions: [
+      {
+        title: 'Periksa Status Bar 4 Layanan di Header',
+        desc: 'Buka Dashboard. Periksa indikator status: GitHub (Active), MySQL (Connected / Memory Fallback), Discord (Active), dan WebSocket (Live 🟢).',
+        link: '/dashboard',
+        linkText: 'Buka Halaman Dashboard',
+      },
+      {
+        title: 'Uji Terminal Web Git & Mutasi Tugas Otomatis',
+        desc: 'Buka widget terminal web di sisi kiri bawah dashboard. Masukkan perintah commit simulasi lalu tekan Enter. Kolom status tugas di tabel akan bermutasi seketika tanpa reload halaman!',
+        code: 'git commit -m "feat: integrasi auth & database state engine [done #TASK-02]"',
+      },
+      {
+        title: 'Uji Live Search, Filter & Rotasi Status Cepat',
+        desc: 'Coba ketik kata kunci di kolom cari tabel Filament v5, filter berdasarkan penanggung jawab (Deni, Fatir, Rafli, Fajri), dan klik badge status tugas untuk merotasi status dengan cepat (To Do → In Progress → Done).',
+      },
+      {
+        title: 'Uji Modal CRUD Tugas (Create, Update, Delete)',
+        desc: 'Klik tombol "Tambah Tugas" untuk membuat tugas baru. Coba edit tugas via modal, dan uji tombol hapus yang dilindungi dialog konfirmasi keamanan.',
+      },
+      {
+        title: 'Verifikasi Klasemen Skor Tim & Grafik Analitik SVG',
+        desc: 'Pastikan poin bertambah di kartu profil 4 anggota dan amati tooltip pada grafik commit mingguan serta donut chart distribusi tugas.',
+      },
+    ],
+    tips: 'Koneksi WebSocket Socket.io mengeliminasi kebutuhan polling berulang dari browser, memberikan latency pembaruan sub-detik (<100ms).',
+  },
+  {
+    step: 3,
+    tabLabel: '3. Lab Keamanan',
+    title: 'Simulasi Lab Keamanan Siber (Live Demo Dosen)',
+    tag: 'Cyber Security Lab',
+    summary: 'Eksekusi 3 demonstrasi proteksi keamanan OWASP langsung di halaman ini di hadapan dosen.',
+    instructions: [
+      {
+        title: 'Simulasi 1: Verifikasi Tanda Tangan Webhook (HMAC SHA-256)',
+        desc: 'Di bagian Uji Coba 1 bawah: Klik "Uji Tanda Tangan Sah" (menghasilkan 200 OK dengan durasi timing-safe nanodetik). Lalu klik "Uji Tanda Tangan Palsu" (menghasilkan 401 Unauthorized karena stempel manipulatif ditolak).',
+      },
+      {
+        title: 'Simulasi 2: Proteksi Flooding / DoS (Rate Limiter 30 req/menit)',
+        desc: 'Di bagian Uji Coba 2 bawah: Klik "Mulai Kirim 35 Request Cepat". Request ke-1 s/d ke-30 lolos (200 OK), sedangkan request ke-31 s/d ke-35 seketika diblokir server dengan HTTP 429 Too Many Requests.',
+      },
+      {
+        title: 'Simulasi 3: Pertahanan Anti-SQL Injection',
+        desc: 'Di bagian Uji Coba 3 bawah: Masukkan payload injection "\' OR \'1\'=\'1" lalu klik "Kirim Uji SQLi". Kueri dinetralisir aman oleh MySQL2 Parameterized Prepared Statements.',
+      },
+    ],
+    tips: 'Tiga simulasi ini memperagakan proteksi real-world yang dirancang secara khusus untuk menjawab pertanyaan dosen seputar keamanan aplikasi integratif.',
+  },
+  {
+    step: 4,
+    tabLabel: '4. Responsif iPhone',
+    title: 'Pengujian Responsivitas Mobile & Semua Model iPhone',
+    tag: 'Multi-Device & iOS',
+    summary: 'Verifikasi tampilan web bebas layout overflow pada rentang layar 320px hingga monitor 4K.',
+    instructions: [
+      {
+        title: 'Aktifkan Mode Perangkat DevTools Peramban',
+        desc: 'Buka Inspect Element (F12 atau Ctrl + Shift + I), lalu aktifkan Toggle Device Toolbar (Ctrl + Shift + M).',
+      },
+      {
+        title: 'Uji Layar iPhone SE & Layar Terkecil (320px - 375px)',
+        desc: 'Pilih preset iPhone SE. Pastikan tidak ada horizontal scrollbar liar di halaman web. Tab navigasi dan tabel tugas dapat digeser horizontal dengan rapi.',
+      },
+      {
+        title: 'Uji iPhone 15 / 16 Pro Max (430px) & Safe Area',
+        desc: 'Periksa safe area insets di header dan footer agar visual konten tidak tertabrak oleh notch atau Dynamic Island.',
+      },
+      {
+        title: 'Uji Interaksi Gestur Kanvas UML (Tab 2)',
+        desc: 'Buka Tab 2 Diagram UML. Uji interaksi geser pan kanvas, zoom dengan roda mouse/sentuhan, tombol reset zoom, dan mode Fullscreen.',
+        link: '/docs?tab=uml',
+        linkText: 'Buka Tab Diagram UML',
+      },
+    ],
+    tips: 'Gunakan CSS env(safe-area-inset-top) dan env(safe-area-inset-bottom) serta touch-manipulation untuk kenyamanan interaksi pengguna ponsel.',
+  },
+  {
+    step: 5,
+    tabLabel: '5. Skrip Presentasi',
+    title: 'Kiat & Skrip Bicara Presentasi QA di Depan Dosen',
+    tag: 'Academic Defense',
+    summary: 'Panduan kalimat dan alur bicara profesional untuk Fajri saat sesi presentasi kelompok di depan kelas.',
+    instructions: [
+      {
+        title: 'Kalimat Pembuka Presentasi QA (Opening Statement)',
+        desc: 'Ucapkan saat moderator (Deni) mempersilakan Anda menjelaskan aspek pengujian dan kualitas sistem.',
+        code: '"Selamat pagi/siang Bapak/Ibu Dosen dan rekan-rekan sekalian. Saya Fajri, bertindak sebagai QA & Security Testing Lead pada proyek SI-PATIR. Tanggung jawab saya adalah memvalidasi bahwa seluruh modul yang dikembangkan oleh rekan-rekan saya—Deni, Fatir, dan Rafli—telah bebas dari cacat program, aman dari kerentanan OWASP, serta berfungsi mulus di seluruh perangkat pengguna."',
+      },
+      {
+        title: 'Penjelasan Hasil Pengujian & Bukti Empiris (Evidence-Based)',
+        desc: 'Arahkan pandangan audiens ke layar proyektor yang menampilkan halaman Dokumentasi Tab 5 ini.',
+        code: '"Untuk membuktikan keandalan sistem secara empiris, kami telah menjalankan 37 skenario automated test di backend yang mencakup parser commit, siklus status tugas, dan proteksi DoS dengan hasil 100% PASS. Selain itu, pada antarmuka web, kami telah memverifikasi 10 modul utama melalui matriks ceklis QA yang terstandarisasi. Kami juga membuktikan 3 simulasi keamanan: enkripsi HMAC SHA-256 dengan timing-safe equal, rate limiter 30 req/menit, dan anti-SQL injection berbasis prepared statements."',
+      },
+      {
+        title: 'Kalimat Penutup & Penyerahan Kembali (Closing Statement)',
+        desc: 'Tutup dengan penegasan kesiapan sistem ke tahap produksi.',
+        code: '"Berdasarkan seluruh hasil pengujian fungsional dan keamanan tersebut, kami menyatakan sistem SI-PATIR siap pakai dan memenuhi seluruh kriteria kelulusan mata kuliah Pemrograman Integratif. Terima kasih, waktu saya kembalikan ke moderator."',
+      },
+    ],
+    tips: 'Kunci keberhasilan presentasi QA adalah ketenangan dan penyajian bukti konkret (angka 37 unit test, 10 modul ceklis, dan live test HTTP 429).',
+  },
+];
+
 export function DocumentationPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = (searchParams.get('tab') as TabKey) || 'architecture';
@@ -463,6 +623,10 @@ export function DocumentationPage() {
       localStorage.setItem('sipatir_qa_checklist', JSON.stringify(next));
     } catch {}
   };
+
+  // QA Tutorial Interactive State
+  const [qaActiveStep, setQaActiveStep] = useState<number>(0);
+  const [isQaTutorialExpanded, setIsQaTutorialExpanded] = useState<boolean>(true);
 
   useEffect(() => {
     axios
@@ -732,7 +896,7 @@ export function DocumentationPage() {
             { key: 'uml', label: '2. Diagram UML (6)', icon: Workflow },
             { key: 'catalog', label: '3. Katalog API', icon: Code2 },
             { key: 'security', label: '4. Proteksi Keamanan', icon: Shield },
-            { key: 'simulator', label: '5. Lab Pengujian', icon: Play },
+            { key: 'simulator', label: '5. Lab Pengujian & QA', icon: Play },
             { key: 'qa', label: '6. Tanya Jawab Dosen', icon: HelpCircle },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -1559,8 +1723,208 @@ export function DocumentationPage() {
               </span>
             </div>
 
-            {/* QA Web Testing Cross-Check Suite */}
+            {/* QA Tutorial & SOP Accordion / Card */}
             <div className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-start sm:items-center gap-2.5">
+                  <div className="p-2 rounded-md bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 shrink-0 mt-0.5 sm:mt-0">
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-sm sm:text-base font-bold text-zinc-950 dark:text-white">
+                        Tutorial Langkah Kerja & SOP Pengujian QA
+                      </h2>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 font-semibold inline-flex items-center gap-1">
+                        <UserCheck className="w-3 h-3" />
+                        <span>Panduan Resmi Fajri</span>
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                      Panduan operasional step-by-step bagi QA Lead untuk menguji sistem end-to-end dari terminal, dashboard web, hingga demonstrasi di hadapan dosen.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsQaTutorialExpanded(!isQaTutorialExpanded)}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 font-medium transition cursor-pointer touch-manipulation"
+                  >
+                    <span>{isQaTutorialExpanded ? 'Sembunyikan' : 'Buka Tutorial'}</span>
+                    {isQaTutorialExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                  </button>
+                  <a
+                    href="https://github.com/denoyey/si-patir/blob/main/docs/academic/PANDUAN-TESTING-WEB-QA.md"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-md bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 font-medium transition"
+                  >
+                    <span>Manual Markdown</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+
+              {isQaTutorialExpanded && (
+                <div className="space-y-4 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
+                  {/* Step Selector Pills */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                    {QA_TUTORIAL_STEPS.map((s, idx) => (
+                      <button
+                        key={s.step}
+                        type="button"
+                        onClick={() => setQaActiveStep(idx)}
+                        className={`px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition cursor-pointer shrink-0 touch-manipulation ${
+                          qaActiveStep === idx
+                            ? 'bg-blue-600 text-white shadow-xs'
+                            : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white border border-zinc-200 dark:border-zinc-800'
+                        }`}
+                      >
+                        {s.tabLabel}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Active Step Content */}
+                  {(() => {
+                    const curStep = QA_TUTORIAL_STEPS[qaActiveStep];
+                    return (
+                      <div className="p-4 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/30 space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-200/60 dark:border-zinc-800/60 pb-3">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-900/40">
+                                Langkah {curStep.step} dari 5
+                              </span>
+                              <span className="text-[11px] px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-semibold border border-purple-200 dark:border-purple-800">
+                                {curStep.tag}
+                              </span>
+                            </div>
+                            <h3 className="text-sm font-bold text-zinc-900 dark:text-white mt-1.5">
+                              {curStep.title}
+                            </h3>
+                            <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
+                              {curStep.summary}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Instruction Items */}
+                        <div className="space-y-3">
+                          {curStep.instructions.map((inst, iIdx) => (
+                            <div
+                              key={iIdx}
+                              className="p-3 sm:p-3.5 rounded-md bg-white dark:bg-[#111420] border border-zinc-200 dark:border-zinc-800 space-y-2"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <h4 className="text-xs font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
+                                  <span className="w-5 h-5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-[10px] font-bold flex items-center justify-center shrink-0">
+                                    {iIdx + 1}
+                                  </span>
+                                  <span>{inst.title}</span>
+                                </h4>
+                                {inst.link && (
+                                  <Link
+                                    to={inst.link}
+                                    className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:underline shrink-0"
+                                  >
+                                    <span>{inst.linkText || 'Buka'}</span>
+                                    <ExternalLink className="w-3 h-3" />
+                                  </Link>
+                                )}
+                              </div>
+                              <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed pl-7">
+                                {inst.desc}
+                              </p>
+                              {inst.code && (
+                                <div className="ml-7 relative group">
+                                  <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-950 rounded-t-md border-t border-x border-zinc-800 text-[10px] font-mono text-zinc-400">
+                                    <div className="flex items-center gap-1.5">
+                                      <Terminal className="w-3 h-3 text-blue-400" />
+                                      <span>Perintah Terminal / Contoh Skrip</span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => copyToClipboard(inst.code!, `qa-step-${qaActiveStep}-${iIdx}`)}
+                                      className="px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] font-mono inline-flex items-center gap-1 transition cursor-pointer border border-zinc-700"
+                                    >
+                                      {copiedKey === `qa-step-${qaActiveStep}-${iIdx}` ? (
+                                        <>
+                                          <Check className="w-3 h-3 text-emerald-400" />
+                                          <span className="text-emerald-400">Tersalin!</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Copy className="w-3 h-3" />
+                                          <span>Salin</span>
+                                        </>
+                                      )}
+                                    </button>
+                                  </div>
+                                  <pre className="p-2.5 rounded-b-md bg-zinc-900 text-zinc-100 text-[11px] font-mono overflow-x-auto whitespace-pre-wrap leading-relaxed border border-zinc-800">
+                                    {inst.code}
+                                  </pre>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Tips Callout */}
+                        <div className="p-3 rounded-md bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 text-xs text-amber-900 dark:text-amber-300 flex items-start gap-2">
+                          <Sparkles className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                          <div>
+                            <span className="font-semibold block mb-0.5">Kiat Pengujian Penting:</span>
+                            <span className="leading-relaxed">{curStep.tips}</span>
+                          </div>
+                        </div>
+
+                        {/* Step Navigation Actions */}
+                        <div className="flex items-center justify-between pt-2">
+                          {qaActiveStep > 0 ? (
+                            <button
+                              type="button"
+                              onClick={() => setQaActiveStep(qaActiveStep - 1)}
+                              className="px-3 py-1.5 rounded-md text-xs font-medium text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition cursor-pointer touch-manipulation"
+                            >
+                              ← Langkah Sebelumnya
+                            </button>
+                          ) : (
+                            <div />
+                          )}
+
+                          {qaActiveStep < QA_TUTORIAL_STEPS.length - 1 ? (
+                            <button
+                              type="button"
+                              onClick={() => setQaActiveStep(qaActiveStep + 1)}
+                              className="px-3 py-1.5 rounded-md text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 transition cursor-pointer touch-manipulation shadow-xs"
+                            >
+                              Lanjut ke Langkah Berikutnya →
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const el = document.getElementById('qa-checklist-matrix');
+                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                              }}
+                              className="px-3 py-1.5 rounded-md text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition cursor-pointer touch-manipulation shadow-xs"
+                            >
+                              Buka Ceklis Pengujian di Bawah ↓
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+            </div>
+
+            {/* QA Web Testing Cross-Check Suite */}
+            <div id="qa-checklist-matrix" className="p-4 sm:p-5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] shadow-xs space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-start sm:items-center gap-2.5">
                   <div className="p-2 rounded-md bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800 shrink-0 mt-0.5 sm:mt-0">
