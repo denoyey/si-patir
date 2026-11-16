@@ -540,6 +540,7 @@ Proyek **SI-PATIR** (*Sistem Integrasi Pemantau Aktivitas Tugas & Informasi Repo
   - `backend/tests/CommitParserService.test.ts`
   - `backend/tests/WebhookSecurityService.test.ts`
   - `backend/tests/TaskStatusFlow.test.ts`
+  - `docs/academic/DIAGRAM-ARSITEKTUR-UML.md`
   - `docs/ANALISIS-DAN-PEMBAGIAN-TUGAS-TIM.md`
   - `docs/prd/*`
 </details>

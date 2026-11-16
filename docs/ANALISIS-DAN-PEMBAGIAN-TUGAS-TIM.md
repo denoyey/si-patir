@@ -280,6 +280,7 @@ Berdasarkan audit arsitektur kode dan implementasi sistem SI-PATIR terkini, beri
   - `backend/tests/WebhookSecurityService.test.ts`
   - `backend/tests/TaskStatusFlow.test.ts`
   - `frontend/src/pages/DocumentationPage.tsx`
+  - `docs/academic/DIAGRAM-ARSITEKTUR-UML.md`
   - `docs/ANALISIS-DAN-PEMBAGIAN-TUGAS-TIM.md`
   - `docs/prd/*`
 
