@@ -21,7 +21,7 @@ Diagram ini memetakan aktor-aktor yang berinteraksi dengan sistem dan kasus peng
 
 ### Aktor Sistem:
 1. **Developer / Mahasiswa**: Mengembangkan kode, melakukan commit, memantau tugas, dan mengeksekusi commit cepat melalui Terminal Web Git.
-2. **Dosen Pengampu / Penilai Tugas**: Meninjau dokumentasi teknis, memeriksa integrasi API, melihat metriks kontribusi kelompok, dan menguji simulasi lab keamanan.
+2. **QA Engineer / Penguji Tim**: Meninjau dokumentasi teknis, memverifikasi integrasi API, memeriksa metrik kontribusi tim, dan menguji simulasi lab keamanan.
 3. **GitHub Cloud System (External)**: Memicu notifikasi webhook HTTPS saat terjadi event push repository.
 4. **Discord Webhook Server (External)**: Menerima payload bot notifikasi kaya (*Rich Embed*) saat tugas diselesaikan.
 5. **Gateway SI-PATIR (Internal Core)**: Memvalidasi keamanan tanda tangan kriptografi, memproses state machine tugas, dan menyiarkan data realtime.
@@ -31,7 +31,7 @@ Diagram ini memetakan aktor-aktor yang berinteraksi dengan sistem dan kasus peng
 flowchart LR
     %% Actors
     dev(["👨‍💻 Developer / Mahasiswa"])
-    lecturer(["👨‍🏫 Dosen Pengampu / Penilai"])
+    tester(["🧪 QA Engineer / Penguji Tim"])
     github(["🌐 GitHub Cloud"])
     discord(["💬 Discord Webhook"])
 
@@ -65,10 +65,10 @@ flowchart LR
     UC6 -->|Include| UC8
     UC8 -->|Kirim Embed| discord
 
-    %% Lecturer / Reviewer Relations
-    lecturer --> UC4
-    lecturer --> UC9
-    lecturer --> UC10
+    %% QA / Tester Relations
+    tester --> UC4
+    tester --> UC9
+    tester --> UC10
 ```
 
 ---
@@ -335,7 +335,7 @@ stateDiagram-v2
     ToDo --> Done: Penyelesaian Langsung via Commit / UI
 
     Done --> InProgress: Bug Ditemukan / Re-Open Tugas
-    Done --> [*]: Tugas Selesai Final & Terverifikasi Dosen
+    Done --> [*]: Tugas Selesai Final & Terverifikasi QA Tim
 ```
 
 ---
@@ -346,7 +346,7 @@ Diagram ini memvisualisasikan arsitektur penyebaran fisik perangkat keras, wadah
 ```mermaid
 %%{init: {'theme': 'default', 'themeVariables': { 'fontSize': '11px' }}}%%
 flowchart TD
-    subgraph ClientTier ["🖥️ Client Tier<br/>(Browser Mahasiswa & Dosen)"]
+    subgraph ClientTier ["🖥️ Client Tier<br/>(Browser Tim Pengembang & QA)"]
         Browser["🌐 Web Browser<br/>(Chrome / Safari / Firefox)"]
         ReactApp["⚛️ React 19 Single Page App<br/>(Dashboard & Docs)"]
         Tailwind["🎨 Tailwind CSS v4 Engine"]
@@ -400,7 +400,7 @@ flowchart TD
 
 ---
 
-## 💡 Poin Kunci Presentasi Tugas Kelompok ke Dosen:
+## 💡 Poin Kunci Pengujian & Arsitektur Sistem:
 1. **Model Arsitektur Integrasi API**: *Three-Tier Layered Architecture* yang memadukan REST API (komunikasi data web), Webhook API (event-driven dari GitHub & Discord), dan WebSocket (streaming realtime).
 2. **Implementasi Keamanan Siber (Security Layer)**:
    - Verifikasi Webhook menggunakan *HMAC SHA-256* dan fungsi konstan waktu (`crypto.timingSafeEqual`) untuk menangkal *timing attack*.

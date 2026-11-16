@@ -108,11 +108,11 @@
 ### 🔹 Slide 7: Antarmuka Dashboard & Fitur Unggulan
 - **Poin di Slide**:
   - **React 19 + Tailwind CSS**: Desain simpel, bersih, radius konsisten `rounded-md` & `rounded-lg`, serta mendukung mode Gelap & Terang.
-  - **Terminal Web Git di Dashboard**: Developer atau dosen bisa langsung mengetik atau mengklik tombol pintas tugas (`#TASK-02`) untuk simulasi commit langsung dari browser tanpa buka terminal laptop.
+  - **Terminal Web Git di Dashboard**: Developer atau penguji bisa langsung mengetik atau mengklik tombol pintas tugas (`#TASK-02`) untuk simulasi commit langsung dari browser tanpa buka terminal laptop.
   - **Visualisasi Analitik SVG**: Diagram batang perbandingan jumlah commit riil anggota tim dan diagram donat persentase tugas selesai (*To Do*, *In Progress*, *Done*).
   - **Pembaruan Real-Time**: Status tugas, diagram, dan riwayat aktivitas terbarui otomatis via WebSocket.
 - **🎙️ Naskah Bicara (Rafli)**:
-  > *"Pada bagian antarmuka pengguna, kami membangun dashboard berbasis React 19 dengan tampilan yang simpel dan rapi. Fitur unggulan kami adalah Terminal Web Git langsung di dashboard, di mana dosen maupun anggota tim bisa mencoba simulasi commit secara instan hanya dengan mengklik tombol pintas tugas. Seluruh grafik analitik dan papan tugas terhubung langsung dengan WebSocket, sehingga tampilan berubah otomatis begitu ada commit baru."*
+  > *"Pada bagian antarmuka pengguna, kami membangun dashboard berbasis React 19 dengan tampilan yang simpel dan rapi. Fitur unggulan kami adalah Terminal Web Git langsung di dashboard, di mana penguji maupun anggota tim bisa mencoba simulasi commit secara instan hanya dengan mengklik tombol pintas tugas. Seluruh grafik analitik dan papan tugas terhubung langsung dengan WebSocket, sehingga tampilan berubah otomatis begitu ada commit baru."*
 
 ---
 

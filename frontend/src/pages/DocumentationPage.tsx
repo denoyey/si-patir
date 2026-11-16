@@ -1777,7 +1777,7 @@ export function DocumentationPage() {
                       </span>
                     </div>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                      Verifikasi antarmuka web, fungsionalitas tombol, mutasi real-time, dan responsivitas sebelum demonstrasi di depan dosen.
+                      Verifikasi antarmuka web, fungsionalitas tombol, mutasi real-time, dan responsivitas oleh tim penguji QA internal.
                     </p>
                   </div>
                 </div>

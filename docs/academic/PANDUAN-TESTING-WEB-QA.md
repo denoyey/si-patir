@@ -11,7 +11,7 @@
 
 ## 🎯 Tujuan Panduan Ini
 
-Panduan ini dibuat agar tim QA (**Fajri**) dan seluruh anggota pengembang (**Deni, Fatir, Rafli**) memiliki panduan operasional langkah-demi-langkah yang terstandarisasi untuk melakukan **Cross-Check** pada setiap fitur di antarmuka web, membuktikan sistem bebas bug, responsif di semua perangkat, dan siap didemonstrasikan di depan dosen pengampu.
+Panduan ini dibuat agar tim QA (**Fajri**) dan seluruh anggota pengembang (**Deni, Fatir, Rafli**) memiliki panduan operasional langkah-demi-langkah yang terstandarisasi untuk melakukan **Cross-Check** pada setiap fitur di antarmuka web, membuktikan sistem bebas bug, responsif di semua perangkat, dan siap digunakan secara andal.
 
 ---
 
@@ -208,7 +208,7 @@ Panduan ini dibuat agar tim QA (**Fajri**) dan seluruh anggota pengembang (**Den
 ### TC-WEB-09: Laboratorium Simulasi Keamanan Siber
 
 * **Halaman:** `http://localhost:3000/docs?tab=simulator`
-* **Elemen yang Diuji:** 3 Modul Uji Interaktif Lab Dosen.
+* **Elemen yang Diuji:** 3 Modul Uji Interaktif Lab Keamanan.
 * **Langkah Pengujian:**
   1. **Simulasi HMAC SHA-256:**
      - Klik **"Uji Tanda Tangan Sah (Valid)"** $\rightarrow$ Respons hijau `200 OK`, durasi waktu konstan tampil dalam nanodetik.

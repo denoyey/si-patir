@@ -18,18 +18,18 @@ export const UML_DIAGRAMS: IUmlDiagram[] = [
     title: 'Use Case Diagram',
     category: 'Perilaku (Behavioral)',
     badge: '10 Kasus Penggunaan',
-    summary: 'Memetakan 5 aktor (Developer, Dosen, GitHub Cloud, Discord Webhook, SI-PATIR Gateway) serta 10 use case inti platform.',
+    summary: 'Memetakan 5 aktor (Developer, QA Engineer / Penguji Tim, GitHub Cloud, Discord Webhook, SI-PATIR Gateway) serta 10 use case inti platform.',
     focusNotes: 'Fokus pada otomatisasi alur: Developer commit di Git ➔ GitHub memicu Webhook HMAC ➔ Gateway otomatis mutasi status tugas, kirim embed Discord, dan broadcast WebSocket ke Dashboard.',
     keyPoints: [
       'UC-01 s/d UC-04: Aksi developer meliputi push commit, eksekusi Web Git Terminal, manajemen kartu tugas, dan melihat analitik kontribusi tim.',
       'UC-05 s/d UC-08: Otomasi internal sistem meliputi verifikasi HMAC, mutasi state database, siaran WebSocket, dan notifikasi Discord bot.',
-      'UC-09 & UC-10: Dosen pengampu dapat menguji simulasi lab keamanan, eksplorasi API, dan meninjau konfigurasi multi-repo workspace.',
+      'UC-09 & UC-10: QA Engineer / Penguji Tim dapat menguji simulasi lab keamanan, eksplorasi API, dan meninjau konfigurasi multi-repo workspace.',
     ],
     code: `%%{init: {'theme': 'default', 'themeVariables': { 'fontSize': '12px' }}}%%
 flowchart LR
     %% Actors
     dev(["👨‍💻 Developer / Mahasiswa"])
-    lecturer(["👨‍🏫 Dosen Pengampu / Penilai"])
+    tester(["🧪 QA Engineer / Penguji Tim"])
     github(["🌐 GitHub Cloud"])
     discord(["💬 Discord Webhook"])
 
@@ -63,10 +63,10 @@ flowchart LR
     UC6 -->|Include| UC8
     UC8 -->|Kirim Embed| discord
 
-    %% Lecturer / Reviewer Relations
-    lecturer --> UC4
-    lecturer --> UC9
-    lecturer --> UC10`,
+    %% QA / Tester Relations
+    tester --> UC4
+    tester --> UC9
+    tester --> UC10`,
   },
 
   // 2. ACTIVITY DIAGRAM
@@ -357,7 +357,7 @@ flowchart TD
       'Initial State: Kartu tugas baru dibuat dengan status awal "To Do".',
       'Transisi In Progress: Terjadi saat developer mulai mengerjakan atau ditugaskan via dashboard.',
       'Transisi Done (Automated): Terpicu secara instan saat commit berformat [done #TASK-XX] terverifikasi sah di backend.',
-      'Re-Open Transition: Jika ditemukan bug atau revisi, status dapat dikembalikan ke In Progress oleh penilai tugas.',
+      'Re-Open Transition: Jika ditemukan bug atau revisi, status dapat dikembalikan ke In Progress oleh QA Engineer / Penguji Tim.',
     ],
     code: `stateDiagram-v2
     [*] --> ToDo: Kartu Tugas Dibuat (Initial State)
@@ -369,7 +369,7 @@ flowchart TD
     ToDo --> Done: Penyelesaian Langsung via Commit / UI
 
     Done --> InProgress: Bug Ditemukan / Re-Open Tugas
-    Done --> [*]: Tugas Selesai Final & Terverifikasi Dosen`,
+    Done --> [*]: Tugas Selesai Final & Terverifikasi QA Tim`,
   },
 
   // 6. DEPLOYMENT & COMPONENT DIAGRAM
@@ -382,7 +382,7 @@ flowchart TD
     summary: 'Topologi fisik penyebaran perangkat keras, gateway publik, server aplikasi Node.js, database MySQL relasional, dan cloud pihak ketiga.',
     focusNotes: 'Memperlihatkan alur paket jaringan: Public HTTPS Tunnel (Cloudflare/LocalTunnel) ➔ Express API Gateway (:5000) ➔ TCP 3306 MySQL dengan in-memory fallback ➔ Outbound Discord & WebSocket broadcast.',
     keyPoints: [
-      'Client Tier: Web browser mahasiswa & dosen menjalankan React 19 Single Page App dan WebSocket client Socket.io.',
+      'Client Tier: Web browser tim pengembang & QA tester menjalankan React 19 Single Page App dan WebSocket client Socket.io.',
       'Edge Gateway Tier: Public HTTPS Tunnel (Cloudflare / LocalTunnel) menyediakan SSL/TLS termination untuk menangkap webhook GitHub.com di internet.',
       'Application Server Tier: Node.js 22 + Express 5 menjalankan security middleware, crypto engine HMAC, parser service, dan Socket.io server.',
       'Storage Tier: MySQL 8.0 server persisten dengan skema InnoDB terindeks, dilengkapi subsistem In-Memory Fallback otomatis jika MySQL lokal offline.',
@@ -390,7 +390,7 @@ flowchart TD
     ],
     code: `%%{init: {'theme': 'default', 'themeVariables': { 'fontSize': '11px' }}}%%
 flowchart TD
-    subgraph ClientTier ["🖥️ Client Tier<br/>(Browser Mahasiswa & Dosen)"]
+    subgraph ClientTier ["🖥️ Client Tier<br/>(Browser Tim Pengembang & QA)"]
         Browser["🌐 Web Browser<br/>(Chrome / Safari / Firefox)"]
         ReactApp["⚛️ React 19 Single Page App<br/>(Dashboard & Docs)"]
         Tailwind["🎨 Tailwind CSS v4 Engine"]
