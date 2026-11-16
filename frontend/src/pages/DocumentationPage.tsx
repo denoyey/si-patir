@@ -306,7 +306,7 @@ export function DocumentationPage() {
     axios
       .get('/api/v1/system/security/status')
       .then((res) => setSecurityStatus(res.data?.security))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const copyToClipboard = (text: string, key: string) => {
@@ -547,11 +547,10 @@ export function DocumentationPage() {
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key as TabKey)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition cursor-pointer ${
-                  isActive
-                    ? 'bg-blue-600 text-white shadow-xs'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-800/60'
-                }`}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition cursor-pointer ${isActive
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-800/60'
+                  }`}
               >
                 <Icon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
@@ -693,18 +692,17 @@ export function DocumentationPage() {
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition cursor-pointer ${
-                      selectedCategory === cat
-                        ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
-                        : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
-                    }`}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition cursor-pointer ${selectedCategory === cat
+                      ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900'
+                      : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                      }`}
                   >
                     {cat === 'All' ? 'Semua' : cat}
                   </button>
                 ))}
               </div>
 
-              <div className="relative min-w-[220px]">
+              <div className="relative min-w-55">
                 <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
                 <input
                   type="text"
@@ -726,20 +724,19 @@ export function DocumentationPage() {
                     ep.method === 'GET'
                       ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-900/50'
                       : ep.method === 'POST'
-                      ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50'
-                      : ep.method === 'PATCH'
-                      ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900/50'
-                      : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900/50';
+                        ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50'
+                        : ep.method === 'PATCH'
+                          ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900/50'
+                          : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900/50';
 
                   return (
                     <div
                       key={ep.id}
                       onClick={() => handleSelectEndpoint(ep)}
-                      className={`p-3 rounded-lg border transition cursor-pointer text-left ${
-                        isSelected
-                          ? 'border-blue-500 bg-blue-50/40 dark:bg-blue-950/20 shadow-xs'
-                          : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] hover:border-zinc-300 dark:hover:border-zinc-700'
-                      }`}
+                      className={`p-3 rounded-lg border transition cursor-pointer text-left ${isSelected
+                        ? 'border-blue-500 bg-blue-50/40 dark:bg-blue-950/20 shadow-xs'
+                        : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111420] hover:border-zinc-300 dark:hover:border-zinc-700'
+                        }`}
                     >
                       <div className="flex items-center gap-2 mb-1">
                         <span
@@ -819,7 +816,7 @@ export function DocumentationPage() {
                             className="flex items-center justify-between text-xs font-mono px-2 py-1 rounded-md bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"
                           >
                             <span className="text-zinc-700 dark:text-zinc-300 font-semibold">{h.name}:</span>
-                            <span className="text-zinc-500 dark:text-zinc-400 truncate max-w-[260px]">{h.value}</span>
+                            <span className="text-zinc-500 dark:text-zinc-400 truncate max-w-65">{h.value}</span>
                           </div>
                         ))}
                       </div>
@@ -865,11 +862,10 @@ export function DocumentationPage() {
                     {runnerResult && (
                       <div className="flex items-center gap-2 text-xs font-mono">
                         <span
-                          className={`font-bold px-1.5 py-0.5 rounded-md ${
-                            runnerResult.status >= 200 && runnerResult.status < 300
-                              ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
-                              : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300'
-                          }`}
+                          className={`font-bold px-1.5 py-0.5 rounded-md ${runnerResult.status >= 200 && runnerResult.status < 300
+                            ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
+                            : 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300'
+                            }`}
                         >
                           HTTP {runnerResult.status}
                         </span>
@@ -1067,11 +1063,10 @@ export function DocumentationPage() {
 
               {hmacSimResult && (
                 <div
-                  className={`p-3.5 rounded-lg border text-xs font-mono space-y-1 ${
-                    hmacSimResult.response.valid
-                      ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
-                      : 'bg-rose-50 dark:bg-rose-950/30 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200'
-                  }`}
+                  className={`p-3.5 rounded-lg border text-xs font-mono space-y-1 ${hmacSimResult.response.valid
+                    ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
+                    : 'bg-rose-50 dark:bg-rose-950/30 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200'
+                    }`}
                 >
                   <div className="flex items-center justify-between font-bold">
                     <span>
