@@ -147,6 +147,8 @@ export class Application {
     this.app.post('/api/tasks/sync-github', taskController.syncFromGitHubIssues);
     this.app.post('/api/v1/tasks/clear-dummy', taskController.clearDummy);
     this.app.post('/api/tasks/clear-dummy', taskController.clearDummy);
+    this.app.post('/api/v1/tasks/reset-demo', taskController.resetDemoTasks);
+    this.app.post('/api/tasks/reset-demo', taskController.resetDemoTasks);
 
     // ==========================================
     // 4. Members API (Leaderboard & Profile)

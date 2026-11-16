@@ -74,6 +74,8 @@ export class TaskController {
     try {
       const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const { title, assignee, status } = req.body;
+      const actorHeader = req.headers['x-actor-user'];
+      const actor = Array.isArray(actorHeader) ? actorHeader[0] : (actorHeader || req.body.actor);
 
       const numId = parseInt(idParam, 10);
       const existingTask = !isNaN(numId)
@@ -83,6 +85,19 @@ export class TaskController {
       if (!existingTask) {
         res.status(404).json({ success: false, error: `Kartu tugas "${idParam}" tidak ditemukan.` });
         return;
+      }
+
+      // Validasi Otoritas Pengembang
+      if (actor && existingTask.assignee) {
+        const isOwner = existingTask.assignee.toLowerCase().trim() === String(actor).toLowerCase().trim();
+        const isTechLead = String(actor).toLowerCase().trim() === 'denoyey';
+        if (!isOwner && !isTechLead) {
+          res.status(403).json({
+            success: false,
+            error: `Akses ditolak: Anda aktif sebagai @${actor}. Hanya @${existingTask.assignee} atau Tech Lead yang berhak mengubah rincian tugas ini.`,
+          });
+          return;
+        }
       }
 
       if (status && !['To Do', 'In Progress', 'Done'].includes(status)) {
@@ -125,6 +140,8 @@ export class TaskController {
     try {
       const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const { status } = req.body;
+      const actorHeader = req.headers['x-actor-user'];
+      const actor = Array.isArray(actorHeader) ? actorHeader[0] : (actorHeader || req.body.actor);
 
       if (!status || !['To Do', 'In Progress', 'Done'].includes(status)) {
         res.status(400).json({
@@ -142,6 +159,19 @@ export class TaskController {
       if (!existingTask) {
         res.status(404).json({ success: false, error: `Kartu tugas "${idParam}" tidak ditemukan.` });
         return;
+      }
+
+      // Validasi Otoritas Pengembang
+      if (actor && existingTask.assignee) {
+        const isOwner = existingTask.assignee.toLowerCase().trim() === String(actor).toLowerCase().trim();
+        const isTechLead = String(actor).toLowerCase().trim() === 'denoyey';
+        if (!isOwner && !isTechLead) {
+          res.status(403).json({
+            success: false,
+            error: `Akses ditolak: Anda aktif sebagai @${actor}. Hanya @${existingTask.assignee} atau Tech Lead yang berhak mengubah status tugas ini.`,
+          });
+          return;
+        }
       }
 
       const updatedTask = await this.taskRepo.updateStatusById(existingTask.id, status);
@@ -173,6 +203,22 @@ export class TaskController {
     try {
       const idParam = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
       const id = parseInt(idParam, 10);
+      const actorHeader = req.headers['x-actor-user'];
+      const actor = Array.isArray(actorHeader) ? actorHeader[0] : (actorHeader || req.body.actor);
+
+      const existingTask = await this.taskRepo.findById(id);
+      if (existingTask && actor && existingTask.assignee) {
+        const isOwner = existingTask.assignee.toLowerCase().trim() === String(actor).toLowerCase().trim();
+        const isTechLead = String(actor).toLowerCase().trim() === 'denoyey';
+        if (!isOwner && !isTechLead) {
+          res.status(403).json({
+            success: false,
+            error: `Akses ditolak: Anda aktif sebagai @${actor}. Hanya @${existingTask.assignee} atau Tech Lead yang berhak menghapus tugas ini.`,
+          });
+          return;
+        }
+      }
+
       const success = await this.taskRepo.deleteTask(id);
       if (this.io) {
         this.io.emit('activity_update', { type: 'TASK_DELETED', id });
@@ -210,6 +256,22 @@ export class TaskController {
       await this.taskRepo.clearDummyTasks();
       const tasks = await this.taskRepo.findAll();
       res.status(200).json({ success: true, tasks });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  };
+
+  public resetDemoTasks = async (req: Request, res: Response): Promise<void> => {
+    try {
+      await this.taskRepo.updateStatus('TASK-02', 'In Progress');
+      await this.taskRepo.updateStatus('TASK-03', 'In Progress');
+      await this.taskRepo.updateStatus('TASK-04', 'Done');
+      await this.taskRepo.updateStatus('TASK-05', 'To Do');
+      await this.memberRepo.recalculateTasksDone();
+      if (this.io) {
+        this.io.emit('activity_update', { type: 'TASKS_RESET' });
+      }
+      res.status(200).json({ success: true, message: 'Status kartu tugas pengujian berhasil direset ke kondisi awal.' });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }

@@ -76,6 +76,28 @@ export class WebhookController {
         const taskTitle = task ? task.title : 'Integrasi Fitur Proyek';
         const oldStatus = task ? task.status : 'In Progress';
 
+        // Validasi Otoritas & Kepemilikan Tugas (Task Ownership Validation)
+        if (task && task.assignee && task.assignee.toLowerCase().trim() !== author.toLowerCase().trim()) {
+          console.warn(`[WebhookController] ⚠️ Validasi Akses Gagal: Commit @${author} mencoba menutup tugas #${taskCode} milik @${task.assignee}.`);
+          await this.logRepo.record('SYSTEM_ALERT', author, commitMsg, taskCode, 'FAILED');
+          await this.memberRepo.incrementStats(author, false);
+
+          await this.discordService.sendCommitPush({
+            developer: author,
+            commitMsg: `${commitMsg} ⚠️ [Ditolak: Tugas #${taskCode} milik @${task.assignee}]`,
+            commitUrl,
+          }, discordWebhookUrl);
+
+          this.io.emit('activity_update', {
+            type: 'COMMIT_PUSHED',
+            author,
+            commitMsg: `${commitMsg} ⚠️ [Tugas #${taskCode} tidak ditutup: ditugaskan ke @${task.assignee}]`,
+            commitUrl,
+            time: new Date().toLocaleTimeString('id-ID'),
+          });
+          continue;
+        }
+
         // Update Repositories
         await this.taskRepo.updateStatus(taskCode, 'Done');
         await this.memberRepo.incrementStats(author, true);
@@ -168,7 +190,27 @@ export class WebhookController {
 
     if (taskCode) {
       const task = await this.taskRepo.findByCode(taskCode);
-      const taskTitle = task ? task.title : 'Integrasi Fitur';
+
+      if (!task) {
+        res.status(404).json({
+          success: false,
+          error: `Kartu tugas [${taskCode}] tidak ditemukan di database.`,
+        });
+        return;
+      }
+
+      // Validasi Otoritas & Kepemilikan Tugas (Task Ownership Validation):
+      // Hanya developer yang ditugaskan (assignee) yang berhak menyelesaikan tugasnya!
+      if (task.assignee && task.assignee.toLowerCase().trim() !== author.toLowerCase().trim()) {
+        console.warn(`[WebhookController] ⚠️ Akses Ditolak: Tugas #${taskCode} dimiliki oleh @${task.assignee}, tetapi dicoba diselesaikan oleh @${author}`);
+        res.status(403).json({
+          success: false,
+          error: `Validasi Akses Gagal: Tugas #${taskCode} ("${task.title}") ditugaskan kepada @${task.assignee}. Developer @${author} tidak berhak menyelesaikan tugas milik anggota lain.`,
+        });
+        return;
+      }
+
+      const taskTitle = task.title || 'Integrasi Fitur';
 
       await this.taskRepo.updateStatus(taskCode, 'Done');
       await this.memberRepo.incrementStats(author, true);

@@ -32,6 +32,9 @@ import {
   MoreVertical,
   Maximize2,
   Workflow,
+  UserCheck,
+  Check,
+  RotateCcw,
 } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 import { useNavbarVisibility } from '../services/scroll/hooks/useNavbarVisibility';
@@ -141,10 +144,26 @@ export function DashboardPage() {
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberUsername, setNewMemberUsername] = useState('');
 
+  // Active Developer Profile Session State
+  const [currentUser, setCurrentUser] = useState<string>(() => {
+    try {
+      return localStorage.getItem('sipatir_active_user') || 'denoyey';
+    } catch {
+      return 'denoyey';
+    }
+  });
+  const [showSwitchUserModal, setShowSwitchUserModal] = useState<boolean>(false);
+
   // Integrated Web Git Terminal State
-  const [selectedTerminalAuthor, setSelectedTerminalAuthor] = useState<string>('');
+  const [selectedTerminalAuthor, setSelectedTerminalAuthor] = useState<string>(() => {
+    try {
+      return localStorage.getItem('sipatir_active_user') || 'denoyey';
+    } catch {
+      return 'denoyey';
+    }
+  });
   const [terminalCommand, setTerminalCommand] = useState<string>(
-    'git commit -m "Selesaikan implementasi fitur [done #TASK-01]"'
+    'git commit -m "Selesaikan implementasi fitur [done #TASK-02]"'
   );
   const [isTerminalSubmitting, setIsTerminalSubmitting] = useState(false);
   const [terminalOutput, setTerminalOutput] = useState<string>(
@@ -181,6 +200,7 @@ export function DashboardPage() {
     showProjectModal ||
     showApiModal ||
     showAllLogsModal ||
+    showSwitchUserModal ||
     Boolean(editingTask) ||
     confirmDialog.isOpen;
 
@@ -350,13 +370,23 @@ export function DashboardPage() {
     taskId: number,
     data: { title: string; assignee: string; status: 'To Do' | 'In Progress' | 'Done' }
   ) => {
-    const res = await axios.patch(`/api/v1/tasks/${taskId}`, data);
-    setActiveToast({
-      title: 'Tugas Berhasil Diperbarui',
-      desc: res.data?.message || `Detail tugas #${taskId} berhasil disimpan.`,
-    });
-    setTimeout(() => setActiveToast(null), 3500);
-    await refreshData();
+    try {
+      const res = await axios.patch(`/api/v1/tasks/${taskId}`, data, {
+        headers: { 'x-actor-user': currentUser },
+      });
+      setActiveToast({
+        title: 'Tugas Berhasil Diperbarui',
+        desc: res.data?.message || `Detail tugas #${taskId} berhasil disimpan.`,
+      });
+      setTimeout(() => setActiveToast(null), 3500);
+      await refreshData();
+    } catch (err: any) {
+      setActiveToast({
+        title: 'Gagal Memperbarui Tugas',
+        desc: err.response?.data?.error || err.message,
+      });
+      setTimeout(() => setActiveToast(null), 4000);
+    }
   };
 
   // Aggregate Metrics
@@ -474,18 +504,106 @@ export function DashboardPage() {
     }
   };
 
-  // Inline update task status with database persistence
+  // Switch active developer session
+  const handleSwitchActiveUser = (username: string) => {
+    setCurrentUser(username);
+    setSelectedTerminalAuthor(username);
+    try {
+      localStorage.setItem('sipatir_active_user', username);
+    } catch {}
+
+    // Otomatis sinkronkan template terminal ke tugas milik user ini
+    const userTask = tasks.find((t) => t.assignee.toLowerCase() === username.toLowerCase());
+    if (userTask) {
+      setTerminalCommand(`git commit -m "Selesaikan ${userTask.title.slice(0, 24)} [done #${userTask.task_code}]"`);
+      setTerminalOutput(`[SYNC] Sesi beralih ke @${username}. Tugas #${userTask.task_code} otomatis disinkronkan.`);
+    } else {
+      setTerminalCommand(`git commit -m "feat: pembaruan modul oleh @${username}"`);
+      setTerminalOutput(`[SYNC] Sesi beralih ke @${username}. Siap melakukan commit.`);
+    }
+
+    setActiveToast({
+      title: 'Sesi Pengembang Berganti',
+      desc: `Anda kini aktif sebagai @${username}. Hak akses dan Terminal Git telah disinkronkan.`,
+    });
+    setTimeout(() => setActiveToast(null), 3500);
+  };
+
+  // Quick sync single task to terminal from table
+  const handleSyncTaskToTerminal = (task: Task) => {
+    if (task.assignee) {
+      setSelectedTerminalAuthor(task.assignee);
+      setCurrentUser(task.assignee);
+      try {
+        localStorage.setItem('sipatir_active_user', task.assignee);
+      } catch {}
+    }
+    setTerminalCommand(`git commit -m "Selesaikan ${task.title.slice(0, 24)} [done #${task.task_code}]"`);
+    setTerminalOutput(`[SYNC] Menyiapkan commit tugas #${task.task_code} (@${task.assignee}).`);
+
+    const terminalSection = document.getElementById('terminal-git-section');
+    if (terminalSection) {
+      terminalSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    setActiveToast({
+      title: `Sinkron ke Terminal #${task.task_code}`,
+      desc: `Author & Sesi diset ke @${task.assignee}. Perintah commit siap dijalankan.`,
+    });
+    setTimeout(() => setActiveToast(null), 3500);
+  };
+
+  // Reset demo task statuses
+  const handleResetDemoTasks = async () => {
+    try {
+      await axios.post('/api/v1/tasks/reset-demo');
+      await refreshData();
+      setActiveToast({
+        title: 'Status Tugas Direset',
+        desc: 'Status tugas pengujian dikembalikan ke alur demo (To Do, In Progress, Done).',
+      });
+      setTimeout(() => setActiveToast(null), 3500);
+    } catch (err: any) {
+      console.error('Reset error:', err);
+      setActiveToast({
+        title: 'Gagal Mereset Status',
+        desc: err.response?.data?.error || err.message,
+      });
+      setTimeout(() => setActiveToast(null), 4000);
+    }
+  };
+
+  // Inline update task status with ownership validation
   const handleUpdateTaskStatus = async (taskId: number, newStatus: 'To Do' | 'In Progress' | 'Done') => {
+    const targetTask = tasks.find((t) => t.id === taskId);
+    if (!targetTask) return;
+
+    const isOwner = targetTask.assignee.toLowerCase() === currentUser.toLowerCase();
+    const isTechLead = currentUser.toLowerCase() === 'denoyey';
+
+    if (!isOwner && !isTechLead) {
+      setActiveToast({
+        title: 'Akses Ditolak (Bukan Pemilik Tugas)',
+        desc: `Anda aktif sebagai @${currentUser}. Hanya @${targetTask.assignee} atau Tech Lead yang berhak mengubah status #${targetTask.task_code}.`,
+      });
+      setTimeout(() => setActiveToast(null), 4000);
+      return;
+    }
+
     setUpdatingTaskId(taskId);
     setTasks((prev) =>
       prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
     );
 
     try {
-      const res = await axios.patch(`/api/v1/tasks/${taskId}/status`, { status: newStatus });
+      const res = await axios.patch(
+        `/api/v1/tasks/${taskId}/status`,
+        { status: newStatus },
+        { headers: { 'x-actor-user': currentUser } }
+      );
       setActiveToast({
         title: 'Status Diperbarui',
-        desc: res.data.message || `Tugas #${taskId} diubah ke "${newStatus}". Database terupdate.`,
+        desc: res.data.message || `Tugas #${targetTask.task_code} diubah ke "${newStatus}".`,
       });
       setTimeout(() => setActiveToast(null), 3500);
       await refreshData();
@@ -561,10 +679,24 @@ export function DashboardPage() {
     }
   };
 
-  // Delete task
+  // Delete task with ownership validation
   const handleDeleteTask = (id: number) => {
     const taskToDelete = tasks.find((t) => t.id === id);
-    const taskLabel = taskToDelete ? `[${taskToDelete.task_code}] "${taskToDelete.title}"` : 'kartu tugas ini';
+    if (!taskToDelete) return;
+
+    const isOwner = taskToDelete.assignee.toLowerCase() === currentUser.toLowerCase();
+    const isTechLead = currentUser.toLowerCase() === 'denoyey';
+
+    if (!isOwner && !isTechLead) {
+      setActiveToast({
+        title: 'Akses Ditolak (Bukan Pemilik Tugas)',
+        desc: `Anda aktif sebagai @${currentUser}. Hanya @${taskToDelete.assignee} atau Tech Lead yang berhak menghapus tugas #${taskToDelete.task_code}.`,
+      });
+      setTimeout(() => setActiveToast(null), 4000);
+      return;
+    }
+
+    const taskLabel = `[${taskToDelete.task_code}] "${taskToDelete.title}"`;
 
     setConfirmDialog({
       isOpen: true,
@@ -575,15 +707,22 @@ export function DashboardPage() {
       onConfirm: async () => {
         setConfirmDialog((prev) => ({ ...prev, isOpen: false }));
         try {
-          await axios.delete(`/api/tasks/${id}`);
+          await axios.delete(`/api/tasks/${id}`, {
+            headers: { 'x-actor-user': currentUser },
+          });
           await refreshData();
           setActiveToast({
             title: 'Tugas Dihapus',
-            desc: `Kartu ${taskToDelete ? `[${taskToDelete.task_code}]` : ''} berhasil dihapus dari sistem.`,
+            desc: `Kartu [${taskToDelete.task_code}] berhasil dihapus dari sistem.`,
           });
           setTimeout(() => setActiveToast(null), 4000);
-        } catch (err) {
+        } catch (err: any) {
           console.error('Delete task error:', err);
+          setActiveToast({
+            title: 'Gagal Menghapus Tugas',
+            desc: err.response?.data?.error || err.message,
+          });
+          setTimeout(() => setActiveToast(null), 4000);
         }
       },
     });
@@ -621,7 +760,7 @@ export function DashboardPage() {
     if (e) e.preventDefault();
     if (!terminalCommand.trim() || isTerminalSubmitting) return;
 
-    const effectiveAuthor = selectedTerminalAuthor || (members.length > 0 ? members[0].github_username : 'denoyey');
+    const effectiveAuthor = selectedTerminalAuthor || currentUser || (members.length > 0 ? members[0].github_username : 'denoyey');
     setIsTerminalSubmitting(true);
 
     let commitMsg = terminalCommand.trim();
@@ -634,6 +773,24 @@ export function DashboardPage() {
 
     const taskMatch = commitMsg.match(/\[done\s+#(TASK-\d+)\]/i) || terminalCommand.match(/#(TASK-\d+)/i);
     const taskCode = taskMatch ? taskMatch[1].toUpperCase() : undefined;
+
+    // VALIDASI KEPEMILIKAN TUGAS (TASK OWNERSHIP VALIDATION):
+    // Jangan biarkan author menyelesaikan tugas milik orang lain!
+    if (taskCode) {
+      const matchedTask = tasks.find((t) => t.task_code.toUpperCase() === taskCode);
+      if (matchedTask && matchedTask.assignee && matchedTask.assignee.toLowerCase() !== effectiveAuthor.toLowerCase()) {
+        setIsTerminalSubmitting(false);
+        setTerminalOutput(
+          `[ERR] Validasi Gagal: Tugas #${matchedTask.task_code} dimiliki oleh @${matchedTask.assignee}. Anda aktif sebagai @${effectiveAuthor}. Tidak dapat menyelesaikan tugas milik orang lain!`
+        );
+        setActiveToast({
+          title: 'Akses Ditolak (Bukan Pemilik Tugas)',
+          desc: `Tugas #${matchedTask.task_code} adalah milik @${matchedTask.assignee}. Beralihlah ke @${matchedTask.assignee} untuk menyelesaikan tugas ini.`,
+        });
+        setTimeout(() => setActiveToast(null), 4500);
+        return;
+      }
+    }
 
     try {
       await axios.post('/api/v1/webhooks/simulate', {
@@ -657,7 +814,13 @@ export function DashboardPage() {
       await refreshData();
     } catch (err: any) {
       console.error('[Terminal Simulator Error]', err);
-      setTerminalOutput(`[ERR] Gagal menjalankan simulasi: ${err.response?.data?.error || err.message}`);
+      const errMsg = err.response?.data?.error || err.message;
+      setTerminalOutput(`[ERR] ${errMsg}`);
+      setActiveToast({
+        title: 'Gagal Menjalankan Simulasi',
+        desc: errMsg,
+      });
+      setTimeout(() => setActiveToast(null), 4000);
     } finally {
       setIsTerminalSubmitting(false);
     }
@@ -717,6 +880,21 @@ export function DashboardPage() {
 
           {/* Action Buttons & Responsive Navigation Controls */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Active Developer Session / Profile Selector */}
+            <button
+              type="button"
+              onClick={() => setShowSwitchUserModal(true)}
+              className="h-8 sm:h-8.5 px-2 sm:px-2.5 rounded-md bg-white hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white border border-zinc-300 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600 active:scale-95 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer touch-manipulation shadow-xs shrink-0"
+              title="Ganti Sesi Pengembang Aktif (Login Akun Tim)"
+            >
+              <AvatarWithFallback username={currentUser} name={currentUser} className="w-4 h-4 rounded-full border border-zinc-300 dark:border-zinc-700 shrink-0" />
+              <span className="font-mono text-xs font-medium max-w-24 sm:max-w-28 truncate">
+                @{currentUser}
+              </span>
+              <span className="text-[10px] text-zinc-400 font-sans hidden md:inline">(Sesi)</span>
+              <ChevronDown className="w-3 h-3 text-zinc-400" />
+            </button>
+
             {/* Project Switcher & Config Button */}
             <button
               type="button"
@@ -857,6 +1035,27 @@ export function DashboardPage() {
                     </div>
                   </button>
 
+                  {/* Reset Demo Task Statuses */}
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setIsSyncMenuOpen(false);
+                      handleResetDemoTasks();
+                    }}
+                    className="w-full p-2 rounded-md hover:bg-amber-500/10 text-left flex items-start gap-2.5 transition cursor-pointer text-amber-700 dark:text-amber-400"
+                  >
+                    <div className="p-1.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0 mt-0.5">
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-zinc-900 dark:text-white">Reset Status Tugas Demo</div>
+                      <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 leading-tight mt-0.5">
+                        Kembalikan tugas ke In Progress / To Do untuk uji coba
+                      </p>
+                    </div>
+                  </button>
+
                   <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-1" />
 
                   {/* Clear Dummy Data */}
@@ -930,6 +1129,19 @@ export function DashboardPage() {
                   >
                     <Code2 className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
                     <span>API Docs</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      setShowSwitchUserModal(true);
+                    }}
+                    className="w-full p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left flex items-center gap-2.5 transition cursor-pointer text-xs font-medium text-zinc-800 dark:text-zinc-200"
+                  >
+                    <UserCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span>Sesi: @{currentUser}</span>
                   </button>
 
                   <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-1" />
@@ -1377,6 +1589,8 @@ export function DashboardPage() {
                       paginatedTasks.map((task) => {
                         const isDone = task.status === 'Done';
                         const isInProgress = task.status === 'In Progress';
+                        const isOwner = task.assignee.toLowerCase() === currentUser.toLowerCase();
+                        const isTechLead = currentUser.toLowerCase() === 'denoyey';
 
                         return (
                           <tr
@@ -1399,6 +1613,11 @@ export function DashboardPage() {
                                 <span className="font-mono text-[11px] text-zinc-600 dark:text-zinc-400">
                                   @{task.assignee}
                                 </span>
+                                {isOwner && (
+                                  <span className="text-[9px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
+                                    Tugas Anda
+                                  </span>
+                                )}
                               </div>
                             </td>
                             <td className="py-2.5 sm:py-3 px-3 sm:px-4 text-center whitespace-nowrap">
@@ -1408,9 +1627,18 @@ export function DashboardPage() {
                                   name={`task_status_${task.id}`}
                                   value={task.status}
                                   disabled={updatingTaskId === task.id}
-                                  onChange={(e) =>
-                                    handleUpdateTaskStatus(task.id, e.target.value as 'To Do' | 'In Progress' | 'Done')
-                                  }
+                                  onChange={(e) => {
+                                    const newStatus = e.target.value as 'To Do' | 'In Progress' | 'Done';
+                                    if (!isOwner && !isTechLead) {
+                                      setActiveToast({
+                                        title: 'Akses Ditolak (Bukan Pemilik Tugas)',
+                                        desc: `Anda aktif sebagai @${currentUser}. Hanya @${task.assignee} atau Tech Lead yang berhak mengubah status #${task.task_code}.`,
+                                      });
+                                      setTimeout(() => setActiveToast(null), 4000);
+                                      return;
+                                    }
+                                    handleUpdateTaskStatus(task.id, newStatus);
+                                  }}
                                   aria-label={`Ubah status tugas #${task.task_code}`}
                                   className={`appearance-none cursor-pointer text-[11px] font-semibold pl-6 pr-6 py-1 rounded-md border transition shadow-2xs focus:outline-hidden disabled:opacity-60 ${isDone
                                       ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/30'
@@ -1440,6 +1668,26 @@ export function DashboardPage() {
                                   type="button"
                                   onClick={(e) => {
                                     engine.animateButtonPress(e.currentTarget);
+                                    handleSyncTaskToTerminal(task);
+                                  }}
+                                  className="p-1.5 rounded-md text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 active:scale-95 transition cursor-pointer"
+                                  title={`Buka & Sinkronkan #${task.task_code} di Terminal Git`}
+                                  aria-label={`Buka #${task.task_code} di Terminal`}
+                                >
+                                  <Terminal className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    engine.animateButtonPress(e.currentTarget);
+                                    if (!isOwner && !isTechLead) {
+                                      setActiveToast({
+                                        title: 'Akses Ditolak (Bukan Pemilik Tugas)',
+                                        desc: `Anda aktif sebagai @${currentUser}. Hanya @${task.assignee} atau Tech Lead yang berhak mengedit tugas #${task.task_code}.`,
+                                      });
+                                      setTimeout(() => setActiveToast(null), 4000);
+                                      return;
+                                    }
                                     setEditingTask(task);
                                   }}
                                   className="p-1.5 rounded-md text-zinc-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 active:scale-95 transition cursor-pointer"
@@ -1733,7 +1981,10 @@ export function DashboardPage() {
             </section>
 
             {/* CARD 2: TERMINAL GIT STANDALONE */}
-            <section className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden shadow-xs text-xs">
+            <section
+              id="terminal-git-section"
+              className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden shadow-xs text-xs scroll-mt-20"
+            >
               {/* Header Terminal Git */}
               <div className="px-4 py-3 min-h-11.5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2 bg-zinc-50/80 dark:bg-[#0e121b]">
                 <div className="flex items-center gap-2">
@@ -1767,14 +2018,27 @@ export function DashboardPage() {
                 {/* Form Selectors: Author & Quick Task Template */}
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <label htmlFor="terminal-author-select" className="block text-[10px] font-medium text-zinc-500 dark:text-zinc-400 mb-1">
-                      Author
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label htmlFor="terminal-author-select" className="block text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
+                        Author
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowSwitchUserModal(true)}
+                        className="text-[10px] text-blue-600 dark:text-blue-400 hover:underline cursor-pointer font-medium"
+                      >
+                        Ganti Sesi
+                      </button>
+                    </div>
                     <select
                       id="terminal-author-select"
                       name="terminal_author"
-                      value={selectedTerminalAuthor || (members[0]?.github_username ?? 'denoyey')}
-                      onChange={(e) => setSelectedTerminalAuthor(e.target.value)}
+                      value={selectedTerminalAuthor || currentUser || (members[0]?.github_username ?? 'denoyey')}
+                      onChange={(e) => {
+                        const newAuthor = e.target.value;
+                        setSelectedTerminalAuthor(newAuthor);
+                        handleSwitchActiveUser(newAuthor);
+                      }}
                       className="w-full h-8 px-2 rounded-md bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 text-xs font-mono focus:outline-hidden focus:border-blue-500 transition cursor-pointer shadow-2xs"
                     >
                       {members.map((m) => (
@@ -1786,9 +2050,12 @@ export function DashboardPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="terminal-task-select" className="block text-[10px] font-medium text-zinc-500 dark:text-zinc-400 mb-1">
-                      Template
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label htmlFor="terminal-task-select" className="block text-[10px] font-medium text-zinc-500 dark:text-zinc-400">
+                        Template
+                      </label>
+                      <span className="text-[10px] text-zinc-400 font-mono">Auto-Sync</span>
+                    </div>
                     <select
                       id="terminal-task-select"
                       name="terminal_task_template"
@@ -1804,6 +2071,9 @@ export function DashboardPage() {
                             setTerminalCommand(`git commit -m "Selesaikan ${matchedTask.title.slice(0, 24)} [done #${matchedTask.task_code}]"`);
                             if (matchedTask.assignee) {
                               setSelectedTerminalAuthor(matchedTask.assignee);
+                              if (matchedTask.assignee.toLowerCase() !== currentUser.toLowerCase()) {
+                                handleSwitchActiveUser(matchedTask.assignee);
+                              }
                             }
                           }
                         }
@@ -1811,12 +2081,27 @@ export function DashboardPage() {
                       className="w-full h-8 px-2 rounded-md bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 text-xs focus:outline-hidden focus:border-blue-500 transition cursor-pointer shadow-2xs"
                     >
                       <option value="" disabled>Pilih Tugas...</option>
-                      {tasks.slice(0, 6).map((t) => (
-                        <option key={t.id} value={t.task_code}>
-                          #{t.task_code} - {t.title.slice(0, 22)}
-                        </option>
-                      ))}
-                      <option value="CUSTOM">Commit Umum / Refactor</option>
+                      <optgroup label={`Tugas Anda (@${currentUser})`}>
+                        {tasks
+                          .filter((t) => t.assignee.toLowerCase() === currentUser.toLowerCase())
+                          .map((t) => (
+                            <option key={t.id} value={t.task_code}>
+                              #{t.task_code} - {t.title.slice(0, 22)} ({t.status})
+                            </option>
+                          ))}
+                      </optgroup>
+                      <optgroup label="Tugas Anggota Lain (Auto-Switch)">
+                        {tasks
+                          .filter((t) => t.assignee.toLowerCase() !== currentUser.toLowerCase())
+                          .map((t) => (
+                            <option key={t.id} value={t.task_code}>
+                              #{t.task_code} (@{t.assignee}) - {t.title.slice(0, 18)}
+                            </option>
+                          ))}
+                      </optgroup>
+                      <optgroup label="Lainnya">
+                        <option value="CUSTOM">Commit Umum / Refactor</option>
+                      </optgroup>
                     </select>
                   </div>
                 </div>
@@ -2144,6 +2429,128 @@ export function DashboardPage() {
         initialAuthorFilter={logAuthorFilter}
         onClose={() => setShowAllLogsModal(false)}
       />
+
+      {/* MODAL PILIH PENGEMBANG / SESI PENGGUNA */}
+      {showSwitchUserModal && (
+        <div
+          data-lenis-prevent
+          onWheel={(e) => {
+            if (e.target === e.currentTarget) e.preventDefault();
+          }}
+          onTouchMove={(e) => {
+            if (e.target === e.currentTarget) e.preventDefault();
+          }}
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-none flex items-center justify-center p-3 sm:p-4 overscroll-contain animate-in fade-in duration-150"
+        >
+          <div
+            data-lenis-prevent
+            className="bg-white dark:bg-[#11141e] border border-zinc-200 dark:border-zinc-800 rounded-lg p-5 w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto touch-scroll overscroll-contain"
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  <UserCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-zinc-950 dark:text-white">
+                    Pilih Sesi Pengembang Aktif
+                  </h3>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                    Beralih akun untuk melakukan commit dan validasi kepemilikan tugas
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSwitchUserModal(false)}
+                className="p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-white active:scale-95 transition cursor-pointer touch-manipulation"
+                aria-label="Tutup modal"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* List of Official Developers */}
+            <div className="mt-4 space-y-2.5">
+              {members.map((member) => {
+                const isCurrent = member.github_username.toLowerCase() === currentUser.toLowerCase();
+                const assignedTask = tasks.find((t) => t.assignee.toLowerCase() === member.github_username.toLowerCase());
+
+                return (
+                  <button
+                    key={member.id}
+                    type="button"
+                    onClick={() => {
+                      handleSwitchActiveUser(member.github_username);
+                      setShowSwitchUserModal(false);
+                    }}
+                    className={`w-full p-3 rounded-lg border text-left transition flex items-center justify-between gap-3 cursor-pointer ${
+                      isCurrent
+                        ? 'bg-emerald-50/80 dark:bg-emerald-950/25 border-emerald-500/40 ring-1 ring-emerald-500/30'
+                        : 'bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900/60 dark:hover:bg-zinc-800/80 border-zinc-200 dark:border-zinc-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <AvatarWithFallback
+                        username={member.github_username}
+                        name={member.name}
+                        className="w-9 h-9 rounded-full border border-zinc-300 dark:border-zinc-700 shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+                            {member.name}
+                          </span>
+                          <span className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
+                            @{member.github_username}
+                          </span>
+                          {member.github_username.toLowerCase() === 'denoyey' && (
+                            <span className="text-[9px] font-semibold text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/60 px-1.5 py-0.2 rounded border border-purple-300 dark:border-purple-800">
+                              Tech Lead
+                            </span>
+                          )}
+                        </div>
+                        {assignedTask ? (
+                          <div className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate mt-0.5 flex items-center gap-1">
+                            <span className="font-mono font-medium text-zinc-700 dark:text-zinc-300">
+                              #{assignedTask.task_code}:
+                            </span>
+                            <span className="truncate">{assignedTask.title}</span>
+                          </div>
+                        ) : (
+                          <div className="text-[11px] text-zinc-400 italic mt-0.5">
+                            {member.total_commits} total commits
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="shrink-0 flex items-center gap-1.5">
+                      {isCurrent ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500 text-white shadow-xs">
+                          <Check className="w-3 h-3" />
+                          Aktif
+                        </span>
+                      ) : (
+                        <span className="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 font-medium">
+                          Pilih
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-800 text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed flex items-start gap-1.5">
+              <span className="text-blue-500 dark:text-blue-400 font-bold shrink-0">ℹ</span>
+              <span>
+                Setiap anggota tim hanya berwenang melakukan git commit dan mengubah status tugas yang ditugaskan kepada dirinya. Tech Lead (@denoyey) memiliki hak akses penuh.
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
