@@ -693,7 +693,7 @@ export function DashboardPage() {
             : '-translate-y-full shadow-none pointer-events-none'
           }`}
       >
-        <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 min-h-[3.25rem] sm:min-h-[3.5rem] py-1.5 sm:py-0 flex items-center justify-between gap-1.5 sm:gap-4">
+        <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 min-h-13 sm:min-h-14 py-1.5 sm:py-0 flex items-center justify-between gap-1.5 sm:gap-4">
           {/* Brand Logo & Back to Landing */}
           <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 shrink-0">
             <Link
@@ -722,7 +722,7 @@ export function DashboardPage() {
               title="Manajemen Profil Proyek & Repositori"
             >
               <FolderGit2 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-              <span className="hidden md:inline text-xs font-medium max-w-[130px] truncate">
+              <span className="hidden md:inline text-xs font-medium max-w-32.5 truncate">
                 {activeProject?.name || 'SI-PATIR'}
               </span>
               <span className="md:hidden text-xs font-medium">Proyek</span>
@@ -924,7 +924,7 @@ export function DashboardPage() {
       </header>
 
       {/* Spacer to reserve layout height under fixed top navbar */}
-      <div className="h-[3.25rem] sm:h-[3.5rem] pt-[env(safe-area-inset-top,0px)] shrink-0" aria-hidden="true" />
+      <div className="h-13 sm:h-14 pt-[env(safe-area-inset-top,0px)] shrink-0" aria-hidden="true" />
 
       {/* REPOSITORY & SYSTEM CONNECTIVITY BAR */}
       <section
@@ -1055,7 +1055,7 @@ export function DashboardPage() {
           <div data-anim="content-grid" className="lg:col-span-2 space-y-5">
             {/* 1. KLASEMEN KONTRIBUSI ANGGOTA NYATA */}
             <section className="bg-white dark:bg-[#0e121b] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden shadow-xs">
-              <div className="px-3.5 sm:px-5 py-3 sm:py-3.5 min-h-[52px] border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#121623] flex items-center justify-between gap-2.5 sm:gap-2">
+              <div className="px-3.5 sm:px-5 py-3 sm:py-3.5 min-h-13 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#121623] flex items-center justify-between gap-2.5 sm:gap-2">
                 <div className="flex items-center gap-2">
                   <div className="p-1 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shrink-0">
                     <Trophy className="w-4 h-4" />
@@ -1332,8 +1332,8 @@ export function DashboardPage() {
                   <thead>
                     <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-[#0a0d14] text-zinc-500 dark:text-zinc-400 font-mono text-[11px]">
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 w-28">Kode</th>
-                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 min-w-[200px]">Judul</th>
-                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 min-w-[140px]">Assignee</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 min-w-50">Judul</th>
+                      <th className="py-2.5 sm:py-3 px-3 sm:px-4 min-w-35">Assignee</th>
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-center w-32">Status</th>
                       <th className="py-2.5 sm:py-3 px-3 sm:px-4 text-right w-16">Aksi</th>
                     </tr>
@@ -1526,7 +1526,7 @@ export function DashboardPage() {
             {/* CARD 1: AKTIVITAS WEBHOOK (PROGRESSIVE FEED, NO CRAMPED SCROLL) */}
             <section className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden flex flex-col shadow-xs">
               {/* Header */}
-              <div className="px-4 py-3 min-h-[46px] border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2 bg-zinc-50/80 dark:bg-[#0e121b] shrink-0">
+              <div className="px-4 py-3 min-h-11.5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2 bg-zinc-50/80 dark:bg-[#0e121b] shrink-0">
                 <div className="flex items-center gap-2 min-w-0">
                   <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <h3 className="text-xs font-semibold text-zinc-950 dark:text-white truncate">
@@ -1636,7 +1636,7 @@ export function DashboardPage() {
                 data-lenis-prevent
                 className={`bg-white dark:bg-[#0c0f17] divide-y divide-zinc-100 dark:divide-zinc-800/60 ${
                   visibleLogCount > 5
-                    ? 'max-h-[460px] overflow-y-auto touch-scroll overscroll-contain'
+                    ? 'max-h-115 overflow-y-auto touch-scroll overscroll-contain'
                     : ''
                 }`}
               >
@@ -1712,7 +1712,7 @@ export function DashboardPage() {
             {/* CARD 2: TERMINAL GIT STANDALONE */}
             <section className="bg-white dark:bg-[#0c0f17] border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden shadow-xs text-xs">
               {/* Header Terminal Git */}
-              <div className="px-4 py-3 min-h-[46px] border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2 bg-zinc-50/80 dark:bg-[#0e121b]">
+              <div className="px-4 py-3 min-h-11.5 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-2 bg-zinc-50/80 dark:bg-[#0e121b]">
                 <div className="flex items-center gap-2">
                   <div className="p-1 rounded-md bg-zinc-200/80 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 shrink-0">
                     <Terminal className="w-3.5 h-3.5" />
@@ -1814,7 +1814,7 @@ export function DashboardPage() {
                   {/* Console Body */}
                   <div className="p-3 space-y-2">
                     {terminalOutput && (
-                      <div className="text-[11px] text-zinc-400 border-b border-zinc-800/60 pb-1.5 leading-relaxed break-words">
+                      <div className="text-[11px] text-zinc-400 border-b border-zinc-800/60 pb-1.5 leading-relaxed wrap-break-word">
                         <span className="text-emerald-400 mr-1.5">➜</span>
                         {terminalOutput}
                       </div>
