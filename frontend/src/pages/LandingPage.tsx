@@ -87,13 +87,12 @@ export function LandingPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-[#090b10] text-zinc-900 dark:text-zinc-100 font-sans selection:bg-zinc-800 selection:text-white transition-colors duration-150">
       {/* TOP NAVIGATION BAR - FIXED & SMART AUTO-HIDE ON SCROLL */}
       <header
-        className={`fixed top-0 left-0 right-0 z-40 border-b border-zinc-200 dark:border-zinc-800/80 bg-white/90 dark:bg-[#0d1017]/90 backdrop-blur-md pt-[env(safe-area-inset-top,0px)] transition-transform duration-300 ease-in-out will-change-transform ${
-          isNavbarVisible
+        className={`fixed top-0 left-0 right-0 z-40 border-b border-zinc-200 dark:border-zinc-800/80 bg-white/90 dark:bg-[#0d1017]/90 backdrop-blur-md pt-[env(safe-area-inset-top,0px)] transition-transform duration-300 ease-in-out will-change-transform ${isNavbarVisible
             ? 'translate-y-0 shadow-xs pointer-events-auto'
             : '-translate-y-full shadow-none pointer-events-none'
-        }`}
+          }`}
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-[3.75rem] py-2 sm:py-0 flex items-center justify-between gap-2 sm:gap-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 min-h-15 py-2 sm:py-0 flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand */}
           <Link
             to="/"
@@ -182,12 +181,12 @@ export function LandingPage() {
       </header>
 
       {/* Spacer to reserve layout height under fixed navbar */}
-      <div className="h-[3.75rem] pt-[env(safe-area-inset-top,0px)] shrink-0" aria-hidden="true" />
+      <div className="h-15 pt-[env(safe-area-inset-top,0px)] shrink-0" aria-hidden="true" />
 
       {/* HERO SECTION */}
       <section className="relative overflow-hidden py-12 sm:py-24 border-b border-zinc-200 dark:border-zinc-800/80">
         {/* Subtle background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-tr from-blue-500/10 via-purple-500/10 to-emerald-500/10 blur-3xl pointer-events-none -z-10 rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-75 bg-linear-to-tr from-blue-500/10 via-purple-500/10 to-emerald-500/10 blur-3xl pointer-events-none -z-10 rounded-full" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
           {/* Announcement pill */}
@@ -200,7 +199,7 @@ export function LandingPage() {
           {/* Main Title */}
           <h1 className="text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-950 dark:text-white max-w-4xl mx-auto leading-tight sm:leading-tight px-1">
             Satu Commit Git. <br />
-            <span className="bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-blue-600 via-indigo-500 to-emerald-500 bg-clip-text text-transparent">
               Tugas Selesai Otomatis. Tim Discord Terberitahu.
             </span>
           </h1>
@@ -445,7 +444,7 @@ export function LandingPage() {
                         loading="lazy"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-700 to-zinc-900 text-white font-mono font-bold text-3xl">
+                      <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-zinc-700 to-zinc-900 text-white font-mono font-bold text-3xl">
                         {member.name.slice(0, 2).toUpperCase()}
                       </div>
                     )}
